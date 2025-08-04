@@ -2,10 +2,14 @@ const express = require("express");
 const cors = require("cors"); // ✅ 1. Import CORS
 const dbconnect = require("../backend/config/database");
 require("dotenv").config();
+const MongoStore = require("connect-mongo");
+const session = require("express-session");
+
 
 const app = express();
 const PORT = process.env.PORT;
 
+<<<<<<< HEAD
 // ✅ 2. Use CORS middleware before your routes
 app.use(cors({
   origin: "http://localhost:5173", // React frontend origin
@@ -13,6 +17,22 @@ app.use(cors({
 }));
 
 // ✅ 3. Middleware to parse JSON requests
+=======
+// Session Setup
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+      mongoUrl: process.env.DATABASE_URL,
+      ttl: 7 * 24 * 60 * 60, // Session expiry time (7 day)
+  }),
+  cookie: {
+    maxAge: 7*24*60 * 60 * 1000 // 7 day
+  },
+}));
+// Middleware to parse JSON requests
+>>>>>>> for_session
 app.use(express.json());
 
 // ✅ 4. Routes
@@ -23,7 +43,18 @@ app.get("/", (req, res) => {
   res.send("Welcome to the API");
 });
 
+<<<<<<< HEAD
 app.use("/api/v1/auth", userRouter);
+=======
+if (!PORT || !process.env.DATABASE_URL || !process.env.JWT_SECRET) {
+    console.error("Missing environment variables!");
+    process.exit(1);
+}
+
+app.get("/check-session", (req, res) => {
+    res.send(req.session);
+});
+>>>>>>> for_session
 
 // ✅ 5. Start the server
 app.listen(PORT, () => {

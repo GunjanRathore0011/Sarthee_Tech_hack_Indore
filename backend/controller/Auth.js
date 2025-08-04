@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const OTP = require("../models/OTP");
 const otpGenerator = require('otp-generator');
+const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 exports.signUp = async (req, res) => {
@@ -218,6 +219,23 @@ exports.signin = async (req, res) => {
             });
         }
         //generate a session token
+        const Payload = {
+            userId: user[0]._id,
+            email: user[0].email,
+            accountType: user[0].accountType, // Include account type in the payload
+        };
+        //using jwt to create a token
+        let token = jwt.sign(Payload, process.env.JWT_SECRET, {
+                    expiresIn: "7d" // Token expires in 7 days
+                })
+        // Save the token in the user's session or database as needed
+        req.session.token = token; // Example of saving token in session
+        // user.token = token;  
+        // await user[0].save(); 
+
+        
+        // Here you can use a library like jsonwebtoken to create a token
+        // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
 
 
@@ -240,4 +258,44 @@ exports.signin = async (req, res) => {
 }
 
 
+exports.logout = async (req, res) => {
+    try {
+        // Destroy the session to log out the user
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({   
+                    message: "Failed to log out",
+                    success: false,
+                    error: err.message,
+                });
+            }
+            res.status(200).json({
+                message: "Logged out successfully",
+                success: true,
+            });
+        }   
+    );
+    }       
+    catch (error) {
+        console.error("Error in logout:", error.message);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message,
+        });
+    }
+}
 
+exports.islogin = async (req, res) => {
+    try {
+    }
+    catch (error) {
+        console.error("Error in islogin:", error.message);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message,
+        });
+    }
+
+}
