@@ -9,6 +9,7 @@ import TrackStatus from './pages/TrackStatus';
 import ComplaintForm from './pages/ComplaintForm';
 import Login from './component/Login';
 import SignUp from './component/SignUp';
+import CyberCrimeForm from './pages/form/CyberCrimeForm';
 
 const App = () => {
   return (
@@ -28,6 +29,9 @@ const App = () => {
         
         <Route path="/login" element={<Login></Login>} />
         <Route path="/signup" element={<SignUp></SignUp>} />
+
+        <Route path="/financial-fraud" element={<CyberCrimeForm />} />
+
       </Routes>
     </>
   )

@@ -1,7 +1,12 @@
 import ComplaintCategory from '@/component/complaintCategory';
 import React, { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+import CyberCrimeForm from './form/CyberCrimeForm';
 
 const ComplaintForm = () => {
+
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: '',
     dob: '',
@@ -34,6 +39,7 @@ const ComplaintForm = () => {
     });
     // Send or handle FormData here
     console.log('Complaint Form Submitted');
+      navigate("/financial-fraud");
   };
 
   return (
@@ -197,6 +203,8 @@ const ComplaintForm = () => {
         Submit Complaint
       </button>
     </form>
+
+    <CyberCrimeForm></CyberCrimeForm>
     </>
   );
 };
