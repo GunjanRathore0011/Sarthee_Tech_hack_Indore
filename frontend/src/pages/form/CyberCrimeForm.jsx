@@ -1,199 +1,302 @@
-import React, { useState } from "react";
+import React from 'react'
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
 
-const CyberCrimeForm = () => {
-  const [step, setStep] = useState(1);
+function CyberCrimeForm() {
+  const [delay, setDelay] = useState(false);
+
   const [formData, setFormData] = useState({
-    category: "Online Financial Fraud",
-    subCategory: "E-Wallet Related Fraud",
-    lostMoney: "No",
-    incidentDate: "",
-    incidentHour: "",
-    incidentMinute: "",
-    incidentPeriod: "AM",
-    delayInReporting: "No",
-    incidentLocation: "",
-    additionalInfo: "",
-    // Step 2 fields
-    bankName: "",
-    walletId: "",
-    transactionId: "",
-    amount: "",
-    transactionDate: "",
-    transactionHour: "",
-    transactionMinute: "",
-    transactionPeriod: "AM",
-    referenceNo: "",
-    suspectAccountDetails: "No",
+    category: '',
+    subCategory: '',
+    description: '',
+    lost_money: 0,
+    incident_datetime: '',
+    reson_of_delay: '',
+    delay_in_report: delay,
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const subCategorys = ["Banking Fraud", "UPI / Wallet Fraud", "Loan Fraud", "Investment Scam", "Online Shopping Fraud", "Insurance Fraud",
+    "Job/Work-from-Home Scam", "Lottery/Prize/KYC Scam", "ATM Skimming", "Online Loan App Harassment"];
 
-  const handleNext = () => {
-    // Check Step 1 required fields
-    const requiredFields = [
-      "category", "subCategory", "lostMoney",
-      "incidentDate", "incidentHour", "incidentMinute", "incidentPeriod",
-      "delayInReporting", "incidentLocation", "additionalInfo",
-    ];
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        alert("Please fill all required fields in Step 1.");
-        return;
-      }
-    }
-    setStep(2);
-  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Check Step 2 required fields
-    const requiredFields = [
-      "bankName", "walletId", "transactionId", "amount", "transactionDate",
-      "transactionHour", "transactionMinute", "transactionPeriod"
-    ];
-    for (let field of requiredFields) {
-      if (!formData[field]) {
-        alert("Please fill all required fields in Step 2.");
-        return;
-      }
-    }
+  const [accData, setAccData] = useState({
+    accountNumber: '',
+    lost_money: '',
+    bankName: '',
+    ifscCode: '',
+    transactionId: '',
+    transactionDate: '',
+  })
 
-    const submission = new FormData();
-    for (const key in formData) {
-      submission.append(key, formData[key]);
-    }
 
-    // Send to backend
-    fetch("/api/submit-complaint", {
-      method: "POST",
-      body: submission,
-    })
-      .then((res) => res.json())
-      .then((data) => alert("Complaint submitted successfully!"))
-      .catch((err) => alert("Error submitting complaint"));
-  };
+  const [lostMoney, setLostMoney] = useState(false);
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto p-6 bg-white shadow rounded-lg">
-      {step === 1 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4">Complaint / Incident Details</h2>
+    <div>
+      <form className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+        <h2 className="text-2xl font-bold mb-6 text-center">Cyber Crime Complaint Form</h2>
+        {/* Category */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Category</label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            className="w-full border p-2 rounded"
+            required
+          >
+            <option value="">Select Category</option>
+            <option value="Financial Fraud">Financial Fraud</option>
+            <option value="Harassment or Abuse">Harassment or Abuse</option>
+            <option value="Other Cyber Crimes">Other Cyber Crimes</option>
+          </select>
+        </div>
 
-          <div>
-            <label>Category of complaint *</label>
-            <input type="text" className="input" name="category" value={formData.category} readOnly />
-          </div>
+        {/* SubCategory */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">subCategory</label>
+          <select
+            name="district"
+            value={formData.subCategory}
+            onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+            className="w-full border p-2 rounded"
+            required
+          >
+            <option value="">Select subCategory</option>
+            {subCategorys.map((dist, index) => (
+              <option key={index} value={dist}>
+                {dist}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <label>Sub-Category of complaint *</label>
-            <input type="text" className="input" name="subCategory" value={formData.subCategory} readOnly />
-          </div>
 
-          <div>
-            <label>Have you lost money? *</label>
-            <div className="flex gap-4">
-              <label><input type="radio" name="lostMoney" value="Yes" onChange={handleChange} /> Yes</label>
-              <label><input type="radio" name="lostMoney" value="No" onChange={handleChange} defaultChecked /> No</label>
+
+        {/* Date of Incident */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">incident_datetime of Incident</label>
+          <input
+            type="date"
+            name="incident_datetime"
+            value={formData.incident_datetime}
+            onChange={(e) => setFormData({ ...formData, incident_datetime: e.target.value })}
+            className="w-full border p-2 rounded"
+            required
+          />
+        </div>
+
+        {/* {lost money or not} */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">Have you lost money?</label>
+
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="lostMoney"
+                value="yes"
+                checked={lostMoney === true}
+                onChange={() => setLostMoney(true)}
+                className="mr-2"
+              />
+              <span className="text-gray-700">Yes</span>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="lostMoney"
+                value="no"
+                checked={lostMoney === false}
+                onChange={() => setLostMoney(false)}
+                className="mr-2"
+              />
+              <span className="text-gray-700">No</span>
             </div>
           </div>
+        </div>
 
-          <div>
-            <label>Approximate date & time of incident *</label>
-            <div className="flex gap-2">
-              <input type="date" name="incidentDate" onChange={handleChange} className="input" />
-              <input type="number" placeholder="HH" name="incidentHour" onChange={handleChange} className="input w-20" />
-              <input type="number" placeholder="MM" name="incidentMinute" onChange={handleChange} className="input w-20" />
-              <select name="incidentPeriod" onChange={handleChange} className="input">
-                <option>AM</option>
-                <option>PM</option>
-              </select>
+        {/* If lost money, show these fields */}
+        {lostMoney === true && (
+          <>
+            {/* lost_money Lost */}
+            <div className="mb-4">
+              <label className="block mb-1 font-medium">
+                lost_money Lost <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="lost_money"
+                value={formData.lost_money}
+                onChange={(e) => setFormData({ ...formData, lost_money: e.target.value })}
+                placeholder="Enter lost_money lost"
+                className="w-full border p-2 rounded"
+                required
+              />
+            </div>
+
+            {/* Grid of 2 inputs per row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Account Number */}
+              <div>
+                <label className="block mb-1 font-medium">
+                  Account No. <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="accountNumber"
+                  value={accData.accountNumber}
+                  onChange={(e) => setAccData({ ...accData, accountNumber: e.target.value })}
+                  placeholder="Account Number"
+                  className="w-full border p-2 rounded"
+                  required
+                />
+              </div>
+
+              {/* Bank Name */}
+              <div>
+                <label className="block mb-1 font-medium">
+                  Bank Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="bankName"
+                  value={accData.bankName}
+                  onChange={(e) => setAccData({ ...accData, bankName: e.target.value })}
+                  placeholder="Bank Name"
+                  className="w-full border p-2 rounded"
+                  required
+                />
+              </div>
+
+              {/* IFSC Code */}
+              <div>
+                <label className="block mb-1 font-medium">
+                  IFSC Code <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="ifscCode"
+                  value={accData.ifscCode}
+                  onChange={(e) => setAccData({ ...accData, ifscCode: e.target.value })}
+                  placeholder="IFSC Code"
+                  className="w-full border p-2 rounded"
+                  required
+                />
+              </div>
+
+              {/* Transaction ID */}
+              <div>
+                <label className="block mb-1 font-medium">
+                  Transaction ID <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="transactionId"
+                  value={accData.transactionId}
+                  onChange={(e) => setAccData({ ...accData, transactionId: e.target.value })}
+                  placeholder="Transaction ID"
+                  className="w-full border p-2 rounded"
+                  required
+                />
+              </div>
+
+              {/* Transaction Date */}
+              <div>
+                <label className="block mb-1 font-medium">
+                  Transaction Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="transactionDate"
+                  value={accData.transactionDate}
+                  onChange={(e) => setAccData({ ...accData, transactionDate: e.target.value })}
+                  className="w-full border p-2 rounded"
+                  required
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Delay in Reporting */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">is there any delay in reporting?</label>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="Delay"
+                value="yes"
+                checked={delay === true}
+                onChange={() => setDelay(true)}
+                className="mr-2"
+              />
+              <span className="text-gray-700">Yes</span>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="noDelay"
+                value="no"
+                checked={delay === false}
+                onChange={() => setDelay(false)}
+                className="mr-2"
+              />
+              <span className="text-gray-700">No</span>
             </div>
           </div>
+        </div>
 
-          <div>
-            <label>Is there any delay in reporting? *</label>
-            <div className="flex gap-4">
-              <label><input type="radio" name="delayInReporting" value="Yes" onChange={handleChange} /> Yes</label>
-              <label><input type="radio" name="delayInReporting" value="No" onChange={handleChange} defaultChecked /> No</label>
-            </div>
-          </div>
+        {/* {reson of delay} */}
+        {delay === true && (
+          <div className="mb-4">
+            <label className="block mb-1 font-medium">Reason for Delay</label>
+            <input
+              type="text"
+              name="reson_of_delay"
+              value={formData.reson_of_delay}
+              onChange={(e) => setFormData({ ...formData, reson_of_delay: e.target.value })}
+              placeholder="Enter reason for delay"
+              className="w-full border p-2 rounded"
+              required
+            />
+          </div>)}
 
-          <div>
-            <label>Where did the incident occur? *</label>
-            <input type="text" name="incidentLocation" className="input" onChange={handleChange} />
-          </div>
+        {/* Description */}
+        <div className="mb-4">
+          <label className="block mb-1 font-medium">
+            Description <span className="text-red-500">*</span>
+          </label>
 
-          <div>
-            <label>Additional information about the incident * (min 200 chars)</label>
-            <textarea name="additionalInfo" rows={4} maxLength={1500} minLength={200} className="input" onChange={handleChange} required />
-          </div>
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            className="w-full border p-2 rounded"
+            rows="4"
+            placeholder="Provide a detailed description of the incident (min 200 characters)"
+            required
+          ></textarea>
 
-          <button type="button" onClick={handleNext} className="btn-blue mt-4">Save as Draft & Next</button>
-        </>
-      )}
+          {/* Character Validation Message */}
+          <p className={`text-sm mt-1 ${formData.description.length < 200 ? 'text-amber-800' : 'text-green-600'}`}>
+            {formData.description.length < 200
+              ? `⚠️ At least 200 characters required. Current: ${formData.description.length}`
+              : '✅ Character requirement met.'}
+          </p>
+        </div>
 
-      {step === 2 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4">Victim Account Details</h2>
+        {/* Submit Button */}
+        <Button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700">
+          Submit Complaint
+        </Button>
 
-          <div>
-            <label>Bank/Wallet/UPI/Merchant *</label>
-            <input type="text" name="bankName" className="input" onChange={handleChange} />
-          </div>
+      </form>
+    </div>
+  )
+}
 
-          <div>
-            <label>Account No / Wallet ID / UPI ID *</label>
-            <input type="text" name="walletId" className="input" onChange={handleChange} />
-          </div>
-
-          <div>
-            <label>Transaction ID / UTR Number *</label>
-            <input type="text" name="transactionId" className="input" onChange={handleChange} />
-          </div>
-
-          <div>
-            <label>Amount *</label>
-            <input type="number" name="amount" className="input" onChange={handleChange} />
-          </div>
-
-          <div>
-            <label>Transaction Date *</label>
-            <input type="date" name="transactionDate" className="input" onChange={handleChange} />
-          </div>
-
-          <div>
-            <label>Approximate Time *</label>
-            <div className="flex gap-2">
-              <input type="number" placeholder="HH" name="transactionHour" className="input w-20" onChange={handleChange} />
-              <input type="number" placeholder="MM" name="transactionMinute" className="input w-20" onChange={handleChange} />
-              <select name="transactionPeriod" onChange={handleChange} className="input">
-                <option>AM</option>
-                <option>PM</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label>Reference No</label>
-            <input type="text" name="referenceNo" className="input" onChange={handleChange} />
-          </div>
-
-          <div>
-            <label>Do you have suspect account details? *</label>
-            <div className="flex gap-4">
-              <label><input type="radio" name="suspectAccountDetails" value="Yes" onChange={handleChange} /> Yes</label>
-              <label><input type="radio" name="suspectAccountDetails" value="No" onChange={handleChange} defaultChecked /> No</label>
-            </div>
-          </div>
-
-          <button type="submit" className="btn-green mt-4">Submit Complaint</button>
-        </>
-      )}
-    </form>
-  );
-};
-
-export default CyberCrimeForm;
+export default CyberCrimeForm

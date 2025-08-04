@@ -1,5 +1,6 @@
 import ComplaintCategory from '@/component/complaintCategory';
 import React, { useState } from 'react';
+import CyberCrimeForm from './form/CyberCrimeForm';
 
 const ComplaintForm = () => {
   const [formData, setFormData] = useState({
@@ -63,6 +64,7 @@ const ComplaintForm = () => {
     <>
 
       <ComplaintCategory></ComplaintCategory>
+      <CyberCrimeForm/>
 
       <form onSubmit={handleSubmit} className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
         <h2 className="text-2xl font-bold mb-6 text-center">Additional Details</h2>
