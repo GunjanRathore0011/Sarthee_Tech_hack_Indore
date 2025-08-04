@@ -1,11 +1,14 @@
 // src/components/Navbar.jsx
 import { Link } from "react-router-dom";
+import logoImage from '../assets/images/logo.png';
 
 const Navbar = () => {
   return (
     <nav className="bg-white text-black py-4 px-8 shadow-md flex justify-around items-center border-b border-gray-200">
       <div className="text-2xl font-extrabold tracking-wide">
-        <Link to="/">Cyber Sentinel</Link>
+        <Link to="/">
+        <img src={logoImage} alt="Logo" className="h-10 w-auto mx-auto"></img>
+        </Link>
       </div>
 
       <div className="space-x-6 font-medium">

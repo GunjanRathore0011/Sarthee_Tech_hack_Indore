@@ -6,6 +6,7 @@ require('dotenv').config();
 exports.signUp = async (req, res) => {
     try {
         const { userName, email, number, otp } = req.body;
+        console.log("Received data:", req.body);
         if (!userName || !email || !number || !otp || !otp) {
             return res.status(400).json({
                 message: "All fields are required",
@@ -19,7 +20,7 @@ exports.signUp = async (req, res) => {
                 message: "User already exists",
                 success: false,
             });
-        } ss
+        } 
         // Validate OTP
         const otpRecord = await OTP.findOne({ email });
 
@@ -144,6 +145,7 @@ exports.sendOTPforSignIn = async (req, res) => {
         console.log("your email is ", email);
         //check user exist or not
         const checkUserPresent = await User.find({ email });
+        console.log("check user present", checkUserPresent);
         if (checkUserPresent.length === 0) {
             return res.status(400).json({
                 message: "User does not exist",
