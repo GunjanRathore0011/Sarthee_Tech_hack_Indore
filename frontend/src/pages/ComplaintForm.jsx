@@ -1,9 +1,10 @@
+import ComplaintCategory from '@/component/complaintCategory'
 import React from 'react'
 
 const ComplaintForm = () => {
   return (
     <div>
-      complaint form
+      <ComplaintCategory></ComplaintCategory>
     </div>
   )
 }

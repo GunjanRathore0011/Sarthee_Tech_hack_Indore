@@ -40,7 +40,7 @@ const SignUp = () => {
             setOtpSent(true);
         } catch (error) {
             console.error('Error sending OTP:', error);
-            alert('Failed to send OTP. Please try again.');
+            alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
         }
     };
 

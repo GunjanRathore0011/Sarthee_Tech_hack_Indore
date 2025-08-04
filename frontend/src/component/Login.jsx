@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.png';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -27,16 +28,18 @@ const Login = () => {
         }
 
         try {
+            console.log('Sending OTP to:', formData.email);
+
             const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
                 email: formData.email,
             });
-
+            console.log('OTP sent response:', response);
             console.log('OTP sent response:', response.data);
             alert('OTP sent successfully!');
             setOtpSent(true);
         } catch (error) {
             console.error('Error sending OTP:', error);
-            alert('Failed to send OTP. Please try again.');
+            alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
         }
     };
 
