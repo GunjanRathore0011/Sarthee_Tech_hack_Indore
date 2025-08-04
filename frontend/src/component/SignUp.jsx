@@ -44,7 +44,12 @@ const SignUp = () => {
         }
     };
 
-    const handleRegister = async () => {
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        if(!otpSent){
+            alert('Please send OTP first');
+            return;
+        }
         const payload = {
             userName: formData.fullName,
             email: formData.email,
@@ -72,6 +77,7 @@ const SignUp = () => {
                 </div>
 
                 {/* Full Name */}
+                <form onSubmit={handleRegister}>
                 <div className="text-left mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                     <input
@@ -81,6 +87,7 @@ const SignUp = () => {
                         className="w-full p-2 border rounded focus:outline-none"
                         value={formData.fullName}
                         onChange={handleChange}
+                        required
                     />
                 </div>
 
@@ -96,6 +103,7 @@ const SignUp = () => {
                             className="w-full p-2 focus:outline-none"
                             value={formData.email}
                             onChange={handleChange}
+                            required
                         />
                     </div>
                 </div>
@@ -108,13 +116,22 @@ const SignUp = () => {
                         <input
                             type="text"
                             name="mobile"
-                            placeholder="+91"
+                            placeholder="Enter 10-digit number"
                             className="w-full p-2 focus:outline-none"
                             value={formData.mobile}
-                            onChange={handleChange}
+                            maxLength={10}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                // Allow only digits and max 10 characters
+                                if (/^\d{0,10}$/.test(value)) {
+                                    handleChange(e);
+                                }
+                            }}
+                            required
                         />
                     </div>
                 </div>
+
 
                 {/* OTP and Send OTP */}
                 <div className="text-left mb-4">
@@ -128,6 +145,8 @@ const SignUp = () => {
                             value={formData.otp}
                             onChange={handleChange}
                             disabled={!otpSent}
+                            required
+                            maxLength={6}
                         />
                         <button
                             onClick={handleSendOtp}
@@ -140,11 +159,12 @@ const SignUp = () => {
 
                 {/* Register Button */}
                 <button
-                    onClick={handleRegister}
+                    type='submit'
                     className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
                 >
                     Register Now
                 </button>
+                </form>
 
                 {/* Footer */}
                 <p className="text-sm mt-4">

@@ -20,54 +20,54 @@ const Login = () => {
     }));
   };
 
-    // Inside component:
-    const handleSendOtp = async () => {
-        if (!formData.email) {
-            alert('Please enter your email address.');
-            return;
-        }
+  // Inside component:
+  const handleSendOtp = async () => {
+    if (!formData.email) {
+      alert('Please enter your email address.');
+      return;
+    }
 
-        try {
-            console.log('Sending OTP to:', formData.email);
+    try {
+      console.log('Sending OTP to:', formData.email);
 
-            const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
-                email: formData.email,
-            });
-            console.log('OTP sent response:', response);
-            console.log('OTP sent response:', response.data);
-            alert('OTP sent successfully!');
-            setOtpSent(true);
-        } catch (error) {
-            console.error('Error sending OTP:', error);
-            alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
-        }
-    };
+      const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
+        email: formData.email,
+      });
+      console.log('OTP sent response:', response);
+      console.log('OTP sent response:', response.data);
+      alert('OTP sent successfully!');
+      setOtpSent(true);
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+    }
+  };
 
-const handleLogin = async () => {
-  const { email, otp } = formData;
+  const handleLogin = async () => {
+    const { email, otp } = formData;
 
-  if (!email || !otp) {
-    alert('Please enter both Email and OTP.');
-    return;
-  }
+    if (!email || !otp) {
+      alert('Please enter both Email and OTP.');
+      return;
+    }
 
-  try {
-    const response = await axios.post('http://localhost:4000/api/v1/auth/signin', {
-      email,
-      otp: Number(otp),
-    });
+    try {
+      const response = await axios.post('http://localhost:4000/api/v1/auth/signin', {
+        email,
+        otp: Number(otp),
+      });
 
-    console.log('Login successful:', response.data);
-    alert('Login successful!');
-    // TODO: Store token / redirect user
-    // Example:
-    // localStorage.setItem('token', response.data.token);
-    // navigate('/dashboard');
-  } catch (error) {
-    console.error('Login failed:', error);
-    alert('Invalid OTP or email. Please try again.');
-  }
-};
+      console.log('Login successful:', response.data);
+      alert('Login successful!');
+      // TODO: Store token / redirect user
+      // Example:
+      // localStorage.setItem('token', response.data.token);
+      // navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Invalid OTP or email. Please try again.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
@@ -78,8 +78,10 @@ const handleLogin = async () => {
           <h2 className="text-xl font-semibold">Welcome Back to Cyber Sentinel</h2>
           <p className="text-sm text-gray-500">Secure login with your registered email</p>
         </div>
-
+    
+   <form onSubmit={handleLogin} className="space-y-4">
         {/* Email Input */}
+        
         <div className="text-left mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
           <div className="flex items-center border rounded px-2">
@@ -91,6 +93,7 @@ const handleLogin = async () => {
               className="w-full p-2 focus:outline-none"
               value={formData.email}
               onChange={handleChange}
+              required
             />
           </div>
         </div>
@@ -107,10 +110,19 @@ const handleLogin = async () => {
                 placeholder="******"
                 className="w-full p-2 focus:outline-none"
                 value={formData.otp}
-                onChange={handleChange}
+                maxLength={6}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Allow only digits and max 6 characters
+                  if (/^\d{0,6}$/.test(value)) {
+                    handleChange(e);
+                  }
+                }}
                 disabled={!otpSent}
+                required
               />
             </div>
+
             <button
               onClick={handleSendOtp}
               className="text-blue-600 cursor-pointer border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition"
@@ -122,11 +134,12 @@ const handleLogin = async () => {
 
         {/* Login Button */}
         <button
-          onClick={handleLogin}
+          type='submit'
           className="bg-blue-600 cursor-pointer text-white w-full py-2 rounded hover:bg-blue-700 transition"
         >
           Login Securely
         </button>
+        </form>
 
         {/* Footer */}
         <p className="text-sm mt-4">
