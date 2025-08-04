@@ -113,7 +113,7 @@ const handleLogin = async () => {
             </div>
             <button
               onClick={handleSendOtp}
-              className="text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition"
+              className="text-blue-600 cursor-pointer border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition"
             >
               Send OTP
             </button>
@@ -123,7 +123,7 @@ const handleLogin = async () => {
         {/* Login Button */}
         <button
           onClick={handleLogin}
-          className="bg-blue-600 text-white w-full py-2 rounded hover:bg-blue-700 transition"
+          className="bg-blue-600 cursor-pointer text-white w-full py-2 rounded hover:bg-blue-700 transition"
         >
           Login Securely
         </button>
