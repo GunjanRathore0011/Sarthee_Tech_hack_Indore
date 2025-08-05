@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { FiMail, FiPhone } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '@/user/userSlice';
 
 const SignUp = () => {
     const [formData, setFormData] = useState({
@@ -14,6 +16,8 @@ const SignUp = () => {
     });
 
     const [otpSent, setOtpSent] = useState(false);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -56,11 +60,18 @@ const SignUp = () => {
             const res = await axios.post('http://localhost:4000/api/v1/auth/signup', payload);
             console.log('Response:', res.data);
             alert('Registered successfully!');
+
+            // ✅ Dispatch user info into Redux
+            dispatch(loginSuccess({ user: res.data.user })); // depends on your backend response format
+
+            // ✅ Navigate to home/dashboard after login
+            navigate('/');
         } catch (err) {
             console.error('Registration error:', err);
-            alert('Something went wrong during registration.');
+            alert(err.response?.data?.message || 'Something went wrong during registration.');
         }
     };
+
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
             <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md text-center">
