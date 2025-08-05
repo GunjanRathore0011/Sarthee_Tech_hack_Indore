@@ -9,7 +9,7 @@ require('dotenv').config();
 exports.additionalDetails = async (req, res) => {
     try {
         const { fullName, dob, gender, house, street, colony, state, district, policeStation, pincode } = req.body;
-
+        
         if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
             return res.status(400).json({
                 message: "all information are required",

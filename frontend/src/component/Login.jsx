@@ -56,6 +56,8 @@ const Login = () => {
 
       console.log('Login successful:', response.data);
       alert('Login successful!');
+      dispatch(loginSuccess({ user: response.data.user }));
+      navigate('/'); // Redirect to home or dashboard after successful login
       // TODO: Store token / redirect user
       // Example:
       // localStorage.setItem('token', response.data.token);
@@ -75,66 +77,72 @@ const Login = () => {
           <p className="text-sm text-gray-500">Secure login with your registered email</p>
         </div>
     
-   <form onSubmit={handleLogin} className="space-y-4">
-        {/* Email Input */}
-        
-        <div className="text-left mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-          <div className="flex items-center border rounded px-2">
-            <FiMail className="text-gray-400" />
-            <input
-              type="email"
-              name="email"
-              placeholder="you@example.com"
-              className="w-full p-2 focus:outline-none"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
-
-        {/* OTP Input + Send OTP Button */}
-        <div className="text-left mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
-          <div className="flex gap-2 items-center">
-            <div className="flex items-center border rounded px-2 flex-grow">
-              <FiLock className="text-gray-400" />
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
+          {/* Email Input */}
+          <div className="text-left mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <div className="flex items-center border rounded px-2">
+              <FiMail className="text-gray-400" />
               <input
-                type="text"
-                name="otp"
-                placeholder="******"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
                 className="w-full p-2 focus:outline-none"
-                value={formData.otp}
-                maxLength={6}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  // Allow only digits and max 6 characters
-                  if (/^\d{0,6}$/.test(value)) {
-                    handleChange(e);
-                  }
-                }}
-                disabled={!otpSent}
+                value={formData.email}
+                onChange={handleChange}
                 required
               />
             </div>
-
-            <button
-              onClick={handleSendOtp}
-              className="text-blue-600 cursor-pointer border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition"
-            >
-              Send OTP
-            </button>
           </div>
-        </div>
 
-        {/* Login Button */}
-        <button
-          type='submit'
-          className="bg-blue-600 cursor-pointer text-white w-full py-2 rounded hover:bg-blue-700 transition"
-        >
-          Login Securely
-        </button>
+          {/* OTP Input + Send OTP Button */}
+          <div className="text-left mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
+            <div className="flex gap-2 items-center">
+              <div className="flex items-center border rounded px-2 flex-grow">
+                <FiLock className="text-gray-400" />
+                <input
+                  type="text"
+                  name="otp"
+                  placeholder="******"
+                  className="w-full p-2 focus:outline-none"
+                  value={formData.otp}
+                  maxLength={6}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Allow only digits and max 6 characters
+                    if (/^\d{0,6}$/.test(value)) {
+                      handleChange(e);
+                    }
+                  }}
+                  disabled={!otpSent}
+                  required
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                className="text-blue-600 cursor-pointer border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition"
+              >
+                Send OTP
+              </button>
+            </div>
+          </div>
+
+          {/* Login Button */}
+          <button
+            type='submit'
+            className="bg-blue-600 cursor-pointer text-white w-full py-2 rounded hover:bg-blue-700 transition"
+          >
+            Login Securely
+          </button>
         </form>
 
         {/* Footer */}

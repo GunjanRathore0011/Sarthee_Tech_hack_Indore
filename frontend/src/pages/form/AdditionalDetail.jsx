@@ -28,7 +28,8 @@ const AdditionalDetail = ({ onNext }) => {
 
   const apiCall = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/v1/additionalDetails', {
+      // additionalDetails
+      const response = await fetch('http://localhost:4000/api/v1/auth/additionalDetails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,6 +43,9 @@ const AdditionalDetail = ({ onNext }) => {
       } else {
         alert('Failed to register AdditionalDetails: ' + data.message);
       }
+      console.log('Submitting to API with data:', formData);  
+      alert('AdditionalDetails registered successfully!');
+      onNext(); // ✅ Proceed to next step
     } catch (error) {
       console.error('Error:', error);
       alert('An error occurred while registering the complaint.');
@@ -219,6 +223,7 @@ const AdditionalDetail = ({ onNext }) => {
 
       <button
         type="submit"
+        
         className="w-full bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700"
       >
         Save & Next

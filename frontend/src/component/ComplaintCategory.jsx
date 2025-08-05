@@ -56,7 +56,7 @@ const ComplaintCategory = () => {
             <p className="text-gray-600 mb-6">
               Address cyberstalking, online abuse, revenge porn, and other digital harassment incidents.
             </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium">
+            <button onClick={handleClick} className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium">
               Register a Complaint
             </button>
           </div>
@@ -74,7 +74,7 @@ const ComplaintCategory = () => {
             <p className="text-gray-600 mb-6">
               For phishing, hacking, data theft, intellectual property theft, and other digital offenses.
             </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium">
+            <button onClick={handleClick} className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium">
               Register a Complaint
             </button>
           </div>
