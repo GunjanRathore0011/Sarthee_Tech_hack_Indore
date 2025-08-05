@@ -17,10 +17,7 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-<<<<<<< HEAD
   // Inside component:
-=======
->>>>>>> mybranch
   const handleSendOtp = async () => {
     if (!formData.email) {
       alert('Please enter your email address.');
@@ -28,7 +25,6 @@ const Login = () => {
     }
 
     try {
-<<<<<<< HEAD
       console.log('Sending OTP to:', formData.email);
 
       const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
@@ -37,14 +33,6 @@ const Login = () => {
       console.log('OTP sent response:', response);
       console.log('OTP sent response:', response.data);
       alert('OTP sent successfully!');
-=======
-      const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
-        email: formData.email,
-      });
-      alert('OTP sent successfully!');
-      console.log('Response:', response.data);
-
->>>>>>> mybranch
       setOtpSent(true);
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -66,7 +54,6 @@ const Login = () => {
         otp: Number(otp),
       });
 
-<<<<<<< HEAD
       console.log('Login successful:', response.data);
       alert('Login successful!');
       // TODO: Store token / redirect user
@@ -76,18 +63,6 @@ const Login = () => {
     } catch (error) {
       console.error('Login failed:', error);
       alert('Invalid OTP or email. Please try again.');
-=======
-      const { token, user } = response.data;
-
-      // ✅ Save to Redux
-      dispatch(loginSuccess({ token, user }));
-
-      alert('Login successful!');
-      navigate('/'); // 🔁 Redirect as needed
-    } catch (error) {
-      console.error('Login failed:', error);
-      alert(error.response?.data?.message || 'Invalid OTP or email. Please try again.');
->>>>>>> mybranch
     }
   };
 
