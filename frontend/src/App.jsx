@@ -10,6 +10,7 @@ import ComplaintForm from './pages/ComplaintForm';
 import Login from './component/Login';
 import SignUp from './component/SignUp';
 import CyberCrimeForm from './pages/form/CyberCrimeForm';
+import MultiStepForm from './pages/form/MultiStepForm';
 
 const App = () => {
   return (
@@ -31,6 +32,8 @@ const App = () => {
         <Route path="/signup" element={<SignUp></SignUp>} />
 
         <Route path="/financial-fraud" element={<CyberCrimeForm />} />
+
+        <Route path="/step-form" element={<MultiStepForm />} />
 
       </Routes>
     </>

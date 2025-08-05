@@ -5,15 +5,20 @@ import { FaBan } from "react-icons/fa";
 import 'aos/dist/aos.css';
 import AOS from 'aos';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ComplaintCategory = () => {
+  const navigate = useNavigate();
   useEffect(() => {
     AOS.init({
       duration: 800,
       once: true,
     });
   }, []);
-
+  const handleClick = () => {
+    
+  navigate('/step-form'); // Navigate to the multi-step form
+  }
   return (
     <section className="bg-white py-16 px-4 mt-10 mb-10">
       <div className="max-w-7xl mx-auto">
@@ -31,7 +36,9 @@ const ComplaintCategory = () => {
             <p className="text-gray-600 mb-6">
               Report online scams, banking fraud, investment fraud, and other financial cybercrimes swiftly.
             </p>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium">
+            <button 
+              onClick={handleClick}
+              className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium">
               Register a Complaint
             </button>
           </div>
