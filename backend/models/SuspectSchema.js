@@ -22,6 +22,9 @@ const SuspectSchema = new mongoose.Schema({
     required: true,
     trim: true
   },  
+  suspectedImages: [{
+    type: String,
+  }],
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
 });
