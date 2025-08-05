@@ -3,6 +3,7 @@ const  AdditionDetails  = require("../models/AdditionDetails");
 const SuspectSchema = require("../models/SuspectSchema");
 const VictimDetails = require("../models/Victim");
 const Complaint = require("../models/Complaint");
+const UploadToCloudinary = require("../utils/UploadToCloudinary");
 require('dotenv').config();
 
 exports.additionalDetails = async (req, res) => {
@@ -59,7 +60,20 @@ exports.additionalDetails = async (req, res) => {
 exports.complaintInformation = async (req, res) => {
     try {
         const { category,subCategory,lost_money,delay_in_report,reason_of_delay, description,incident_datetime } = req.body;  
+        //fetch files 
+        const files = req.files; // Assuming files are sent in the request
+         const imageUrls = [];
+        if(files && files.files) {
+            const filesArray = Array.isArray(req.files.files)
+            ? req.files.files
+            : [req.files.files]; // ✅ Ensure it's an array   
 
+    for (let file of filesArray) {
+      const imageUrl = await UploadToCloudinary(file.tempFilePath, "evidence");
+      imageUrls.push(imageUrl.secure_url);
+    }
+
+        }
         if (!category || !subCategory || lost_money === undefined || !description || !incident_datetime) {
             return res.status(400).json({
                 message: "All fields are required",
@@ -94,6 +108,7 @@ exports.complaintInformation = async (req, res) => {
             delay_in_report,
            reason_of_delay,
             description,
+            screenShots: imageUrls, // Store the uploaded image URLs
             incident_datetime,
         });
         res.status(201).json({
