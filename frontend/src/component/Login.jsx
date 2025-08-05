@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '@/user/userSlice';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    otp: ''
-  });
-
+  const [formData, setFormData] = useState({ email: '', otp: '' });
   const [otpSent, setOtpSent] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Inside component:
@@ -72,7 +69,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md text-center">
-        {/* Logo & Header */}
         <div className="mb-6">
           <img src={logoImage} alt="Cyber Sentinel Logo" className="h-12 w-auto mx-auto mb-2" />
           <h2 className="text-xl font-semibold">Welcome Back to Cyber Sentinel</h2>
@@ -98,7 +94,7 @@ const Login = () => {
           </div>
         </div>
 
-        {/* OTP + Send OTP */}
+        {/* OTP Input + Send OTP Button */}
         <div className="text-left mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
           <div className="flex gap-2 items-center">
