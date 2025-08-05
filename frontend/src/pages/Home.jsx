@@ -7,6 +7,7 @@ import HomeAwareness from "@/component/HomeAwareness";
 import TestimonialSlider from "@/component/TestimonialSlider";
 import FaqSection from "@/component/FaqSection";
 import HelpBanner from "@/component/HelpBanner";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   useEffect(() => {
@@ -15,6 +16,11 @@ const Home = () => {
       once: true,
     });
   }, []);
+  const navigate = useNavigate();
+
+   const handleNavigate = () => {
+    navigate('/complaints'); // adjust route name if different
+  };
 
   return (
     <>
@@ -44,7 +50,8 @@ const Home = () => {
             protecting against cybercrime. Report incidents, stay informed, and
             safeguard your digital world.
           </p>
-          <button className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-6 py-3 rounded-full text-lg font-semibold">
+          <button  onClick={handleNavigate}
+          className="bg-blue-600 cursor-pointer hover:bg-blue-700 text-white px-6 py-3 rounded-full text-lg font-semibold">
             Report Now
           </button>
         </div>

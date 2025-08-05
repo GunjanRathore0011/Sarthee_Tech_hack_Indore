@@ -87,13 +87,13 @@ exports.complaintInformation = async (req, res) => {
             });
         }
 
-        const complainId = await Complaint.findOne({ userId: user._id });
-        if (!complainId) {
-            return res.status(404).json({
-                message: "Complaint not found",
-                success: false,
-            });
-        }
+        // const complainId = await Complaint.findOne({ userId: user._id });
+        // if (!complainId) {
+        //     return res.status(404).json({
+        //         message: "Complaint not found",
+        //         success: false,
+        //     });
+        // }
 
         // ✅ Upload files to Cloudinary if they exist
         const imageUrls = [];
@@ -108,11 +108,11 @@ exports.complaintInformation = async (req, res) => {
     }
 }
 
+console.log("Uploaded image URLs:", imageUrls);
 
         // ✅ Create complaint information record
         const complaintInfo = await Complaint.create({
             userId: user._id,
-            complainId: complainId._id,
             category,
             subCategory,
             lost_money,
@@ -122,6 +122,7 @@ exports.complaintInformation = async (req, res) => {
             screenShots: imageUrls, // array can be empty if no files uploaded
             incident_datetime,
         });
+        console.log("Complaint information created:", complaintInfo);
 
         return res.status(201).json({
             message: "Complaint information added successfully",

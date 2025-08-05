@@ -5,7 +5,7 @@ const victimDetailsSchema = new mongoose.Schema({
     complainId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Complaint', // reference to Complaint schema
-    required: true,
+    // required: true,
     },
 
   bankName: {

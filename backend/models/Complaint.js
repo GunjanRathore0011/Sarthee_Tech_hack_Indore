@@ -29,7 +29,7 @@ const complaintSchema = new mongoose.Schema({
   },
   reason_of_delay: {
     type: String,
-    required: true // number of days delay in reporting the incident    
+    // required: true // number of days delay in reporting the incident    
     },
 
      

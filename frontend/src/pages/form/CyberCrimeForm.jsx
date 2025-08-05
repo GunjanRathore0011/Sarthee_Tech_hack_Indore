@@ -1,23 +1,21 @@
-import React from 'react'
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import axios from 'axios';
 
 function CyberCrimeForm() {
   const [delay, setDelay] = useState(false);
+  const [lostMoney, setLostMoney] = useState(false);
 
   const [formData, setFormData] = useState({
-    category: '',
+    category: 'Financial Fraud',
     subCategory: '',
     description: '',
     lost_money: 0,
     incident_datetime: '',
     reson_of_delay: '',
-    delay_in_report: delay,
+    delay_in_report: false,
+    files: []
   });
-
-  const subCategorys = ["Banking Fraud", "UPI / Wallet Fraud", "Loan Fraud", "Investment Scam", "Online Shopping Fraud", "Insurance Fraud",
-    "Job/Work-from-Home Scam", "Lottery/Prize/KYC Scam", "ATM Skimming", "Online Loan App Harassment"];
-
 
   const [accData, setAccData] = useState({
     accountNumber: '',
@@ -26,193 +24,152 @@ function CyberCrimeForm() {
     ifscCode: '',
     transactionId: '',
     transactionDate: '',
-  })
+  });
 
+  const subCategorys = [
+    "Banking Fraud", "UPI / Wallet Fraud", "Loan Fraud", "Investment Scam",
+    "Online Shopping Fraud", "Insurance Fraud", "Job/Work-from-Home Scam",
+    "Lottery/Prize/KYC Scam", "ATM Skimming", "Online Loan App Harassment"
+  ];
 
-  const [lostMoney, setLostMoney] = useState(false);
+  const handleFileChange = (e) => {
+    setFormData({ ...formData, files: Array.from(e.target.files) });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const data = new FormData();
+    formData.files.forEach((file) => data.append('file', file));
+
+    data.append('category', formData.category);
+    data.append('subCategory', formData.subCategory);
+    data.append('description', formData.description);
+    data.append('incident_datetime', formData.incident_datetime);
+    data.append('delay_in_report', delay);
+    data.append('reason_of_delay', formData.reson_of_delay);
+    data.append('lost_money', lostMoney ? formData.lost_money : 0);
+
+    if (lostMoney) {
+      Object.entries(accData).forEach(([key, value]) => data.append(key, value));
+    }
+
+    try {
+      const response = await axios.post('http://localhost:4000/api/v1/auth/complaintInformation', data, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      alert("✅ Complaint submitted successfully!");
+    } catch (error) {
+      console.error("❌ Error during submission:", error);
+      alert("Something went wrong.");
+    }
+  };
 
   return (
-    <div>
-      <form className="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-        <h2 className="text-2xl font-bold mb-6 text-center">Cyber Crime Complaint Form</h2>
-        {/* Category */}
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">Category</label>
-          <select
-            name="category"
-            value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full border p-2 rounded"
-            required
-          >
-            <option value="">Select Category</option>
-            <option value="Financial Fraud">Financial Fraud</option>
-            <option value="Harassment or Abuse">Harassment or Abuse</option>
-            <option value="Other Cyber Crimes">Other Cyber Crimes</option>
-          </select>
-        </div>
+    <div className="flex justify-center bg-gray-50 py-10 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-[60%] bg-white p-8 rounded-xl shadow-md border border-gray-200"
+      >
+        <h2 className="text-3xl font-semibold text-blue-700 mb-6 text-center">Cyber Crime Complaint</h2>
 
-        {/* SubCategory */}
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">subCategory</label>
-          <select
-            name="district"
-            value={formData.subCategory}
-            onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
-            className="w-full border p-2 rounded"
-            required
-          >
-            <option value="">Select subCategory</option>
-            {subCategorys.map((dist, index) => (
-              <option key={index} value={dist}>
-                {dist}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Category */}
+          <div>
+            <label className="block mb-2 font-semibold text-gray-700">Category (Fixed)</label>
+            <select
+              value={formData.category}
+              disabled
+              className="w-full bg-gray-100 text-gray-700 border border-gray-300 p-3 rounded-md"
+            >
+              <option value="Financial Fraud">Financial Fraud</option>
+            </select>
+          </div>
 
+          {/* Subcategory */}
+          <div>
+            <label className="block mb-2 font-semibold text-gray-700">Subcategory</label>
+            <select
+              value={formData.subCategory}
+              onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-md"
+              required
+            >
+              <option value="">Select Subcategory</option>
+              {subCategorys.map((cat, i) => (
+                <option key={i} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
 
+          {/* Incident Date */}
+          <div>
+            <label className="block mb-2 font-semibold text-gray-700">Incident Date & Time</label>
+            <input
+              type="datetime-local"
+              value={formData.incident_datetime}
+              onChange={(e) => setFormData({ ...formData, incident_datetime: e.target.value })}
+              className="w-full border border-gray-300 p-3 rounded-md"
+              required
+            />
+          </div>
 
-        {/* Date of Incident */}
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">incident_datetime of Incident</label>
-          <input
-            type="date"
-            name="incident_datetime"
-            value={formData.incident_datetime}
-            onChange={(e) => setFormData({ ...formData, incident_datetime: e.target.value })}
-            className="w-full border p-2 rounded"
-            required
-          />
-        </div>
-
-        {/* {lost money or not} */}
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">Have you lost money?</label>
-
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="lostMoney"
-                value="yes"
-                checked={lostMoney === true}
-                onChange={() => setLostMoney(true)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">Yes</span>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="lostMoney"
-                value="no"
-                checked={lostMoney === false}
-                onChange={() => setLostMoney(false)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">No</span>
+          {/* Lost Money */}
+          <div>
+            <label className="block mb-2 font-semibold text-gray-700">Did you lose money?</label>
+            <div className="flex gap-6 mt-1">
+              <label className="flex items-center gap-2">
+                <input type="radio" name="lostMoney" checked={lostMoney} onChange={() => setLostMoney(true)} />
+                Yes
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" name="lostMoney" checked={!lostMoney} onChange={() => setLostMoney(false)} />
+                No
+              </label>
             </div>
           </div>
         </div>
 
-        {/* If lost money, show these fields */}
-        {lostMoney === true && (
+        {/* Lost Money Details */}
+        {lostMoney && (
           <>
-            {/* lost_money Lost */}
-            <div className="mb-4">
-              <label className="block mb-1 font-medium">
-                lost_money Lost <span className="text-red-500">*</span>
-              </label>
+            <div className="mt-6">
+              <label className="block mb-2 font-semibold text-gray-700">Amount Lost</label>
               <input
                 type="number"
-                name="lost_money"
                 value={formData.lost_money}
                 onChange={(e) => setFormData({ ...formData, lost_money: e.target.value })}
-                placeholder="Enter lost_money lost"
-                className="w-full border p-2 rounded"
+                className="w-full border border-gray-300 p-3 rounded-md"
                 required
               />
             </div>
 
-            {/* Grid of 2 inputs per row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Account Number */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Account No. <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="accountNumber"
-                  value={accData.accountNumber}
-                  onChange={(e) => setAccData({ ...accData, accountNumber: e.target.value })}
-                  placeholder="Account Number"
-                  className="w-full border p-2 rounded"
-                  required
-                />
-              </div>
-
-              {/* Bank Name */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Bank Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="bankName"
-                  value={accData.bankName}
-                  onChange={(e) => setAccData({ ...accData, bankName: e.target.value })}
-                  placeholder="Bank Name"
-                  className="w-full border p-2 rounded"
-                  required
-                />
-              </div>
-
-              {/* IFSC Code */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  IFSC Code <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="ifscCode"
-                  value={accData.ifscCode}
-                  onChange={(e) => setAccData({ ...accData, ifscCode: e.target.value })}
-                  placeholder="IFSC Code"
-                  className="w-full border p-2 rounded"
-                  required
-                />
-              </div>
-
-              {/* Transaction ID */}
-              <div>
-                <label className="block mb-1 font-medium">
-                  Transaction ID <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="transactionId"
-                  value={accData.transactionId}
-                  onChange={(e) => setAccData({ ...accData, transactionId: e.target.value })}
-                  placeholder="Transaction ID"
-                  className="w-full border p-2 rounded"
-                  required
-                />
-              </div>
-
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+              {[
+                { name: "accountNumber", label: "Account Number" },
+                { name: "bankName", label: "Bank Name" },
+                { name: "ifscCode", label: "IFSC Code" },
+                { name: "transactionId", label: "Transaction ID" },
+              ].map((field) => (
+                <div key={field.name}>
+                  <label className="block mb-2 font-semibold text-gray-700">{field.label}</label>
+                  <input
+                    type="text"
+                    value={accData[field.name]}
+                    onChange={(e) => setAccData({ ...accData, [field.name]: e.target.value })}
+                    className="w-full border border-gray-300 p-3 rounded-md"
+                    required
+                  />
+                </div>
+              ))}
               {/* Transaction Date */}
               <div>
-                <label className="block mb-1 font-medium">
-                  Transaction Date <span className="text-red-500">*</span>
-                </label>
+                <label className="block mb-2 font-semibold text-gray-700">Transaction Date</label>
                 <input
                   type="date"
-                  name="transactionDate"
                   value={accData.transactionDate}
                   onChange={(e) => setAccData({ ...accData, transactionDate: e.target.value })}
-                  className="w-full border p-2 rounded"
+                  className="w-full border border-gray-300 p-3 rounded-md"
                   required
                 />
               </div>
@@ -220,83 +177,75 @@ function CyberCrimeForm() {
           </>
         )}
 
-        {/* Delay in Reporting */}
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">is there any delay in reporting?</label>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="Delay"
-                value="yes"
-                checked={delay === true}
-                onChange={() => setDelay(true)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">Yes</span>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="noDelay"
-                value="no"
-                checked={delay === false}
-                onChange={() => setDelay(false)}
-                className="mr-2"
-              />
-              <span className="text-gray-700">No</span>
-            </div>
+        {/* Delay Section */}
+        <div className="mt-6">
+          <label className="block mb-2 font-semibold text-gray-700">Any delay in reporting?</label>
+          <div className="flex gap-6">
+            <label className="flex items-center gap-2">
+              <input type="radio" name="delay" checked={delay} onChange={() => setDelay(true)} />
+              Yes
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="radio" name="delay" checked={!delay} onChange={() => setDelay(false)} />
+              No
+            </label>
           </div>
-        </div>
 
-        {/* {reson of delay} */}
-        {delay === true && (
-          <div className="mb-4">
-            <label className="block mb-1 font-medium">Reason for Delay</label>
+          {delay && (
             <input
               type="text"
-              name="reson_of_delay"
+              placeholder="Reason for delay"
               value={formData.reson_of_delay}
               onChange={(e) => setFormData({ ...formData, reson_of_delay: e.target.value })}
-              placeholder="Enter reason for delay"
-              className="w-full border p-2 rounded"
+              className="w-full border border-gray-300 p-3 rounded-md mt-4"
               required
             />
-          </div>)}
+          )}
+        </div>
 
         {/* Description */}
-        <div className="mb-4">
-          <label className="block mb-1 font-medium">
-            Description <span className="text-red-500">*</span>
-          </label>
-
+        <div className="mt-6">
+          <label className="block mb-2 font-semibold text-gray-700">Description</label>
           <textarea
-            name="description"
+            rows="4"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full border p-2 rounded"
-            rows="4"
-            placeholder="Provide a detailed description of the incident (min 200 characters)"
+            className="w-full border border-gray-300 p-3 rounded-md"
+            placeholder="Minimum 200 characters"
             required
           ></textarea>
-
-          {/* Character Validation Message */}
-          <p className={`text-sm mt-1 ${formData.description.length < 200 ? 'text-amber-800' : 'text-green-600'}`}>
+          <p className={`text-sm mt-1 ${formData.description.length < 200 ? 'text-red-600' : 'text-green-600'}`}>
             {formData.description.length < 200
-              ? `⚠️ At least 200 characters required. Current: ${formData.description.length}`
-              : '✅ Character requirement met.'}
+              ? `⚠️ ${200 - formData.description.length} more characters required`
+              : '✅ Character limit met'}
           </p>
         </div>
 
-        {/* Submit Button */}
-        <Button type="submit" className="w-full bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700">
+        {/* File Upload */}
+        <div className="mt-6">
+          <label className="block mb-2 font-semibold text-gray-700">Upload Files</label>
+          <input
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            className="block w-full text-gray-700 file:bg-blue-600 file:text-white file:border-none file:px-4 file:py-2 file:rounded-md file:mr-4 hover:file:bg-blue-700 border border-gray-300 p-2 rounded-md bg-gray-50"
+          />
+          {formData.files.length > 0 && (
+            <ul className="mt-2 text-sm text-gray-600 list-disc pl-5">
+              {formData.files.map((file, index) => (
+                <li key={index}>{file.name}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* Submit */}
+        <Button type="submit" className="mt-8 w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700">
           Submit Complaint
         </Button>
-
       </form>
     </div>
-  )
+  );
 }
 
-export default CyberCrimeForm
+export default CyberCrimeForm;

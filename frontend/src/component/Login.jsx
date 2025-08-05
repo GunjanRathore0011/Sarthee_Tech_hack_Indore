@@ -52,7 +52,11 @@ const Login = () => {
       const response = await axios.post('http://localhost:4000/api/v1/auth/signin', {
         email,
         otp: Number(otp),
-      });
+      }
+        , {
+          withCredentials: true,
+        }
+      );
 
       console.log('Login successful:', response.data);
       alert('Login successful!');
@@ -76,7 +80,7 @@ const Login = () => {
           <h2 className="text-xl font-semibold">Welcome Back to Cyber Sentinel</h2>
           <p className="text-sm text-gray-500">Secure login with your registered email</p>
         </div>
-    
+
         <form
           className="space-y-4"
           onSubmit={(e) => {

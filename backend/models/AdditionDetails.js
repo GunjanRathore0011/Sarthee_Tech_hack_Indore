@@ -10,7 +10,7 @@ const AdditionDetails = new mongoose.Schema({
   complainId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Complaint',  // reference to Complaint schema
-    required: true,
+    // required: true,
   },
  fullName: {
     type: String,
