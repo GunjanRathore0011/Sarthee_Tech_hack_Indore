@@ -26,17 +26,14 @@ const victimDetailsSchema = new mongoose.Schema({
   transactionId: {
     type: String,
     required: true,
-    unique: true,
+    // unique: true,
     trim: true
   },
   transactionDate: {
     type: Date,
     required: true
   },
-  screenshots: {
-    type: [String],  // Array of image/file URLs
-    default: []
-  }
+  
 }, {
   timestamps: true // Adds createdAt and updatedAt automatically
 });

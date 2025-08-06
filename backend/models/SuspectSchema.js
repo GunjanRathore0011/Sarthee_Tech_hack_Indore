@@ -9,17 +9,14 @@ const SuspectSchema = new mongoose.Schema({
     },
   suspectedName: {
     type: String,
-    required: true,
     trim: true
   },
   suspectedCard: {
     type: String,
-    required: true,
     trim: true
   },
   suspectedCardNumber: {
     type: String,
-    required: true,
     trim: true
   },  
   suspectedImages: [{

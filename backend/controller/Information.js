@@ -8,41 +8,44 @@ require('dotenv').config();
 
 exports.additionalDetails = async (req, res) => {
     try {
-        const { fullName, dob, gender, house="", street, colony="", state, district="", policeStation, pincode } = req.body;
-        
+        const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
+
         if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
             return res.status(400).json({
-                message: "all information are required",
+                message: "All information is required",
                 success: false,
             });
         }
-        // single document file 
+
+        // 👇 Declare uploaded in outer scope
+        let uploaded = null;
         if (req.files && req.files.file) {
             const fileData = req.files.file;
-            //upload to cloudinary
-            const uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
+            uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
+
             if (!uploaded || !uploaded.secure_url) {
                 return res.status(500).json({
                     message: "Failed to upload file",
                     success: false,
                 });
             }
-
         }
-        const userId = req.user.userId; // Get user email from the authenticated session
-        // Find the user by ID
+        console.log("File uploaded to Cloudinary:", uploaded);
+
+        const userId = req.user.userId;
         const user = await User.findById(userId);
+
         if (!user) {
             return res.status(404).json({
                 message: "User not found",
                 success: false,
             });
         }
-        // Create additional details
+
         const addDetails = await AdditionDetails.create({
-            userId: user._id, // Associate with the user
+            userId: user._id,
             fullName,
-            documentId: uploaded.secure_url, // Store the uploaded file URL
+            documentId: uploaded?.secure_url || null, // ✅ handle optional file
             dob,
             gender,
             street,
@@ -59,6 +62,7 @@ exports.additionalDetails = async (req, res) => {
             success: true,
             data: addDetails,
         });
+
     } catch (error) {
         console.error("Error in additionalDetails:", error.message);
         res.status(500).json({
@@ -68,6 +72,7 @@ exports.additionalDetails = async (req, res) => {
         });
     }
 };
+
 
 // //complaint information
 // exports.complaintInformation = async (req, res) => {
@@ -259,36 +264,45 @@ exports.additionalDetails = async (req, res) => {
 
 
 // ✅ SINGLE API: COMPLAINT INFORMATION
-    exports.complaintInformation = async (req, res) => {
-        try {
-            const {
-                category,
-                subCategory,
-                lost_money,
-                delay_in_report,
-                reason_of_delay,
-                description,
-                incident_datetime,
-                bankName,
-                accountNumber,
-                ifscCode,
-                transactionId,
-                transactionDate,
-                suspectedName,
-                suspectedCard,
-                suspectedCardNumber
-            } = req.body;
+ exports.complaintInformation = async (req, res) => {
+  try {
+    // ✅ Parse JSON from FormData
+    let body;
+    if (req.body.data) {
+      try {
+        body = JSON.parse(req.body.data);
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid JSON format", success: false });
+      }
+    } else {
+      body = req.body; // Fallback (non-formdata)
+    }
 
-            // ✅ Required fields check
-            if (!category || !subCategory ||  !description || !incident_datetime) {
-                return res.status(400).json({ message: "Required complaint fields are missing", success: false });
-            }
+    const {
+      category,
+      subCategory,
+      lost_money,
+      delay_in_report,
+      reason_of_delay,
+      description,
+      incident_datetime,
+      bankName,
+      accountNumber,
+      ifscCode,
+      transactionId,
+      transactionDate,
+      suspectedName="",
+      suspectedCard="",
+      suspectedCardNumber=""
+    } = body;
 
-            const userId = req.user.userId;
-            const user = await User.findById(userId);
-            if (!user) {
-                return res.status(404).json({ message: "User not found", success: false });
-            }
+    // ✅ Validate required fields
+    if (!category || !subCategory || !description || !incident_datetime) {
+      return res.status(400).json({
+        message: "Required fields missing: category, subCategory, description, incident_datetime",
+        success: false,
+      });
+    }
 
             // ✅ Upload screenshots
             const imageUrls = [];
@@ -318,72 +332,105 @@ exports.additionalDetails = async (req, res) => {
                 priority: prior,
                 incident_datetime,
             });
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found", success: false });
+    }
 
-            // ✅ Update AdditionalDetails with complaintId
-            await AdditionDetails.updateOne(
-                { userId },
-                { $push: { complainId: complaintInfo._id } },
-                { upsert: false } // don't create new if not found
-            );
+    // ✅ Upload evidence images (FormData key: 'file')
+    const imageUrls = [];
+        console.log("Received file:", req.files);
 
-            // ✅ Handle Victim Info only if fields provided
-            const victimFields = [bankName, accountNumber, ifscCode, transactionId, transactionDate];
-            const hasVictimInfo = victimFields.every(Boolean); // all fields must exist
+    if (req.files?.file) {
+      const filesArray = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
+      for (let file of filesArray) {
+        const uploaded = await UploadToCloudinary(file.tempFilePath, "evidence");
+        imageUrls.push(uploaded.secure_url);
+      }
+    }
 
-            if (hasVictimInfo) {
-                const alreadyExists = await VictimDetails.findOne({ complainId: complaintInfo._id });
-                if (!alreadyExists) {
-                    await VictimDetails.create({
-                        complainId: complaintInfo._id,
-                        bankName,
-                        accountNumber,
-                        ifscCode,
-                        transactionId,
-                        transactionDate,
-                    });
-                }
-            }
+    // ✅ Create complaint
+    const complaintInfo = await Complaint.create({
+      userId,
+      category,
+      subCategory,
+      lost_money,
+      delay_in_report,
+      reason_of_delay,
+      description,
+      screenShots: imageUrls,
+      incident_datetime,
+    });
 
-            // ✅ Handle Suspect Info only if fields provided
-            const suspectFields = [suspectedName, suspectedCard, suspectedCardNumber];
-            const hasSuspectInfo = suspectFields.every(Boolean);
+    // ✅ Link complaint to user
+    await AdditionDetails.updateOne(
+      { userId },
+      { $push: { complainIds: complaintInfo._id } },
+      { upsert: false }
+    );
 
-            if (hasSuspectInfo) {
-                const alreadyExists = await SuspectSchema.findOne({ complainId: complaintInfo._id });
-                if (!alreadyExists) {
-                    const suspectImages = [];
-                    if (req.files?.suspectFile) {
-                        const filesArray = Array.isArray(req.files.suspectFile)
-                            ? req.files.suspectFile
-                            : [req.files.suspectFile];
-                        for (let file of filesArray) {
-                            const uploaded = await UploadToCloudinary(file.tempFilePath, "suspectedImages");
-                            suspectImages.push(uploaded.secure_url);
-                        }
-                    }
+    // ✅ Victim Info (optional)
+    const victimFields = [bankName, accountNumber, ifscCode, transactionId, transactionDate];
+    const hasVictimInfo = victimFields.every(Boolean);
+    if (hasVictimInfo) {
+      const alreadyExists = await VictimDetails.findOne({ complainId: complaintInfo._id });
+      if (!alreadyExists) {
+        await VictimDetails.create({
+          complainId: complaintInfo._id,
+          bankName,
+          accountNumber,
+          ifscCode,
+          transactionId,
+          transactionDate,
+        });
+      }
+    }
 
-                    await SuspectSchema.create({
-                        complainId: complaintInfo._id,
-                        suspectedName,
-                        suspectedCard,
-                        suspectedCardNumber,
-                        suspectedImages: suspectImages,
-                    });
-                }
-            }
+    // ✅ Suspect Info (optional)
+    const suspectFields = [suspectedName, suspectedCard, suspectedCardNumber];
+    console.log("Suspect fields:", suspectFields);
+    
+     console.log("Suspect files received:", req.files);
 
-            return res.status(201).json({
-                message: "Complaint submitted successfully",
-                success: true,
-                data: complaintInfo,
-            });
 
-        } catch (error) {
-            console.error("❌ complaintInformation Error:", error);
-            return res.status(500).json({
-                message: "Internal Server Error",
-                success: false,
-                error: error.message
-            });
+    if (suspectedName || suspectedCard || suspectedCardNumber) {
+      const alreadyExists = await SuspectSchema.findOne({ complainId: complaintInfo._id });
+      if (!alreadyExists) {
+        const suspectImages = [];
+        if (req.files?.suspect_file) {
+            console.log("Suspect files received:", req.files.suspect_file);
+          const suspectFiles = Array.isArray(req.files.suspect_file)
+            ? req.files.suspect_file
+            : [req.files.suspect_file];
+          for (let file of suspectFiles) {
+            const uploaded = await UploadToCloudinary(file.tempFilePath, "suspectedImages");
+            suspectImages.push(uploaded.secure_url);
+          }
         }
-    };
+
+        await SuspectSchema.create({
+          complainId: complaintInfo._id,
+          suspectedName,
+          suspectedCard,
+          suspectedCardNumber,
+          suspectedImages: suspectImages,
+        });
+      }
+    }
+
+    return res.status(201).json({
+      message: "✅ Complaint submitted successfully",
+      success: true,
+      data: complaintInfo,
+    });
+
+  } catch (error) {
+    console.error("❌ complaintInformation Error:", error);
+    return res.status(500).json({
+      message: "❌ Internal Server Error",
+      success: false,
+      error: error.message,
+    });
+  }
+};
