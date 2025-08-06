@@ -20,7 +20,7 @@ const complaintSchema = new mongoose.Schema({
     },
   lost_money: {
     type: Number,
-    required: true // true if money was lost
+    default: 0 // amount of money lost in the incident
   },
 
   delay_in_report: {

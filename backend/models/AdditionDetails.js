@@ -7,16 +7,21 @@ const AdditionDetails = new mongoose.Schema({
     ref: 'User',       // reference to User schema
     required: true,
   },
-  complainId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Complaint',  // reference to Complaint schema
-    // required: true,
-  },
- fullName: {
+  complainIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Complaint',  // reference to Complaint schema
+      // required: true,
+    }
+  ],
+  fullName: {
     type: String,
     required: true,
   },
-
+  documentId: {
+    type: String,
+    required: true, // e.g., Aadhar number, PAN number, etc.
+  },
   dob: {
     type: Date,
     required: true,
