@@ -1,12 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setFinancialFraudAcc,
+  setFinancialFraudForm
+} from '@/ReduxSlice/formData/formSlice';
 
-function CyberCrimeForm() {
-  const [delay, setDelay] = useState(false);
-  const [lostMoney, setLostMoney] = useState(false);
+function CyberCrimeForm({ onNext }) {
+  const dispatch = useDispatch();
 
-  const [formData, setFormData] = useState({
+  const savedFormData = useSelector((state) => state.formData.financialFraud.formData);
+  const savedAccData = useSelector((state) => state.formData.financialFraud.accData);
+
+  const [delay, setDelay] = useState(savedFormData?.delay_in_report || false);
+  const [lostMoney, setLostMoney] = useState(!!savedFormData?.lost_money);
+
+  const [formData, setFormData] = useState(savedFormData || {
     category: 'Financial Fraud',
     subCategory: '',
     description: '',
@@ -17,7 +26,7 @@ function CyberCrimeForm() {
     files: []
   });
 
-  const [accData, setAccData] = useState({
+  const [accData, setAccData] = useState(savedAccData || {
     accountNumber: '',
     lost_money: '',
     bankName: '',
@@ -32,37 +41,33 @@ function CyberCrimeForm() {
     "Lottery/Prize/KYC Scam", "ATM Skimming", "Online Loan App Harassment"
   ];
 
+  useEffect(() => {
+    dispatch(setFinancialFraudForm({
+      ...formData,
+      delay_in_report: delay,
+      lost_money: lostMoney ? formData.lost_money : 0
+    }));
+  }, [formData, delay, lostMoney, dispatch]);
+
+  useEffect(() => {
+    if (lostMoney) {
+      dispatch(setFinancialFraudAcc(accData));
+    }
+  }, [accData, lostMoney, dispatch]);
+
   const handleFileChange = (e) => {
     setFormData({ ...formData, files: Array.from(e.target.files) });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const data = new FormData();
-    formData.files.forEach((file) => data.append('file', file));
 
-    data.append('category', formData.category);
-    data.append('subCategory', formData.subCategory);
-    data.append('description', formData.description);
-    data.append('incident_datetime', formData.incident_datetime);
-    data.append('delay_in_report', delay);
-    data.append('reason_of_delay', formData.reson_of_delay);
-    data.append('lost_money', lostMoney ? formData.lost_money : 0);
-
-    if (lostMoney) {
-      Object.entries(accData).forEach(([key, value]) => data.append(key, value));
+    if (!formData.description || !formData.incident_datetime || (lostMoney && !accData.accountNumber)) {
+      alert("Please fill required fields.");
+      return;
     }
-
-    try {
-      const response = await axios.post('http://localhost:4000/api/v1/auth/complaintInformation', data, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      alert("✅ Complaint submitted successfully!");
-    } catch (error) {
-      console.error("❌ Error during submission:", error);
-      alert("Something went wrong.");
-    }
+    
+    if (onNext) onNext(); // ✅ move to next step
   };
 
   return (
@@ -74,7 +79,6 @@ function CyberCrimeForm() {
         <h2 className="text-3xl font-semibold text-blue-700 mb-6 text-center">Cyber Crime Complaint</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Category */}
           <div>
             <label className="block mb-2 font-semibold text-gray-700">Category (Fixed)</label>
             <select
@@ -86,7 +90,6 @@ function CyberCrimeForm() {
             </select>
           </div>
 
-          {/* Subcategory */}
           <div>
             <label className="block mb-2 font-semibold text-gray-700">Subcategory</label>
             <select
@@ -102,7 +105,6 @@ function CyberCrimeForm() {
             </select>
           </div>
 
-          {/* Incident Date */}
           <div>
             <label className="block mb-2 font-semibold text-gray-700">Incident Date & Time</label>
             <input
@@ -114,7 +116,6 @@ function CyberCrimeForm() {
             />
           </div>
 
-          {/* Lost Money */}
           <div>
             <label className="block mb-2 font-semibold text-gray-700">Did you lose money?</label>
             <div className="flex gap-6 mt-1">
@@ -130,7 +131,6 @@ function CyberCrimeForm() {
           </div>
         </div>
 
-        {/* Lost Money Details */}
         {lostMoney && (
           <>
             <div className="mt-6">
@@ -162,7 +162,6 @@ function CyberCrimeForm() {
                   />
                 </div>
               ))}
-              {/* Transaction Date */}
               <div>
                 <label className="block mb-2 font-semibold text-gray-700">Transaction Date</label>
                 <input
@@ -177,7 +176,6 @@ function CyberCrimeForm() {
           </>
         )}
 
-        {/* Delay Section */}
         <div className="mt-6">
           <label className="block mb-2 font-semibold text-gray-700">Any delay in reporting?</label>
           <div className="flex gap-6">
@@ -203,7 +201,6 @@ function CyberCrimeForm() {
           )}
         </div>
 
-        {/* Description */}
         <div className="mt-6">
           <label className="block mb-2 font-semibold text-gray-700">Description</label>
           <textarea
@@ -221,7 +218,6 @@ function CyberCrimeForm() {
           </p>
         </div>
 
-        {/* File Upload */}
         <div className="mt-6">
           <label className="block mb-2 font-semibold text-gray-700">Upload Files</label>
           <input
@@ -239,7 +235,6 @@ function CyberCrimeForm() {
           )}
         </div>
 
-        {/* Submit */}
         <Button type="submit" className="mt-8 w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700">
           Submit Complaint
         </Button>

@@ -2,19 +2,25 @@ import React, { useEffect } from 'react';
 import { FaDollarSign, FaBan } from "react-icons/fa";
 import { FaComputer } from "react-icons/fa6";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux'; // 🔴 ADD THIS
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { setCategoryKey, setNextStep } from '@/ReduxSlice/formData/formSlice'; // ✅ IMPORT THE ACTION
 
 const ComplaintCategory = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // 🔴 USE REDUX DISPATCH
 
   useEffect(() => {
     AOS.init({ duration: 800, once: true });
   }, []);
 
-  const handleClick = (categoryKey) => {
-    navigate('/step-form', { state: { categoryKey } });  // Pass key as state
-  };
+const handleClick = (categoryKey) => {
+  dispatch(setCategoryKey({ value: categoryKey })); // category set
+  dispatch(setNextStep(1)); // step reset to 1
+  navigate('/step-form'); // navigate to form
+};
+
 
   return (
     <section className="bg-white py-16 px-4 mt-10 mb-10">

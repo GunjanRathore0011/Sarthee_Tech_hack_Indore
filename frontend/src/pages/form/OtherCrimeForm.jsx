@@ -1,46 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setOtherCrime } from '@/ReduxSlice/formData/formSlice';
+import { Button } from "@/components/ui/button";
 
-function OtherCrimeForm() {
-  const [delay, setDelay] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
+function OtherCrimeForm({ onNext }) {
+  const dispatch = useDispatch();
+  const formData = useSelector((state) => state.formData.otherCrime);
 
-  const [formData, setFormData] = useState({
-    category: 'Other Crime',
-    description: '',
-    incident_datetime: '',
-    reson_of_delay: '',
-    delay_in_report: delay,
-    subCategory: ''
-  });
+  // Delay state synced with Redux formData
+  const [delay, setDelay] = useState(formData.delay_in_report);
 
-  // Handle file input
+  // Sync delay_in_report in Redux when delay state changes
+  useEffect(() => {
+    dispatch(setOtherCrime({ ...formData, delay_in_report: delay }));
+  }, [delay]);
+
+  // Update form field to Redux
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    dispatch(setOtherCrime({ ...formData, [name]: value }));
+  };
+
+
   const handleFileChange = (e) => {
-    setUploadedFiles(Array.from(e.target.files));
+    const file = e.target.files[0];
+    if (file && file.size <= 5 * 1024 * 1024) {
+      const updated = { ...formData, files: file };
+      dispatch(setOtherCrime(updated));
+    } else {
+      alert('File size should be less than 5MB');
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (formData.description.length < 200) {
+      alert("Description must be at least 200 characters.");
+      return;
+    }
+    console.log('Other Crime Data:', formData);
+
+    onNext(); 
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-10 px-4">
-      <form className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
+      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
         <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center tracking-wide">
           🛡️ Report Other Crime
         </h2>
 
         {/* Category */}
-        <div className="mb-5">
-          <label className="block mb-2 font-semibold text-gray-700">Category</label>
-          <select
+        <div>
+          <label className="block mb-1 font-semibold">Category</label>
+          <input
+            type="text"
             name="category"
             value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            readOnly
+            className="w-full p-2 rounded border bg-gray-100"
+          />
+        </div>
+
+        <div className="mb-5">
+          <label className="block mb-2 font-semibold text-gray-700">SubCategory</label>
+          <select
+            name="subCategory"
+            value={formData.subCategory || ''}
+            onChange={handleChange}
             className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-400 transition"
             required
           >
-            <option value="Other Crime">Other Crime</option>
-            <option value="Theft">Theft</option>
-            <option value="Assault">Assault</option>
-            <option value="Vandalism">Vandalism</option>
-            <option value="Fraud">Fraud</option>
-            <option value="Other">Other</option>
+            <option value="">Select SubCategory</option>
+            <option value="Hacking">Hacking</option>
+            <option value="Cyberbullying">Cyberbullying</option>
+            <option value="Identity Theft">Identity Theft</option>
+            <option value="Online Defamation">Online Defamation</option>
+            <option value="Phishing (non-financial)">Phishing (non-financial)</option>
+            <option value="Unauthorized Access">Unauthorized Access</option>
+            <option value="Social Media Abuse">Social Media Abuse</option>
           </select>
         </div>
 
@@ -51,7 +89,7 @@ function OtherCrimeForm() {
             type="datetime-local"
             name="incident_datetime"
             value={formData.incident_datetime}
-            onChange={(e) => setFormData({ ...formData, incident_datetime: e.target.value })}
+            onChange={handleChange}
             className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-400 transition"
             required
           />
@@ -92,7 +130,7 @@ function OtherCrimeForm() {
               type="text"
               name="reson_of_delay"
               value={formData.reson_of_delay}
-              onChange={(e) => setFormData({ ...formData, reson_of_delay: e.target.value })}
+              onChange={handleChange}
               placeholder="Enter reason for delay"
               className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-400 transition"
               required
@@ -108,16 +146,14 @@ function OtherCrimeForm() {
           <textarea
             name="description"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={handleChange}
             className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-400 transition"
             rows="4"
             placeholder="Provide a detailed description of the incident (min 200 characters)"
             required
           ></textarea>
           <p
-            className={`text-sm mt-1 ${
-              formData.description.length < 200 ? 'text-red-600' : 'text-green-600'
-            }`}
+            className={`text-sm mt-1 ${formData.description.length < 200 ? 'text-red-600' : 'text-green-600'}`}
           >
             {formData.description.length < 200
               ? `⚠️ At least 200 characters required. Current: ${formData.description.length}`
@@ -136,22 +172,19 @@ function OtherCrimeForm() {
             onChange={handleFileChange}
             className="block w-full border border-gray-300 p-3 rounded-md text-gray-600 bg-gray-50 file:mr-4 file:py-2 file:px-4 file:border-0 file:rounded file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition"
           />
-          {uploadedFiles.length > 0 && (
+          {formData.files.length > 0 && (
             <ul className="mt-2 text-sm text-gray-600 list-disc pl-5">
-              {uploadedFiles.map((file, index) => (
+              {formData.files.map((file, index) => (
                 <li key={index}>{file.name}</li>
               ))}
             </ul>
           )}
         </div>
 
-        {/* Submit Button (you can hook this to actual API later) */}
-        <button
-          type="submit"
-          className="w-full py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
-        >
+        {/* Submit Button */}
+        <Button type="submit" className="w-full">
           Submit Complaint
-        </button>
+        </Button>
       </form>
     </div>
   );
