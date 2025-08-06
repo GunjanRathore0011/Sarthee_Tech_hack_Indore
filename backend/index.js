@@ -48,6 +48,7 @@ app.use(express.json());
 // ✅ Routes
 const userRouter = require("./router/User");
 const adminRouter = require("./router/Admin");
+const investigatorRouter = require("./router/Investigator");
 
 app.get("/", (req, res) => {
   res.send("Welcome to the API");
@@ -55,6 +56,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/v1/auth", userRouter);
 app.use("/api/v1/admin",adminRouter);
+app.use("/api/v1/investigator", investigatorRouter);
+
 
 if (!PORT || !process.env.DATABASE_URL || !process.env.JWT_SECRET) {
   console.error("Missing environment variables!");

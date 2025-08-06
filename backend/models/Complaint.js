@@ -46,7 +46,7 @@ const complaintSchema = new mongoose.Schema({
     enum: ['Pending', 'In_review', 'Resolved', 'Rejected'],
     default: 'Pending' // current complaint status
   },
-  assignedTo: {
+  assignedTo: {  
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // reference to the User who is assigned to handle the complaint
     default: null // initially no user is assigned
