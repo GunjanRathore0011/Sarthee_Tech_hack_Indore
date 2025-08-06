@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setHarassment } from '@/ReduxSlice/formData/formSlice';
+
 const subCategoryOptions = [
   'Sexual Harassment',
   'Verbal Abuse',
@@ -9,20 +11,30 @@ const subCategoryOptions = [
   'Discrimination',
 ];
 
-const HarassmentForm = () => {
-  const [delay, setDelay] = useState('No');
+const HarassmentForm = ({onNext}) => {
+  const dispatch = useDispatch();
+  const harassmentData = useSelector((state) => state.formData.harassment);
 
-  const [formData, setFormData] = useState({
-    category: 'Harassment',
-    subCategory: '',
-    incident_datetime: '',
-    description: '',
-    reson_of_delay: '',
-    delay_in_report: delay,
-  });
+  const [delay, setDelay] = useState(harassmentData.delay_in_report ? 'Yes' : 'No');  const [errors, setErrors] = useState({});
 
-  const [files, setFiles] = useState([]);
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState(harassmentData);
+
+  
+  const handleFileChange = (e) => {
+          const file = e.target.files[0];
+          if (file && file.size <= 5 * 1024 * 1024) {
+            const updated = { ...formData, files: file };
+              setFormData(updated);
+              dispatch(setHarassment(updated));
+          } else {
+            alert('File size should be less than 5MB');
+          }
+        };
+
+
+  useEffect(() => {
+    dispatch(setHarassment(formData));
+  }, [formData, dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,19 +50,15 @@ const HarassmentForm = () => {
     setDelay(value);
     setFormData((prev) => ({
       ...prev,
-      delay_in_report: value,
+      delay_in_report: value === 'Yes',
       reson_of_delay: value === 'Yes' ? prev.reson_of_delay : '',
     }));
   };
 
-  const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     let newErrors = {};
     if (formData.description.length < 200) {
       newErrors.description = 'Description must be at least 200 characters.';
@@ -65,27 +73,13 @@ const HarassmentForm = () => {
       return;
     }
 
-    // Log final data
     const completeData = {
       ...formData,
-      files,
     };
-     
-    const response = await axios.post('http://localhost:4000/api/v1/auth/complaintInformation', completeData, {
-      headers: {    
-        'Content-Type': 'multipart/form-data',
-      },
-        withCredentials: true, // Send session cookie
-    });
-    if (response.data.success) {
-        alert('Complaint submitted successfully!');
-    }
-    else {
-        alert('Failed to submit complaint: ' + response.data.message);
-    }
     
     console.log('Submitted Data:', completeData);
-    // Send to backend if needed
+    onNext(); // Proceed to next step
+    alert("Form data logged successfully (backend not connected here).");
   };
 
   return (
@@ -93,7 +87,6 @@ const HarassmentForm = () => {
       <h2 className="text-2xl font-bold mb-6 text-center">Harassment Complaint Form</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-
         {/* Category */}
         <div>
           <label className="block mb-1 font-semibold">Category</label>

@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from '@/user/userSlice';
+import { loginSuccess } from '@/ReduxSlice/user/userSlice';
 
 const SignUp = () => {
     const [formData, setFormData] = useState({

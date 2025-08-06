@@ -1,22 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import AdditionalDetail from './AdditionalDetail';
 import SuspectForm from './SuspectForm';
 import CyberCrimeForm from './CyberCrimeForm';
 import HarassmentForm from './HarassmentForm';
 import PreviewForm from './PreviewForm';
-import OtherCrimeForm from './OtherCrimeForm';  
+import OtherCrimeForm from './OtherCrimeForm';
+import { setNextStep } from '@/ReduxSlice/formData/formSlice';
 
 function MultiStepForm() {
   const location = useLocation();
-  const categoryKey = location.state?.categoryKey || 'default';
+  // const categoryKey = useSelector((state) => state.formData.categoryKey.value);
+  const categoryKey = useSelector((state) => state.formData.categoryKey?.value || 'other');
 
-  const [step, setStep] = useState(1);
 
-  const handleNext = () => setStep((prev) => prev + 1);
-  const handleBack = () => setStep((prev) => prev - 1);
 
-  // Optional: You can store the category-specific form component based on key
+  const dispatch = useDispatch();
+  // const step = useSelector((state) => state.formData.next.step); 
+  const step = useSelector((state) => state.formData?.next?.step || 1);
+// ✅ useSelector is now correctly imported
+
+  const handleNext = () => {
+    dispatch(setNextStep(step + 1));
+  };
+
+  const handleBack = () => {
+    if (step > 1) {
+      dispatch(setNextStep(step - 1));
+    }
+  };
+
+  // Render the correct form based on category
   const renderCategoryForm = () => {
     switch (categoryKey) {
       case 'harassment':
@@ -32,14 +47,23 @@ function MultiStepForm() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {/* Step Indicators */}
       <div className="flex justify-center space-x-4 mb-6">
-        <button className={`px-4 py-2 rounded ${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>Additional Detail</button>
-        <button className={`px-4 py-2 rounded ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>Complaint Form</button>
-        <button className={`px-4 py-2 rounded ${step === 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>Suspect Details</button>
-        <button className={`px-4 py-2 rounded ${step === 4 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>Preview</button>
+        <button className={`px-4 py-2 rounded ${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          Additional Detail
+        </button>
+        <button className={`px-4 py-2 rounded ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          Complaint Form
+        </button>
+        <button className={`px-4 py-2 rounded ${step === 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          Suspect Details
+        </button>
+        <button className={`px-4 py-2 rounded ${step === 4 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+          Preview
+        </button>
       </div>
 
-      {/* Step-wise component rendering */}
+      {/* Step-wise rendering */}
       {step === 1 && <AdditionalDetail onNext={handleNext} />}
       {step === 2 && renderCategoryForm()}
       {step === 3 && <SuspectForm onNext={handleNext} onBack={handleBack} />}

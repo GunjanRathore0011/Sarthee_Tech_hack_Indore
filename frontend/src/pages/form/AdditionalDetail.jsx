@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetAllFormData, setAdditionDetail } from '@/ReduxSlice/formData/formSlice';
+import { setuserAdditionalDetailsField } from '@/ReduxSlice/formData/formSlice';
 
 
 const AdditionalDetail = ({ onNext }) => {
-    const [formData, setFormData] = useState({
+    const savedFormData = useSelector((state) => state.formData.additionDetail);
+
+    const dispatch = useDispatch();
+
+    const [formData, setFormData] = useState(savedFormData || {
         fullName: '',
         dob: '',
         gender: '',
@@ -13,9 +20,10 @@ const AdditionalDetail = ({ onNext }) => {
         state: 'Madhya Pradesh',
         district: '',
         policeStation: '',
-        pincode: ''
+        pincode: '',
+        files: []
     });
-
+    console.log('📝 Saved Form Data:', savedFormData);
     const districts = [
         "Agar Malwa", "Alirajpur", "Anuppur", "Ashoknagar", "Balaghat", "Barwani", "Betul", "Bhind", "Bhopal", "Burhanpur",
         "Chachaura", "Chhatarpur", "Chhindwara", "Damoh", "Datia", "Dewas", "Dhar", "Dindori", "Guna", "Gwalior", "Harda", "Hoshangabad",
@@ -24,9 +32,23 @@ const AdditionalDetail = ({ onNext }) => {
         "Shahdol", "Shajapur", "Sheopur", "Shivpuri", "Sidhi", "Singrauli", "Tikamgarh", "Ujjain", "Umaria", "Vidisha"
     ];
 
+
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const updatedForm = { ...formData, [e.target.name]: e.target.value };
+        setFormData(updatedForm);
+        dispatch(setAdditionDetail(updatedForm)); // ✅ update store
     };
+   
+     const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file && file.size <= 5 * 1024 * 1024) {
+          const updated = { ...formData, files: file };
+            setFormData(updated);
+            dispatch(setAdditionDetail(updated));
+        } else {
+          alert('File size should be less than 5MB');
+        }
+      };
 
     const apiCall = async () => {
         try {
@@ -47,6 +69,8 @@ const AdditionalDetail = ({ onNext }) => {
 
             if (data.success) {
                 alert('✅ Additional Details registered successfully!');
+                dispatch(setuserAdditionalDetailsField({ fill: 1 }));
+                // dispatch(resetAllFormData());
                 onNext(); // Proceed to next step
             } else {
                 alert('⚠ Failed to register Additional Details: ' + data.message);
@@ -57,6 +81,15 @@ const AdditionalDetail = ({ onNext }) => {
             alert('An error occurred: ' + (error.response?.data?.message || error.message));
         }
     };
+    const userFilled = useSelector((state) => state.formData.userAdditionalDetailsField.fill);
+    console.log('User Filled Additional Details:', userFilled);
+
+    useEffect(() => {
+        if (userFilled) {
+            onNext();
+        }
+
+    }, []);
 
 
     const handleSubmit = (e) => {
@@ -226,6 +259,18 @@ const AdditionalDetail = ({ onNext }) => {
                     maxLength={6}
                     required
                 />
+            </div>
+
+            {/* Photo Upload */}
+            <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Upload a goverment ID</label>
+                <input
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={handlePhotoUpload}
+                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded file:bg-gray-50 hover:file:bg-gray-100"
+                />
+                <p className="text-xs text-gray-500 mt-1">Allowed formats: JPG, JPEG, PNG (Max: 5MB)</p>
             </div>
 
             <button

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 
 import logoImage from '../assets/images/logo.png';
-import { logout } from "@/user/userSlice";
+import { logout } from "@/ReduxSlice/user/userSlice";
 
 const Navbar = () => {
   const dispatch = useDispatch();
