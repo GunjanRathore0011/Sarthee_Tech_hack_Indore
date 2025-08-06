@@ -299,6 +299,11 @@ exports.additionalDetails = async (req, res) => {
                     imageUrls.push(uploaded.secure_url);
                 }
             }
+            let prior = "Medium";
+            if("Harassment"==category){                
+            }else{
+             prior = lost_money >= 100000 ? "High" :"Normal";
+            }
 
             // ✅ Create complaint
             const complaintInfo = await Complaint.create({
@@ -310,6 +315,7 @@ exports.additionalDetails = async (req, res) => {
                 reason_of_delay,
                 description,
                 screenShots: imageUrls,
+                priority: prior,
                 incident_datetime,
             });
 

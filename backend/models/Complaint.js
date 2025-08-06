@@ -31,7 +31,6 @@ const complaintSchema = new mongoose.Schema({
     type: String,
     // required: true // number of days delay in reporting the incident    
     },
-
      
   description: {
     type: String,
@@ -44,8 +43,18 @@ const complaintSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'in_review', 'resolved', 'rejected'],
+    enum: ['Pending', 'In_review', 'Resolved', 'Rejected'],
     default: 'pending' // current complaint status
+  },
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // reference to the User who is assigned to handle the complaint
+    default: null // initially no user is assigned
+  },
+  priority: {
+    type: String,
+    enum: ['Low', 'Medium', 'High'],
+    default: 'Medium' // priority level of the complaint
   },
   screenShots: {
     type: [String], // Array of image/file URLs
