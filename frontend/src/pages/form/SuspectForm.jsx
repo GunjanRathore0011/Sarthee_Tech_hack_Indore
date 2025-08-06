@@ -7,9 +7,9 @@ function SuspectForm({ onNext }) {
   const dispatch = useDispatch();
 
   const [suspectD, setSuspectD] = useState(suspectData || {
-    name: '',
+    suspectedName: '',
     suspectedCard: 'Other',
-    suspectFile: null,
+    suspectedFile: null,
     details: '',
     suspectedCardNumber: '',
   });
@@ -44,7 +44,7 @@ function SuspectForm({ onNext }) {
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file && file.size <= 5 * 1024 * 1024) {
-      const updated = { ...suspectD, suspectFile: file };
+      const updated = { ...suspectD, suspectedFile: file };
       setSuspectD(updated);
       dispatch(setSuspectData(updated));
     } else {
@@ -71,8 +71,8 @@ function SuspectForm({ onNext }) {
         <label className="block text-sm font-medium text-gray-700 mb-1">Suspect Name ( if you know) </label>
         <input
           type="text"
-          name="name"
-          value={suspectD.name}
+          name="suspectedName"
+          value={suspectD.suspectedName}
           onChange={handleChange}
           placeholder="Enter suspect name"
           className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"

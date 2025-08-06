@@ -38,40 +38,58 @@ const AdditionalDetail = ({ onNext }) => {
         setFormData(updatedForm);
         dispatch(setAdditionDetail(updatedForm)); // ✅ update store
     };
-   
-     const handlePhotoUpload = (e) => {
+
+    const handlePhotoUpload = (e) => {
         const file = e.target.files[0];
         if (file && file.size <= 5 * 1024 * 1024) {
-          const updated = { ...formData, files: file };
+            const updated = { ...formData, files: file };
             setFormData(updated);
             dispatch(setAdditionDetail(updated));
         } else {
-          alert('File size should be less than 5MB');
+            alert('File size should be less than 5MB');
         }
-      };
+    };
 
     const apiCall = async () => {
         try {
             console.log('📤 Submitting to API with data:', formData);
 
+            const fd = new FormData();
+
+            // Append all fields
+            fd.append('fullName', formData.fullName);
+            fd.append('dob', formData.dob);
+            fd.append('gender', formData.gender);
+            fd.append('house', formData.house);
+            fd.append('street', formData.street);
+            fd.append('colony', formData.colony);
+            fd.append('state', formData.state);
+            fd.append('district', formData.district);
+            fd.append('policeStation', formData.policeStation);
+            fd.append('pincode', formData.pincode);
+
+            // Append file
+            if (formData.files) {
+                fd.append('file', formData.files); // 👈 field name should match backend
+            }
+
             const response = await axios.post(
                 'http://localhost:4000/api/v1/auth/additionalDetails',
-                formData,
+                fd,
                 {
                     headers: {
-                        'Content-Type': 'application/json',
+                        // DO NOT manually set Content-Type
                     },
-                    withCredentials: true, // 👈 Send session cookie
+                    withCredentials: true, // 👈 sends session cookie
                 }
             );
 
-            const data = response.data; // ✅ axios handles parsing
+            const data = response.data;
 
             if (data.success) {
                 alert('✅ Additional Details registered successfully!');
                 dispatch(setuserAdditionalDetailsField({ fill: 1 }));
-                // dispatch(resetAllFormData());
-                onNext(); // Proceed to next step
+                onNext();
             } else {
                 alert('⚠ Failed to register Additional Details: ' + data.message);
             }
