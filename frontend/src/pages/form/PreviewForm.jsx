@@ -87,45 +87,108 @@ export default function PreviewForm({ onBack }) {
   const submithandler = async () => {
     try {
       let payload = {};
+      let formData = null;
+      let useFormData = false;
 
       if (category === 'financial_fraud') {
+        const { files, ...restFinancialFraud } = financialFraud;
+        const { suspectedFile, ...restSuspect } = suspectData;
         payload = {
           ...financialFraud,
           ...financialAcc,
           ...suspectData,
         };
-      } else if (category === 'harassment') {
-        payload = {
-          ...harassment,
-          ...suspectData,
-        };
-      } else if (category === 'other') {
-        payload = {
-          ...otherCrime,
-          ...suspectData,
-        };
+        formData = new FormData();
+        formData.append('data', JSON.stringify(payload));
+        if (files) {
+          files.forEach((file, index) => {
+            formData.append('file', file);
+          });
+          useFormData = true;
+        }
+        if (suspectedFile) {
+          formData.append('suspect_file', suspectedFile);
+          console.log("📎 Appending suspect_file:", suspectedFile.name);
+          useFormData = true;
+        }
       }
+
+      else if (category === 'harassment') {
+        const { files, ...restHarassment } = harassment;
+        const { suspectedFile, ...restSuspect } = suspectData;
+
+        payload = {
+          ...restHarassment,
+          ...restSuspect,
+        };
+
+        formData = new FormData();
+        formData.append('data', JSON.stringify(payload));
+
+        if (files) {
+          formData.append('file', files);
+          useFormData = true;
+        }
+
+        if (suspectedFile) {
+          formData.append('suspect_file', suspectedFile);
+          //  formData.append('suspect_file', suspectedFile); // ✅ Suspect
+          console.log("📎 Appending suspect_file:", suspectedFile.name);
+          useFormData = true;
+        }
+      }
+
+      else if (category === 'other') {
+        const { files, ...restOther } = otherCrime;
+        const { suspectedFile, ...restSuspect } = suspectData;
+
+        payload = {
+          ...restOther,
+          ...restSuspect,
+        };
+
+        formData = new FormData();
+        formData.append('data', JSON.stringify(payload));
+
+        if (files) {
+          formData.append('file', files);
+          useFormData = true;
+        }
+
+        if (suspectedFile) {
+          formData.append('suspect_file', suspectedFile);
+          console.log("📎 Appending suspect_file:", suspectedFile.name);
+
+          useFormData = true;
+        }
+      }
+
       console.log('Payload to submit:', payload);
-      const { data } = await axios.post('http://localhost:4000/api/v1/auth/complaintInformation', payload,
+
+      const { data } = await axios.post(
+        'http://localhost:4000/api/v1/auth/complaintInformation',
+        useFormData ? formData : payload,
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          withCredentials: true, // 👈 Send session cookie
+          headers: useFormData
+            ? {} // ✅ Let browser handle the multipart/form-data headers
+            : { 'Content-Type': 'application/json' },
+          withCredentials: true,
         }
       );
 
       if (data.success) {
         alert('✅ Form submitted successfully!');
-        dispatch(resetAllFormData());
+        // dispatch(resetAllFormData());
       } else {
         alert('⚠️ Error submitting form: ' + data.message);
       }
+
     } catch (error) {
       console.error('❌ Axios submission error:', error);
       alert('❌ Network/server error while submitting form.');
     }
   };
+
 
 
   return (
@@ -151,11 +214,11 @@ export default function PreviewForm({ onBack }) {
         <p><strong>Card Type:</strong> {suspectData.suspectedCard}</p>
         <p><strong>Card Number:</strong> {suspectData.suspectedCardNumber}</p>
         <p><strong>Details:</strong> {suspectData.details}</p>
-        {suspectData.suspectFile instanceof File && (
+        {suspectData.suspectedFile instanceof File && (
           <div>
             <strong>suspectFile:</strong>
             <img
-              src={URL.createObjectURL(suspectData.suspectFile)}
+              src={URL.createObjectURL(suspectData.suspectedFile)}
               alt="Suspect"
               className="w-40 h-auto border mt-2"
             />
