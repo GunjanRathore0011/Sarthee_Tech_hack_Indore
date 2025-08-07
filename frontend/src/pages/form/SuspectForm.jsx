@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSuspectData } from '@/ReduxSlice/formData/formSlice';
 
-function SuspectForm({ onNext }) {
+function SuspectForm({ onNext, onBack }) {
   const suspectData = useSelector((state) => state.formData.suspectData);
   const dispatch = useDispatch();
 
@@ -59,34 +59,34 @@ function SuspectForm({ onNext }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">🚨 Suspect Details</h2>
+    <div className="max-w-3xl mx-auto p-8 bg-white shadow-xl rounded-xl mt-12">
+      <h2 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-2">🚨 Suspect Details</h2>
 
-      <div className="bg-blue-100 text-blue-800 p-3 rounded text-sm mb-6">
-        ℹ Please share the details of the suspect. Any information provided will be kept confidential and may help during the investigation.
+      <div className="bg-blue-100 text-blue-800 p-4 rounded-md text-sm mb-8">
+        ℹ️ Please share the details of the suspect. Any information provided will be kept confidential and may help during the investigation.
       </div>
 
       {/* Suspect Name */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Suspect Name ( if you know) </label>
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Suspect Name (if known)</label>
         <input
           type="text"
           name="suspectedName"
           value={suspectD.suspectedName}
           onChange={handleChange}
           placeholder="Enter suspect name"
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Social Media Type Dropdown */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Any Other Details about Suspect</label>
+      {/* Social Media / Suspect Info Dropdown */}
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Any Known Identity (e.g., Social Media, Phone)</label>
         <select
           name="suspectedCard"
           value={suspectD.suspectedCard}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="Other">Other</option>
           {socialMedia.map((media) => (
@@ -95,45 +95,43 @@ function SuspectForm({ onNext }) {
         </select>
       </div>
 
-      {/* Dynamic Input Field */}
+      {/* Dynamic Field Based on Selection */}
       {suspectD.suspectedCard && suspectD.suspectedCard !== 'Other' && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            {suspectD.suspectedCard} info
-          </label>
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">{suspectD.suspectedCard} Info</label>
           <input
             type={suspectD.suspectedCard === "Contact Number" ? "tel" : "text"}
             name="suspectedCardNumber"
             value={suspectD.suspectedCardNumber}
             onChange={handleChange}
             placeholder={`Enter ${suspectD.suspectedCard}`}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-300"
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       )}
 
       {/* Photo Upload */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Upload Suspect Photo</label>
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Upload Suspect Photo</label>
         <input
           type="file"
           accept=".jpg,.jpeg,.png"
           onChange={handlePhotoUpload}
-          className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-300 file:rounded file:bg-gray-50 hover:file:bg-gray-100"
+          className="block w-full text-sm text-gray-700 file:bg-blue-600 file:text-white file:border-none file:px-4 file:py-2 file:rounded-md file:mr-4 hover:file:bg-blue-700 border border-gray-300 p-2 rounded-md bg-gray-50"
         />
         <p className="text-xs text-gray-500 mt-1">Allowed formats: JPG, JPEG, PNG (Max: 5MB)</p>
       </div>
 
-      {/* Textarea for Other Details */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Any other information / details</label>
+      {/* Additional Info */}
+      <div className="mb-6">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">Any other information / details</label>
         <textarea
           name="details"
           value={suspectD.details}
           onChange={handleChange}
           maxLength={250}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded resize-none focus:outline-none focus:ring focus:ring-blue-300"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Enter any additional information (max 250 characters)"
         />
         <div className="text-right text-xs text-gray-500 mt-1">
@@ -141,22 +139,25 @@ function SuspectForm({ onNext }) {
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-between">
+      {/* Navigation Buttons */}
+      <div className="flex justify-between pt-4">
         <button
-          onClick={() => console.log('Back clicked')}
-          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+          onClick={onBack}
+          type="button"
+          className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
         >
           Back
         </button>
         <button
           onClick={handleSubmit}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+          type="button"
+          className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded"
         >
-          Preview & Next
+          Next 
         </button>
       </div>
     </div>
+
   );
 }
 
