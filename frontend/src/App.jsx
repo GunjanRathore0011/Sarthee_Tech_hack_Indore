@@ -1,8 +1,8 @@
-import React from 'react'
-import { Button } from "@/components/ui/button";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React from 'react';
+import { Routes, Route, useLocation } from "react-router-dom";
 import Home from './pages/Home';
 import Navbar from './component/Navbar';
+import AdminNavbar from './component/AdminComponent/AdminNavbar';
 import ContactUs from './pages/ContactUs';
 import Awareness from './pages/Awareness';
 import TrackStatus from './pages/TrackStatus';
@@ -11,33 +11,50 @@ import Login from './component/Login';
 import SignUp from './component/SignUp';
 import CyberCrimeForm from './pages/form/CyberCrimeForm';
 import MultiStepForm from './pages/form/MultiStepForm';
+import AdminHome from './pages/AdminDashboard/AdminHome';
+import ComplaintManagement from './pages/AdminDashboard/ComplaintManagement';
+import OfficerManagement from './pages/AdminDashboard/OfficerManagement';
+import Analytics from './pages/AdminDashboard/Analytics';
+import CrimeMap from './pages/AdminDashboard/CrimeMap';
 
 const App = () => {
+  const location = useLocation();
+
+  // All routes that need Admin Navbar
+  const adminRoutes = [
+    '/admin-dashboard',
+    '/complaint-management',
+    '/officer-management',
+    '/admin-analytics',
+    '/crime-map'
+  ];
+
+  const isAdminRoute = adminRoutes.includes(location.pathname);
+
   return (
     <>
-      <Navbar></Navbar>
+      {isAdminRoute ? <AdminNavbar /> : <Navbar />}
 
-    <Routes>
-        <Route path="/" element={<Home/>} />
-        {/* Add these when pages are ready */}
-        <Route path="/complaints" element={<ComplaintForm></ComplaintForm>} />
-        
-        <Route path="/track-status" element={<TrackStatus></TrackStatus>} />
-
-        <Route path="/awareness" element={<Awareness></Awareness>} />
-        
-        <Route path="/contact-us" element={<ContactUs></ContactUs>}/>
-        
-        <Route path="/login" element={<Login></Login>} />
-        <Route path="/signup" element={<SignUp></SignUp>} />
-
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/complaints" element={<ComplaintForm />} />
+        <Route path="/track-status" element={<TrackStatus />} />
+        <Route path="/awareness" element={<Awareness />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/financial-fraud" element={<CyberCrimeForm />} />
-
         <Route path="/step-form" element={<MultiStepForm />} />
 
+        {/* Admin Dashboard */}
+        <Route path="/admin-dashboard" element={<ComplaintManagement />} />
+        <Route path="/complaint-management" element={<ComplaintManagement />} />
+        <Route path="/officer-management" element={<OfficerManagement />} />
+        <Route path="/admin-analytics" element={<Analytics />} />
+        <Route path="/crime-map" element={<CrimeMap />} />
       </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
