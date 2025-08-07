@@ -6,6 +6,7 @@ require("dotenv").config();
 const MongoStore = require("connect-mongo");
 const session = require("express-session");
 const fileUpload = require("express-fileupload");
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT;
@@ -44,6 +45,7 @@ app.use(session({
 }));
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use('/pdfs', express.static(path.join(__dirname, 'pdfs')));
 
 // ✅ Routes
 const userRouter = require("./router/User");

@@ -3,6 +3,7 @@ const OTP = require("../models/OTP");
 const otpGenerator = require('otp-generator');
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
+const AdditionDetails = require("../models/AdditionDetails");
 
 exports.signUp = async (req, res) => {
     try {

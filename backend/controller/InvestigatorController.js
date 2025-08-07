@@ -109,3 +109,4 @@ exports.updateInvestigatorStatus = async (req, res) => {
         });
     }   
 };
+
