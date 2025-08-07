@@ -196,3 +196,51 @@ exports.subCategoryStats = async (req, res) => {
   }
 
 };
+
+
+exports.mapVisualize= async (req, res) => {
+  try {
+    // Aggregate complaints by pincode using AdditionDetails and Complaint
+    const pinStats = await AdditionDetails.aggregate([
+      {
+      $lookup: {
+        from: "complaints",
+        localField: "complainIds",
+        foreignField: "_id",
+        as: "complaints"
+      }
+      },
+      {
+      $group: {
+        _id: "$pincode",
+        cases: { $sum: { $size: "$complaints" } }
+      }
+      }
+    ]);
+
+    // Determine severity based on number of cases
+    const getSeverity = (cases) => {
+      if (cases >= 18) return "High";
+      if (cases >= 10) return "Medium";
+      return "Low";
+    };
+
+    // Format response
+    const pinData = pinStats
+      .filter(stat => stat._id) // Remove entries with no pincode
+      .map(stat => ({
+      pin: stat._id,
+      severity: getSeverity(stat.cases),
+      cases: stat.cases
+      }));
+
+    res.status(200).json({ success: true, data: pinData });
+
+  }
+  catch (err) {
+    console.error("❌ Error in mapVisualize:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+
