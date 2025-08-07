@@ -49,7 +49,9 @@ exports.dashboard = async (req, res) => {
     // Sort complaints by createdAt date ,new data first      
     formattedComplaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));  
 
-    // Aggregate to get total complaints , solve complain , highest prioritycases cases remaining
+    // Aggregate to get total complaints , solve complain , highest prioritycases cases remaining,total investigators
+    const totalInvestigators = await Investigator.countDocuments();
+    const activeInvestigators = await Investigator.countDocuments({ isActive: true });
     const totalComplaints = await Complaint.countDocuments();
     const solvedComplaints = await Complaint.countDocuments({ status: "Resolved" });
     const highestPriorityCasesRemaining = await Complaint.countDocuments({
@@ -63,6 +65,8 @@ exports.dashboard = async (req, res) => {
       totalComplaints: totalComplaints,
       solvedComplaints: solvedComplaints,
       highestPriorityCasesRemaining: highestPriorityCasesRemaining,
+      totalInvestigators: totalInvestigators,
+      activeInvestigators: activeInvestigators
           });
 
   } catch (error) {
@@ -203,15 +207,14 @@ exports.suggestInvestigator = async (req, res) => {
       email: investigator.email,
       activeCases: investigator.assignedCases.length,
       solvedCases: investigator.solvedCases.length,
-      performance: activeCases/(activeCases + solvedCases) * 100, // Calculate performance as a percentage
+      performance: (investigator.assignedCases.length)/((investigator.assignedCases.length) + (investigator.solvedCases.length)) * 100, // Calculate performance as a percentage
       specializations: investigator.specialistIn,
-      status: activeCases == 0 ? "Free" : (activeCases < 3 ? "Available" : "Busy")
+      status: (investigator.assignedCases.length) == 0 ? "Free" : (investigator.assignedCases.length < 3 ? "Available" : "Busy")
     }));
 
     //sort by performance
     data.sort((a, b) => b.performance - a.performance);
-    //limit to top 5 investigators
-    data = data.slice(0, 5);
+   
     
     res.status(200).json({ success: true, data });
   } catch (error) {
