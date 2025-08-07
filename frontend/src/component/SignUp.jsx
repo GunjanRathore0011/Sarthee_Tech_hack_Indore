@@ -35,9 +35,12 @@ const SignUp = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignUp', {
-                email: formData.email,
-            });
+            const response = await axios.post(
+                'http://localhost:4000/api/v1/auth/sendOTPforSignUp',
+                { email: formData.email },
+                { withCredentials: true }
+            );
+
 
             console.log('OTP sent response:', response.data);
             alert('OTP sent successfully!');
@@ -50,7 +53,7 @@ const SignUp = () => {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        if(!otpSent){
+        if (!otpSent) {
             alert('Please send OTP first');
             return;
         }
@@ -89,92 +92,92 @@ const SignUp = () => {
 
                 {/* Full Name */}
                 <form onSubmit={handleRegister}>
-                <div className="text-left mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                    <input
-                        type="text"
-                        name="fullName"
-                        placeholder="John Doe"
-                        className="w-full p-2 border rounded focus:outline-none"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-
-                {/* Email Address */}
-                <div className="text-left mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <div className="flex items-center border rounded px-2">
-                        <FiMail className="text-gray-400" />
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="name@example.com"
-                            className="w-full p-2 focus:outline-none"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                </div>
-
-                {/* Mobile Number */}
-                <div className="text-left mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
-                    <div className="flex items-center border rounded px-2">
-                        <FiPhone className="text-gray-400" />
+                    <div className="text-left mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                         <input
                             type="text"
-                            name="mobile"
-                            placeholder="Enter 10-digit number"
-                            className="w-full p-2 focus:outline-none"
-                            value={formData.mobile}
-                            maxLength={10}
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                // Allow only digits and max 10 characters
-                                if (/^\d{0,10}$/.test(value)) {
-                                    handleChange(e);
-                                }
-                            }}
-                            required
-                        />
-                    </div>
-                </div>
-
-
-                {/* OTP and Send OTP */}
-                <div className="text-left mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
-                    <div className="flex gap-2 items-center">
-                        <input
-                            type="text"
-                            name="otp"
-                            placeholder="******"
+                            name="fullName"
+                            placeholder="John Doe"
                             className="w-full p-2 border rounded focus:outline-none"
-                            value={formData.otp}
+                            value={formData.fullName}
                             onChange={handleChange}
-                            disabled={!otpSent}
                             required
-                            maxLength={6}
                         />
-                        <button
-                            onClick={handleSendOtp}
-                            className="text-blue-600 cursor-pointer border text-sm border-blue-600 px-2 py-1 rounded hover:bg-blue-50 transition"
-                        >
-                            Send OTP
-                        </button>
                     </div>
-                </div>
 
-                {/* Register Button */}
-                <button
-                    type='submit'
-                    className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-                >
-                    Register Now
-                </button>
+                    {/* Email Address */}
+                    <div className="text-left mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <div className="flex items-center border rounded px-2">
+                            <FiMail className="text-gray-400" />
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="name@example.com"
+                                className="w-full p-2 focus:outline-none"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Mobile Number */}
+                    <div className="text-left mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label>
+                        <div className="flex items-center border rounded px-2">
+                            <FiPhone className="text-gray-400" />
+                            <input
+                                type="text"
+                                name="mobile"
+                                placeholder="Enter 10-digit number"
+                                className="w-full p-2 focus:outline-none"
+                                value={formData.mobile}
+                                maxLength={10}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    // Allow only digits and max 10 characters
+                                    if (/^\d{0,10}$/.test(value)) {
+                                        handleChange(e);
+                                    }
+                                }}
+                                required
+                            />
+                        </div>
+                    </div>
+
+
+                    {/* OTP and Send OTP */}
+                    <div className="text-left mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
+                        <div className="flex gap-2 items-center">
+                            <input
+                                type="text"
+                                name="otp"
+                                placeholder="******"
+                                className="w-full p-2 border rounded focus:outline-none"
+                                value={formData.otp}
+                                onChange={handleChange}
+                                disabled={!otpSent}
+                                required
+                                maxLength={6}
+                            />
+                            <button
+                                onClick={handleSendOtp}
+                                className="text-blue-600 cursor-pointer border text-sm border-blue-600 px-2 py-1 rounded hover:bg-blue-50 transition"
+                            >
+                                Send OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Register Button */}
+                    <button
+                        type='submit'
+                        className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                    >
+                        Register Now
+                    </button>
                 </form>
 
                 {/* Footer */}

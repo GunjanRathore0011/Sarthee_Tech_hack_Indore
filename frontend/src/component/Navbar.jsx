@@ -71,6 +71,7 @@ const Navbar = () => {
             Login
           </Link>
         )}
+        <Link to='/admin-dashboard' className="mr-2"> Admin</Link>
       </div>
     </nav>
   );

@@ -40,7 +40,7 @@ function OtherCrimeForm({ onNext }) {
     }
     console.log('Other Crime Data:', formData);
 
-    onNext(); 
+    onNext();
   };
 
   return (
@@ -51,17 +51,18 @@ function OtherCrimeForm({ onNext }) {
         </h2>
 
         {/* Category */}
-        <div>
+        <div className="mb-5">
           <label className="block mb-1 font-semibold">Category</label>
           <input
             type="text"
             name="category"
             value={formData.category}
             readOnly
-            className="w-full p-2 rounded border bg-gray-100"
+            className="w-full p-3 rounded border bg-gray-100 text-gray-700"
           />
         </div>
 
+        {/* SubCategory */}
         <div className="mb-5">
           <label className="block mb-2 font-semibold text-gray-700">SubCategory</label>
           <select
@@ -162,7 +163,7 @@ function OtherCrimeForm({ onNext }) {
         </div>
 
         {/* File Upload */}
-        <div className="mb-6">
+        <div className="mb-8">
           <label className="block mb-2 font-semibold text-gray-700">
             Upload Supporting Files (images, documents, etc.)
           </label>
@@ -181,12 +182,19 @@ function OtherCrimeForm({ onNext }) {
           )}
         </div>
 
-        {/* Submit Button */}
-        <Button type="submit" className="w-full">
-          Submit Complaint
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Save & Next
+          </button>
+        </div>
+
       </form>
     </div>
+
   );
 }
 

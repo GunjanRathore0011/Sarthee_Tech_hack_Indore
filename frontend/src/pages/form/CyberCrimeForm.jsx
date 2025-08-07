@@ -66,36 +66,38 @@ function CyberCrimeForm({ onNext }) {
       alert("Please fill required fields.");
       return;
     }
-    
+
     if (onNext) onNext(); // ✅ move to next step
   };
 
   return (
-    <div className="flex justify-center bg-gray-50 py-10 px-4">
+    <div className="flex justify-center bg-gray-50 py-12 px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-[60%] bg-white p-8 rounded-xl shadow-md border border-gray-200"
+        className="w-full max-w-4xl bg-white p-10 rounded-xl shadow-lg border border-gray-200"
       >
-        <h2 className="text-3xl font-semibold text-blue-700 mb-6 text-center">Cyber Crime Complaint</h2>
+        <h2 className="text-4xl font-bold text-blue-700 mb-8 text-center">Cyber Crime Complaint</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Category (Disabled) */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">Category (Fixed)</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Category</label>
             <select
               value={formData.category}
               disabled
-              className="w-full bg-gray-100 text-gray-700 border border-gray-300 p-3 rounded-md"
+              className="w-full bg-gray-100 text-gray-700 border border-gray-300 p-3 rounded-md cursor-not-allowed"
             >
               <option value="Financial Fraud">Financial Fraud</option>
             </select>
           </div>
 
+          {/* Subcategory */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">Subcategory</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Subcategory</label>
             <select
               value={formData.subCategory}
               onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-md"
+              className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="">Select Subcategory</option>
@@ -105,25 +107,27 @@ function CyberCrimeForm({ onNext }) {
             </select>
           </div>
 
+          {/* Incident Date & Time */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">Incident Date & Time</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Incident Date & Time</label>
             <input
               type="datetime-local"
               value={formData.incident_datetime}
               onChange={(e) => setFormData({ ...formData, incident_datetime: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-md"
+              className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
+          {/* Money Lost */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">Did you lose money?</label>
-            <div className="flex gap-6 mt-1">
-              <label className="flex items-center gap-2">
+            <label className="block mb-2 text-sm font-medium text-gray-700">Did you lose money?</label>
+            <div className="flex gap-6 mt-2">
+              <label className="inline-flex items-center gap-2">
                 <input type="radio" name="lostMoney" checked={lostMoney} onChange={() => setLostMoney(true)} />
                 Yes
               </label>
-              <label className="flex items-center gap-2">
+              <label className="inline-flex items-center gap-2">
                 <input type="radio" name="lostMoney" checked={!lostMoney} onChange={() => setLostMoney(false)} />
                 No
               </label>
@@ -131,20 +135,21 @@ function CyberCrimeForm({ onNext }) {
           </div>
         </div>
 
+        {/* Lost Money Details */}
         {lostMoney && (
           <>
-            <div className="mt-6">
-              <label className="block mb-2 font-semibold text-gray-700">Amount Lost</label>
+            <div className="mt-8">
+              <label className="block mb-2 text-sm font-medium text-gray-700">Amount Lost</label>
               <input
                 type="number"
                 value={formData.lost_money}
                 onChange={(e) => setFormData({ ...formData, lost_money: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded-md"
+                className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               {[
                 { name: "accountNumber", label: "Account Number" },
                 { name: "bankName", label: "Bank Name" },
@@ -152,23 +157,24 @@ function CyberCrimeForm({ onNext }) {
                 { name: "transactionId", label: "Transaction ID" },
               ].map((field) => (
                 <div key={field.name}>
-                  <label className="block mb-2 font-semibold text-gray-700">{field.label}</label>
+                  <label className="block mb-2 text-sm font-medium text-gray-700">{field.label}</label>
                   <input
                     type="text"
                     value={accData[field.name]}
                     onChange={(e) => setAccData({ ...accData, [field.name]: e.target.value })}
-                    className="w-full border border-gray-300 p-3 rounded-md"
+                    className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
               ))}
+
               <div>
-                <label className="block mb-2 font-semibold text-gray-700">Transaction Date</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Transaction Date</label>
                 <input
                   type="date"
                   value={accData.transactionDate}
                   onChange={(e) => setAccData({ ...accData, transactionDate: e.target.value })}
-                  className="w-full border border-gray-300 p-3 rounded-md"
+                  className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
@@ -176,14 +182,15 @@ function CyberCrimeForm({ onNext }) {
           </>
         )}
 
-        <div className="mt-6">
-          <label className="block mb-2 font-semibold text-gray-700">Any delay in reporting?</label>
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2">
+        {/* Delay Section */}
+        <div className="mt-8">
+          <label className="block mb-2 text-sm font-medium text-gray-700">Any delay in reporting?</label>
+          <div className="flex gap-6 mt-2">
+            <label className="inline-flex items-center gap-2">
               <input type="radio" name="delay" checked={delay} onChange={() => setDelay(true)} />
               Yes
             </label>
-            <label className="flex items-center gap-2">
+            <label className="inline-flex items-center gap-2">
               <input type="radio" name="delay" checked={!delay} onChange={() => setDelay(false)} />
               No
             </label>
@@ -195,19 +202,20 @@ function CyberCrimeForm({ onNext }) {
               placeholder="Reason for delay"
               value={formData.reson_of_delay}
               onChange={(e) => setFormData({ ...formData, reson_of_delay: e.target.value })}
-              className="w-full border border-gray-300 p-3 rounded-md mt-4"
+              className="w-full border border-gray-300 p-3 rounded-md mt-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           )}
         </div>
 
-        <div className="mt-6">
-          <label className="block mb-2 font-semibold text-gray-700">Description</label>
+        {/* Description */}
+        <div className="mt-8">
+          <label className="block mb-2 text-sm font-medium text-gray-700">Description</label>
           <textarea
-            rows="4"
+            rows="5"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full border border-gray-300 p-3 rounded-md"
+            className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Minimum 200 characters"
             required
           ></textarea>
@@ -218,13 +226,14 @@ function CyberCrimeForm({ onNext }) {
           </p>
         </div>
 
-        <div className="mt-6">
-          <label className="block mb-2 font-semibold text-gray-700">Upload Files</label>
+        {/* File Upload */}
+        <div className="mt-8">
+          <label className="block mb-2 text-sm font-medium text-gray-700">Upload Files</label>
           <input
             type="file"
             multiple
             onChange={handleFileChange}
-            className="block w-full text-gray-700 file:bg-blue-600 file:text-white file:border-none file:px-4 file:py-2 file:rounded-md file:mr-4 hover:file:bg-blue-700 border border-gray-300 p-2 rounded-md bg-gray-50"
+            className="block w-full text-gray-700 file:bg-blue-600 file:text-white file:border-none file:px-4 file:py-2 file:rounded-md hover:file:bg-blue-700 border border-gray-300 p-2 rounded-md bg-gray-50"
           />
           {formData.files.length > 0 && (
             <ul className="mt-2 text-sm text-gray-600 list-disc pl-5">
@@ -235,11 +244,22 @@ function CyberCrimeForm({ onNext }) {
           )}
         </div>
 
-        <Button type="submit" className="mt-8 w-full bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700">
-          Submit Complaint
-        </Button>
+        {/* Submit Button */}
+
+        {/* Action Buttons */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Save & Next
+          </button>
+        </div>
+
       </form>
     </div>
+
+
   );
 }
 
