@@ -43,7 +43,7 @@ const complaintSchema = new mongoose.Schema({
   },
 status: {
   type: String,
-  enum: ['Pending', 'assignInvestigator', 'In_review', 'Resolved', 'Rejected'],
+  enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
   default: 'Pending'
 },
 
@@ -52,7 +52,7 @@ statusHistory: [
     status: {
       type: String,
       enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
-      required: true
+      default: 'Pending',
     },
     remark: {
       type: String,

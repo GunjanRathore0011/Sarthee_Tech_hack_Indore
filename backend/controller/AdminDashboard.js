@@ -3,6 +3,7 @@ const AdditionDetails = require("../models/AdditionDetails");
 const SuspectSchema = require("../models/SuspectSchema");
 const VictimDetails = require("../models/Victim");
 const Complaint = require("../models/Complaint");
+
 const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
 
@@ -36,7 +37,7 @@ exports.dashboard = async (req, res) => {
       detail.complainIds.forEach(complaint => {
       formattedComplaints.push({
         _id: complaint._id,
-        category: complaint.category,
+        category: complaint.subCategory,
         location: complaint.street || detail.district || detail.state || detail.street || "",
         priority: complaint.priority,
         status: complaint.status,
@@ -122,20 +123,29 @@ exports.assignInvestigator = async (req, res) => {
         message: "Complaint ID and Investigator ID are required."
       });
     }
-    const complaint = await Complaint.findById(complaintId);
-    if (!complaint) {
+    const complain= await Complaint.findById(complaintId);
+    if (!complain) {
       return res.status(404).json({
         success: false,
         message: "Complaint not found."
       });
     }
-    complaint.assignedTo = investigatorId;
-    await complaint.save();
+    complain.assignedTo = investigatorId;
+    // Update the status to 'assignInvestigator'
+    complain.status = 'AssignInvestigator';
+    // Add to status history
+    complain.statusHistory.push({
+      status: 'AssignInvestigator',
+      remark: `Assigned to investigator ( Id : ${investigatorId})`,
+      updatedAt: new Date()
+    });
+   
+    await complain.save();
     res.status(200).json({
         success: true,
         message: "Investigator assigned successfully.",
         data: {
-            complaintId: complaint._id,
+            complaintId: complain._id,
             assignedTo: investigatorId
         }
     });
@@ -143,7 +153,7 @@ exports.assignInvestigator = async (req, res) => {
     console.error("❌ Error in assignInvestigator:", error);
     res.status(500).json({
       success: false,
-        message: "Internal Server Error"
+        message: `Internal Server Error ${error.message}`
     });
   }
 };    
