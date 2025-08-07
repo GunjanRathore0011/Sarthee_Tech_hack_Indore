@@ -42,16 +42,34 @@ export default function PreviewForm({ onBack }) {
             <p><strong>Reason for Delay:</strong> {financialFraud.reson_of_delay}</p>
 
             {/* Conditional File Display */}
+            {/* Conditional File Display */}
             {financialFraud.files && financialFraud.files.length > 0 && (
               <div className="mt-4">
-                <h4 className="font-semibold">Uploaded Files:</h4>
-                <ul className="list-disc ml-5">
-                  {financialFraud.files.map((file, index) => (
-                    <li key={index}>{file.name || `File ${index + 1}`}</li>
-                  ))}
+                <h4 className="font-semibold mb-2">Uploaded Files:</h4>
+                <ul className="space-y-4">
+                  {financialFraud.files.map((file, index) => {
+                    const isImage = file.type && file.type.startsWith("image/");
+                    const fileURL = URL.createObjectURL(file);
+
+                    return (
+                      <li key={index} className="flex items-start gap-4">
+                        <div>
+                          <p className="font-medium">{file.name || `File ${index + 1}`}</p>
+                          {isImage && (
+                            <img
+                              src={fileURL}
+                              alt={`Preview ${index + 1}`}
+                              className="mt-1 w-32 h-32 object-cover rounded border"
+                            />
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
+
 
             {/* Conditional Bank Details Display */}
             {(financialAcc.accountNumber || financialAcc.bankName || financialAcc.transactionId) && (
