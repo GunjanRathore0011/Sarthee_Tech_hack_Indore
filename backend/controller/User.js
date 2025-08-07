@@ -67,7 +67,7 @@ exports.generateComplaintPDF = async (req, res) => {
         message: "Complaint not found."
       });
     }
-    const additionalDetails = await AdditionDetails.findOne({ complaintId: complaint._id });
+    const additionalDetails = await AdditionDetails.findOne({ complainIds: complaint._id });
     if (!additionalDetails) {
       return res.status(404).json({
         success: false,
