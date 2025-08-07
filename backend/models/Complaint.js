@@ -41,11 +41,35 @@ const complaintSchema = new mongoose.Schema({
     type: Date,
     required :true// stores both date and time of incident
   },
-  status: {
-    type: String,
-    enum: ['Pending', 'In_review', 'Resolved', 'Rejected'],
-    default: 'Pending' // current complaint status
-  },
+status: {
+  type: String,
+  enum: ['Pending', 'assignInvestigator', 'In_review', 'Resolved', 'Rejected'],
+  default: 'Pending'
+},
+
+statusHistory: [
+  {
+    status: {
+      type: String,
+      enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
+      required: true
+    },
+    remark: {
+      type: String,
+      default: ''
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
+    },
+    // updatedBy: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'User', // or 'Investigator' or 'Admin'
+    //   required: false
+    // }
+  }
+],
+
   assignedTo: {  
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // reference to the User who is assigned to handle the complaint

@@ -39,6 +39,20 @@ exports.signUp = async (req, res) => {
             otp,
             accountType: "User", // Default account type
         });
+        //create a session token
+        const payload = {
+            userId: newUser._id,
+            email: newUser.email,
+            accountType: newUser.accountType, // Include account type in the payload
+        };
+        //using jwt to create a token
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: "7d" // Token expires in 7 days
+        });
+        // Save the token in the user's session or database as needed
+        req.session.token = token; // Example of saving token in session
+        
+
         // Associate additional details
         res.status(201).json({
             message: "User created successfully",

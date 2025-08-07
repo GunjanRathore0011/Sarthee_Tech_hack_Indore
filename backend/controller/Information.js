@@ -2,7 +2,6 @@ const User = require("../models/User");
 const AdditionDetails = require("../models/AdditionDetails");
 const SuspectSchema = require("../models/SuspectSchema");
 const VictimDetails = require("../models/Victim");
-const Complaint = require("../models/Complaint");
 const UploadToCloudinary = require("../utils/UploadToCloudinary");
 require('dotenv').config();
 
@@ -365,6 +364,12 @@ exports.additionalDetails = async (req, res) => {
       delay_in_report,
       reason_of_delay,
       description,
+      statusHistory: [{
+        status: "Pending",
+        remark: "Case registered successfully. Awaiting verification and assignment. The complaint has been received and logged into the system. Our team will initiate the review process shortly",
+        updatedAt: new Date()
+      }],
+      priority: prior,
       screenShots: imageUrls,
       incident_datetime,
     });
