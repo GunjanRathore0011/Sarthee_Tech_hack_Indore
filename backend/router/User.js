@@ -3,6 +3,7 @@ const router = express();
 const { sendOTPforSignUp,sendOTPforSignIn,signUp,signin,logout} = require('../controller/Auth');
 const { isAuthenticatedUser } = require('../middleware/auth');
 const {additionalDetails,complaintInformation} = require('../controller/Information');
+const {getComplaintStatus} = require('../controller/User');
 
 
 router.post('/signup', signUp);
@@ -17,4 +18,9 @@ router.post('/additionalDetails', isAuthenticatedUser, additionalDetails)
 // router.post('/victimInformation', isAuthenticatedUser, victimInformation);
 // router.post('/suspectedInformation', isAuthenticatedUser, suspectedInformation);
 router.post('/complaintInformation', isAuthenticatedUser, complaintInformation);
+
+//router check status of complaint
+router.get('/complaintStatus/:id', isAuthenticatedUser, getComplaintStatus);
+
+//check status of the user
 module.exports = router;

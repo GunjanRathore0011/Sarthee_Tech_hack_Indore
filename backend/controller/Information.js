@@ -3,6 +3,7 @@ const AdditionDetails = require("../models/AdditionDetails");
 const SuspectSchema = require("../models/SuspectSchema");
 const VictimDetails = require("../models/Victim");
 const UploadToCloudinary = require("../utils/UploadToCloudinary");
+const Complaint = require("../models/Complaint");
 require('dotenv').config();
 
 exports.additionalDetails = async (req, res) => {

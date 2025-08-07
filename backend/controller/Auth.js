@@ -232,6 +232,9 @@ exports.signin = async (req, res) => {
                 success: false,
             });
         }
+        //find additional details
+         const additionalDetails = await AdditionDetails.findOne({ userId: user[0]._id });
+         
         //generate a session token
         const Payload = {
             userId: user[0]._id,
@@ -248,16 +251,13 @@ exports.signin = async (req, res) => {
         // await user[0].save(); 
 
         
-        // Here you can use a library like jsonwebtoken to create a token
-        // const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-
 
         // Successful sign-in
         res.status(200).json({
             message: "Sign-in successful",
             success: true,
-            user: user[0], // Return the user data
+            user: user[0],
+            additionalDetails : additionalDetails || null // Return the user data
         });
     }
 
