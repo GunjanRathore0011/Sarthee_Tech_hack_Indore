@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { FiMail, FiPhone } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
+import { setAdditionDetail } from '@/ReduxSlice/formData/formSlice';
+// import { useDispatch } from 'react-redux';
+import { setuserAdditionalDetailsField } from '@/ReduxSlice/formData/formSlice';
 
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
@@ -34,23 +37,57 @@ const SignUp = () => {
             return;
         }
 
-        try {
-            const response = await axios.post(
-                'http://localhost:4000/api/v1/auth/sendOTPforSignUp',
-                { email: formData.email },
-                { withCredentials: true }
-            );
+    //     try {
+    //         const response = await axios.post(
+    //             'http://localhost:4000/api/v1/auth/sendOTPforSignUp',
+    //             { email: formData.email },
+    //             { withCredentials: true }
+    //         );
 
+    //         console.log('OTP sent response:', response.data);
+    //         alert('OTP sent successfully!');
+    //         setOtpSent(true);
+    //     } catch (error) {
+    //         console.error('Error sending OTP:', error);
+    //         alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+    //     }
+    // };
 
-            console.log('OTP sent response:', response.data);
-            alert('OTP sent successfully!');
-            setOtpSent(true);
-        } catch (error) {
-            console.error('Error sending OTP:', error);
-            alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
-        }
+    try {
+        const response = await axios.post(
+            'http://localhost:4000/api/v1/auth/signin',
+            {
+                email,
+                otp: Number(otp),
+            },
+            {
+                withCredentials: true,
+            }
+        );
+
+        const { user, additionalDetails } = response.data;
+
+        console.log('Login successful:', response.data);
+        console.log("addional details" , additionalDetails);
+        alert('Login successful!');
+
+        // 1. Store user info in userSlice
+        dispatch(loginSuccess({ user }));
+
+        // 2. If additionalDetails exist, store them in formSlice
+        if (additionalDetails) {
+            dispatch(setAdditionDetail(additionalDetails));
+            dispatch(setuserAdditionalDetailsField({ fill: 1 }));
+                    }
+
+        // 3. Redirect user
+        navigate('/');
+
+    } catch (error) {
+        console.error('Login failed:', error);
+        alert('Invalid OTP or email. Please try again.');
+    }
     };
-
     const handleRegister = async (e) => {
         e.preventDefault();
         if (!otpSent) {

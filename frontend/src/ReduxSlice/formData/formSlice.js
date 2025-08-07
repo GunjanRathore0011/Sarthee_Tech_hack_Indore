@@ -14,7 +14,6 @@ const initialState = {
         policeStation: '',
         pincode: '',
         files: []
-
     },
     financialFraud: {
         formData: {
