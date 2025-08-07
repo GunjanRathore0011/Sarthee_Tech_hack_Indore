@@ -139,16 +139,21 @@ exports.suggestInvestigator = async (req, res) => {
       email: investigator.email,
       activeCases: investigator.assignedCases.length,
       solvedCases: investigator.solvedCases.length,
-      performance: activeCases/(activeCases + solvedCases) * 100, // Calculate performance as a percentage
+      performance: activeCases / (activeCases + solvedCases) * 100, // Calculate performance as a percentage
       specializations: investigator.specialistIn,
-      status: activeCases == 0 ? "Free" : (activeCases < 3 ? "Available" : "Busy")
+      status:
+        activeCases == 0 ? "Free" : (activeCases < 3 ? "Available" : "Busy")
     }));
 
     //sort by performance
     data.sort((a, b) => b.performance - a.performance);
     //limit to top 5 investigators
     data = data.slice(0, 5);
-    
+    console.log("Investigator stats:", data);
+
+    if (data.length === 0) {
+      return res.status(404).json({ success: false, message: "No active investigators found" });
+    }
     res.status(200).json({ success: true, data });
   } catch (error) {
     console.error("❌ Error fetching investigator stats:", error);
@@ -173,7 +178,7 @@ exports.subCategoryStats = async (req, res) => {
       },
       {
         $sort: { total: -1 }
-      },  
+      },
       {
         $project: {
           _id: 0,
@@ -188,7 +193,7 @@ exports.subCategoryStats = async (req, res) => {
           }
         }
       }
-    ]); 
+    ]);
     res.status(200).json({ success: true, data });
   } catch (err) {
     console.error("❌ Error in subCategoryStats:", err);

@@ -52,6 +52,13 @@ const App = () => {
         <Route path="/officer-management" element={<OfficerManagement />} />
         <Route path="/admin-analytics" element={<Analytics />} />
         <Route path="/crime-map" element={<CrimeMap />} />
+
+
+        {/* Officer Dashboard */}
+        <Route path="/officer-dashboard" element={<AdminHome />} />
+        <Route path="/officer-complaint-management" element={<ComplaintManagement />} />
+        <Route path="/officer-analytics" element={<Analytics />} />
+
       </Routes>
     </>
   );

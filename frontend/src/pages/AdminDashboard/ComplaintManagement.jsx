@@ -2,56 +2,35 @@ import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ComplaintManagement = () => {
     const [complaints, setComplaints] = useState([]);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const limit = 10;
 
+    // Fetch complaints from backend
+    const fetchComplaints = async () => {
+        try {
+            const res= await axios.get('http://localhost:4000/api/v1/admin/dashboard');
+            console.log("Fetched complaints:", res.data.data);  
+            // Ensure data is array before setting
+            if (Array.isArray(res.data.data)) {
+                setComplaints(res.data.data);
+            } else {
+                console.error("Invalid complaints data format:", res.data.data);
+                setComplaints([]);
+            }
+
+        }
+        catch (error) {
+            console.error('Error fetching complaints:', error);
+        }
+           
+    }
     useEffect(() => {
-        // Temporary static data
-        const dummyComplaints = [
-            {
-                _id: 'C123456789',
-                category: 'Cyberbullying',
-                location: 'New Delhi',
-                priority: 'High',
-                status: 'Pending',
-                assignedTo: 'Officer Rajeev',
-                createdAt: '2025-08-04T10:30:00Z',
-            },
-            {
-                _id: 'C987654321',
-                category: 'Phishing',
-                location: 'Mumbai',
-                priority: 'Medium',
-                status: 'Resolved',
-                assignedTo: 'Officer Meera',
-                createdAt: '2025-08-05T15:45:00Z',
-            },
-            {
-                _id: 'C987658321',
-                category: 'Phishing',
-                location: 'Mumbai',
-                priority: 'Medium',
-                status: 'Resolved',
-                assignedTo: 'Officer Meera',
-                createdAt: '2025-08-05T15:45:00Z',
-            },
-            {
-                _id: 'C987654331',
-                category: 'Phishing',
-                location: 'Mumbai',
-                priority: 'low',
-                status: 'Resolved',
-                assignedTo: 'Officer Meera',
-                createdAt: '2025-08-05T15:45:00Z',
-            },
-        ];
-
-        setComplaints(dummyComplaints);
+        // Temporary static data    
+        fetchComplaints();
     }, []);
+    console.log("Complaints data:", complaints);
     const getStatusStyle = (status) => {
         switch (status.toLowerCase()) {
             case 'pending':
@@ -78,11 +57,7 @@ const ComplaintManagement = () => {
         }
     };
 
-    const handleShowMore = () => {
-        // Later you'll increase `page` and fetch from API
-        // setPage(prev => prev + 1);
-    };
-
+    
     return (
         <div className="p-4 bg-white rounded-xl shadow-md">
             <h2 className="text-xl font-semibold mb-4">Recent Complaints</h2>
@@ -147,11 +122,7 @@ const ComplaintManagement = () => {
                 </Table>
             </div>
 
-            {hasMore && (
-                <div className="flex justify-center mt-4">
-                    <Button onClick={handleShowMore}>Show More</Button>
-                </div>
-            )}
+            
         </div>
     );
 };
