@@ -6,36 +6,64 @@ const Complaint = require("../models/Complaint");
 const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
 
+
+
 //admin dashboard
 exports.dashboard = async (req, res) => {
   try {
-    const additionalDetails = await AdditionDetails.find()
-      .select('userId complainIds street')
+    
+  const additionalDetails = await AdditionDetails.find()
+      .select('userId complainIds street ')
       .populate({
-        path: 'complainIds',
-        select: 'category subCategory status priority assignedTo',
-        populate: {
-          path: 'assignedTo',
-          select: 'name specialistIn'
-        }
+      path: 'complainIds',
+      select: 'category subCategory status priority assignedTo createdAt ',
+      populate: {
+        path: 'assignedTo',
+        select: 'name specialistIn'
+      }
       });
 
-    if (!additionalDetails) {
+      if (!additionalDetails) {
       return res.status(404).json({
         success: false,
         message: "No additional details found"
       });
     }
 
-    // Aggregate to get total complaints
-    const totalComplaints = await Complaint.countDocuments();
+    // Flatten and format for frontend
+    const formattedComplaints = [];
+    additionalDetails.forEach(detail => {
+      detail.complainIds.forEach(complaint => {
+      formattedComplaints.push({
+        _id: complaint._id,
+        category: complaint.category,
+        location: complaint.street || detail.district || detail.state || detail.street || "",
+        priority: complaint.priority,
+        status: complaint.status,
+        assignedTo: complaint.assignedTo?.name || null,
+        createdAt: complaint.createdAt
+      });
+      });
+    });
 
+    // Sort complaints by createdAt date ,new data first      
+    formattedComplaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));  
+
+    // Aggregate to get total complaints , solve complain , highest prioritycases cases remaining
+    const totalComplaints = await Complaint.countDocuments();
+    const solvedComplaints = await Complaint.countDocuments({ status: "Resolved" });
+    const highestPriorityCasesRemaining = await Complaint.countDocuments({
+  priority: "High",
+  status: { $ne: "Resolved" }
+});
     res.status(200).json({
       success: true,
       message: "Admin Dashboard data fetched successfully",
-      data: additionalDetails,
-      totalComplaints: totalComplaints
-    });
+      data: formattedComplaints,
+      totalComplaints: totalComplaints,
+      solvedComplaints: solvedComplaints,
+      highestPriorityCasesRemaining: highestPriorityCasesRemaining,
+          });
 
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
@@ -79,6 +107,42 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
+
+//assign investigator to complaint
+exports.assignInvestigator = async (req, res) => {
+  try {
+    const { complaintId, investigatorId } = req.body;
+    if (!complaintId || !investigatorId) {
+      return res.status(400).json({
+        success: false,
+        message: "Complaint ID and Investigator ID are required."
+      });
+    }
+    const complaint = await Complaint.findById(complaintId);
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: "Complaint not found."
+      });
+    }
+    complaint.assignedTo = investigatorId;
+    await complaint.save();
+    res.status(200).json({
+        success: true,
+        message: "Investigator assigned successfully.",
+        data: {
+            complaintId: complaint._id,
+            assignedTo: investigatorId
+        }
+    });
+  } catch (error) {
+    console.error("❌ Error in assignInvestigator:", error);
+    res.status(500).json({
+      success: false,
+        message: "Internal Server Error"
+    });
+  }
+};    
 
 
 // Get Monthly Complaint Stats
