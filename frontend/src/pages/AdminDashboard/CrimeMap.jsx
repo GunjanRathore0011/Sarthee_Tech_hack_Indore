@@ -51,12 +51,12 @@ const fetchPinDataFromAPI = async () => {
         "Content-Type": "application/json",
       },
     });
-
     if (!res.ok) {
       throw new Error("Failed to fetch pin data");
     }
 
     const response = await res.json();
+    console.log("Fetched pin data:", response.data);
     return response.data || []; // Adjust according to API structure
   } catch (error) {
     console.error("Error fetching pin data:", error);
