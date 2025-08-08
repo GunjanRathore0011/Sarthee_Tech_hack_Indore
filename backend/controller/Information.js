@@ -355,12 +355,6 @@ exports.complaintInformation = async (req, res) => {
     } else {
       prior = lost_money >= 100000 ? "High" : "Low";
     }
-         let prior = "Medium";
-            if("Harassment"==category){                
-            }else{
-             prior = lost_money >= 100000 ? "High" :"Low";
-             }
-
 
     // ✅ Create complaint
     const complaintInfo = await Complaint.create({
