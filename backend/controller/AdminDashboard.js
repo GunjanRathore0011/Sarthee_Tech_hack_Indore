@@ -3,7 +3,7 @@ const AdditionDetails = require("../models/AdditionDetails");
 const SuspectSchema = require("../models/SuspectSchema");
 const VictimDetails = require("../models/Victim");
 const Complaint = require("../models/Complaint");
-
+const InvestigatorSchema =require("../models/InvestigatorSchema")
 const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
 
@@ -314,8 +314,11 @@ exports.assignInvestigator = async (req, res) => {
     });
 
     //assign to the investigator
-    // const investigator =
-
+    const investigator = await InvestigatorSchema.findById(investigatorId)
+    if (investigator) {
+      investigator.assignedCases.push(complaintId);
+      await investigator.save();
+    }
    
     await complain.save();
     res.status(200).json({
