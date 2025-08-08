@@ -11,6 +11,12 @@ export default function PreviewForm({ onBack }) {
   const financialFraud = useSelector((state) => state.formData.financialFraud.formData);
   const financialAcc = useSelector((state) => state.formData.financialFraud.accData);
 
+  console.log("files", harassment.files)
+  console.log('FILES:', harassment.files);
+console.log('IS ARRAY:', Array.isArray(harassment.files));
+
+
+
   const otherCrime = useSelector((state) => state.formData.otherCrime);
   console.log("suspesctData", suspectData);
 
@@ -28,8 +34,37 @@ export default function PreviewForm({ onBack }) {
             <p><strong>Date & Time:</strong> {harassment.incident_datetime}</p>
             <p><strong>Delay:</strong> {harassment.delay_in_report ? 'Yes' : 'No'}</p>
             <p><strong>Reason for Delay:</strong> {harassment.reson_of_delay}</p>
+
+              {harassment.files && harassment.files.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Uploaded Files:</h4>
+                <ul className="space-y-4">
+                  {Array.from(harassment.files).map((file, index) => {
+                    const isImage = file.type && file.type.startsWith("image/");
+                    const fileURL = URL.createObjectURL(file);
+
+                    return (
+                      <li key={index} className="flex items-start gap-4">
+                        <div>
+                          <p className="font-medium">{file.name || `File ${index + 1}`}</p>
+                          {isImage && (
+                            <img
+                              src={fileURL}
+                              alt={`Preview ${index + 1}`}
+                              className="mt-1 w-32 h-32 object-cover rounded border"
+                            />
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
           </div>
         );
+
       case 'financial_fraud':
         return (
           <div>
@@ -196,6 +231,7 @@ export default function PreviewForm({ onBack }) {
 
       if (data.success) {
         alert('✅ Form submitted successfully!');
+        
         // dispatch(resetAllFormData());
       } else {
         alert('⚠️ Error submitting form: ' + data.message);

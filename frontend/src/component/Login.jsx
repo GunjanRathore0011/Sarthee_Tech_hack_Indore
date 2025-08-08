@@ -5,6 +5,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '@/ReduxSlice/user/userSlice';
+import { setuserAdditionalDetailsField ,setAdditionDetail, resetAllFormData } from '@/ReduxSlice/formData/formSlice';
+
+
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', otp: '' });
@@ -47,30 +50,43 @@ const Login = () => {
       alert('Please enter both Email and OTP.');
       return;
     }
-
+  
     try {
-      const response = await axios.post('http://localhost:4000/api/v1/auth/signin', {
-        email,
-        otp: Number(otp),
-      }
-        , {
-          withCredentials: true,
-        }
-      );
+        const response = await axios.post(
+            'http://localhost:4000/api/v1/auth/signin',
+            {
+                email,
+                otp: Number(otp),
+            },
+            {
+                withCredentials: true,
+            }
+        );
 
-      console.log('Login successful:', response.data);
-      alert('Login successful!');
-      dispatch(loginSuccess({ user: response.data.user }));
-      navigate('/'); // Redirect to home or dashboard after successful login
-      // TODO: Store token / redirect user
-      // Example:
-      // localStorage.setItem('token', response.data.token);
-      // navigate('/dashboard');
+        dispatch(resetAllFormData());
+
+        const { user, additionalDetails } = response.data;
+
+        console.log('Login successful:', response.data);
+        console.log("addional details" , additionalDetails);
+        alert('Login successful!');
+
+        // 1. Store user info in userSlice
+        dispatch(loginSuccess({ user }));
+
+        // 2. If additionalDetails exist, store them in formSlice
+        if (additionalDetails) {
+            dispatch(setAdditionDetail(additionalDetails));
+            dispatch(setuserAdditionalDetailsField({ fill: 1 }));
+                    }
+
+        // 3. Redirect user
+        navigate('/');
+
     } catch (error) {
-      console.error('Login failed:', error);
-      alert('Invalid OTP or email. Please try again.');
-    }
-  };
+        console.error('Login failed:', error);
+        alert('Invalid OTP or email. Please try again.');
+    }};
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
