@@ -68,7 +68,7 @@ statusHistory: [
 
   assignedTo: {  
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // reference to the User who is assigned to handle the complaint
+    ref: 'Investigator', // reference to the User who is assigned to handle the complaint
     default: null // initially no user is assigned
   },
   priority: {

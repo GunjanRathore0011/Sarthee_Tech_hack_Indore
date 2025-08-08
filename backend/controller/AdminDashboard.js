@@ -10,69 +10,242 @@ require('dotenv').config();
 
 
 //admin dashboard
+// exports.dashboard = async (req, res) => {
+//   try {
+    
+//   const additionalDetails = await AdditionDetails.find()
+//       .select('userId complainIds street ')
+//       .populate({
+//       path: 'complainIds',
+//       select: 'category subCategory status priority assignedTo createdAt ',
+//       populate: {
+//         path: 'assignedTo',
+//         select: 'name specialistIn'
+//       }
+//       });
+
+//       if (!additionalDetails) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "No additional details found"
+//       });
+//     }
+//     // Flatten and format for frontend
+//     const formattedComplaints = [];
+//     additionalDetails.forEach(detail => {
+//       detail.complainIds.forEach(complaint => {
+//       formattedComplaints.push({
+//         _id: complaint._id,
+//         category: complaint.subCategory,
+//         location: complaint.street || detail.district || detail.state || detail.street || "",
+//         priority: complaint.priority,
+//         status: complaint.status,
+//         assignedTo: complaint.assignedTo?.name || null,
+//         createdAt: complaint.createdAt
+//       });
+//       });
+//     });
+
+//     // Sort complaints by createdAt date ,new data first      
+//     formattedComplaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));  
+
+//     // Aggregate to get total complaints , solve complain , highest prioritycases cases remaining,total investigators
+//     const totalInvestigators = await Investigator.countDocuments();
+//     const activeInvestigators = await Investigator.countDocuments({ isActive: true });
+//     const totalComplaints = await Complaint.countDocuments();
+//     const solvedComplaints = await Complaint.countDocuments({ status: "Resolved" });
+//     const highestPriorityCasesRemaining = await Complaint.countDocuments({
+//   priority: "High",
+//   status: { $ne: "Resolved" }
+// });
+//     res.status(200).json({
+//       success: true,
+//       message: "Admin Dashboard data fetched successfully",
+//       data: formattedComplaints,
+//       totalComplaints: totalComplaints,
+//       solvedComplaints: solvedComplaints,
+//       highestPriorityCasesRemaining: highestPriorityCasesRemaining,
+//       totalInvestigators: totalInvestigators,
+//       activeInvestigators: activeInvestigators
+//           });
+
+//   } catch (error) {
+//     console.error("Error fetching dashboard data:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+// exports.dashboardf = async (req, res) => {
+//   try {
+//     const { category, status, priority, assignedTo, month } = req.query;
+//     // Build filter object for complaints
+//     const complaintFilter = {};
+//     if (category) complaintFilter.category = category;
+//     if (status) complaintFilter.status = status;
+//     if (priority) complaintFilter.priority = priority;
+//     if (assignedTo) complaintFilter.assignedTo = assignedTo;
+//     if (month) {
+//       const year = new Date().getFullYear();
+//       const startDate = new Date(year, month - 1, 1);
+//       const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+//       complaintFilter.createdAt = { $gte: startDate, $lte: endDate };
+//     }
+
+//     // Find all AdditionDetails and populate complaints with filter
+//     const additdionalDetails = await AdditionDetails.find()
+//       .select('userId complainIds street')
+//       .populate({
+//         path: 'complainIds',
+//         match: complaintFilter, // Only populate complaints matching filter
+//         select: 'category subCategory status priority assignedTo createdAt',
+//         populate: {
+//           path: 'assignedTo',
+//           select: 'name specialistIn'
+//         }
+//       });
+
+//     if (!additionalDetails || additionalDetails.length === 0) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "No additional details found"
+//       });
+//     }
+
+//     // Flatten and format for frontend
+//     const formattedComplaints = [];
+//     additionalDetails.forEach(detail => {
+//       detail.complainIds.forEach(complaint => {
+//         formattedComplaints.push({
+//           _id: complaint._id,
+//           category: complaint.subCategory,
+//           location: complaint.street || detail.district || detail.state || detail.street || "",
+//           priority: complaint.priority,
+//           status: complaint.status,
+//           assignedTo: complaint.assignedTo?.name || null,
+//           createdAt: complaint.createdAt
+//         });
+//       });
+//     });
+
+//     // Sort complaints by createdAt date, newest first
+//     formattedComplaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Filtered complaints fetched successfully",
+//       data: formattedComplaints
+//     });
+//   } catch (error) {
+//     console.error("Error filtering complaints:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
 exports.dashboard = async (req, res) => {
   try {
-    
-  const additionalDetails = await AdditionDetails.find()
-      .select('userId complainIds street ')
+    const { subCategory, status, priority, month ,startIndex=0 } = req.query;
+
+    // Build filter dynamically for Complaint
+    const complaintFilter = {};
+
+    if (subCategory) complaintFilter.subCategory = subCategory;
+    if (status) complaintFilter.status = status;
+    if (priority) complaintFilter.priority = priority;
+    // if (assignedTo) complaintFilter.assignedTo = assignedTo;
+
+    // Month filter (by createdAt)
+   if (month) {
+    const monthInt = parseInt(month, 10);
+    const year = new Date().getFullYear();
+    const startDate = new Date(year, monthInt - 1, 1);
+    const endDate = new Date(year, monthInt, 0, 23, 59, 59);
+    complaintFilter.createdAt = { $gte: startDate, $lte: endDate };
+}
+    // Fetch additional details + complaints with filters
+    const additionalDetails = await AdditionDetails.find()
+      .select('userId complainIds street district state')
       .populate({
-      path: 'complainIds',
-      select: 'category subCategory status priority assignedTo createdAt ',
-      populate: {
-        path: 'assignedTo',
-        select: 'name specialistIn'
-      }
+        path: 'complainIds',
+        match: Object.keys(complaintFilter).length ? complaintFilter : {}, // apply filter only if given
+        select: 'category subCategory status priority assignedTo createdAt',
+        populate: {
+          path: 'assignedTo',
+          select: 'name specialistIn'
+        }
       });
 
-      if (!additionalDetails) {
+    if (!additionalDetails.length) {
       return res.status(404).json({
         success: false,
         message: "No additional details found"
       });
     }
 
-    // Flatten and format for frontend
-    const formattedComplaints = [];
+    // Flatten + format
+    const formattedComplaint = [];
     additionalDetails.forEach(detail => {
       detail.complainIds.forEach(complaint => {
-      formattedComplaints.push({
-        _id: complaint._id,
-        category: complaint.subCategory,
-        location: complaint.street || detail.district || detail.state || detail.street || "",
-        priority: complaint.priority,
-        status: complaint.status,
-        assignedTo: complaint.assignedTo?.name || null,
-        createdAt: complaint.createdAt
-      });
+        formattedComplaint.push({
+          _id: complaint._id,
+          category: complaint.subCategory,
+          location:
+            complaint.street ||
+            detail.district ||
+            detail.state ||
+            detail.street ||
+            "",
+          priority: complaint.priority,
+          status: complaint.status,
+          assignedTo: complaint.assignedTo?.name || null,
+          createdAt: complaint.createdAt
+        });
       });
     });
 
-    // Sort complaints by createdAt date ,new data first      
-    formattedComplaints.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));  
+    let formattedComplaints;
+    // Sort newest first
+    if(formattedComplaint.length<startIndex){
+   formattedComplaints =formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(-10)
+    }
+    else{
+   formattedComplaints=  formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(startIndex,startIndex+10)
+    }
 
-    // Aggregate to get total complaints , solve complain , highest prioritycases cases remaining,total investigators
+    // Dashboard metrics
     const totalInvestigators = await Investigator.countDocuments();
     const activeInvestigators = await Investigator.countDocuments({ isActive: true });
     const totalComplaints = await Complaint.countDocuments();
     const solvedComplaints = await Complaint.countDocuments({ status: "Resolved" });
     const highestPriorityCasesRemaining = await Complaint.countDocuments({
-  priority: "High",
-  status: { $ne: "Resolved" }
-});
+      priority: "High",
+      status: { $ne: "Resolved" }
+    });
+
     res.status(200).json({
       success: true,
       message: "Admin Dashboard data fetched successfully",
       data: formattedComplaints,
-      totalComplaints: totalComplaints,
-      solvedComplaints: solvedComplaints,
-      highestPriorityCasesRemaining: highestPriorityCasesRemaining,
-      totalInvestigators: totalInvestigators,
-      activeInvestigators: activeInvestigators
-          });
+      totalComplaints,
+      solvedComplaints,
+      highestPriorityCasesRemaining,
+      totalInvestigators,
+      activeInvestigators
+    });
 
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Internal server error",
       error: error.message
@@ -139,6 +312,10 @@ exports.assignInvestigator = async (req, res) => {
       remark: `Assigned to investigator ( Id : ${investigatorId})`,
       updatedAt: new Date()
     });
+
+    //assign to the investigator
+    // const investigator =
+
    
     await complain.save();
     res.status(200).json({
@@ -211,7 +388,7 @@ exports.suggestInvestigator = async (req, res) => {
     //filter if investigator is not active
     const activeInvestigators = investigators.filter(inv => inv.isActive);
 
-    const data = activeInvestigators.map((investigator, index) => ({
+    const data2 = activeInvestigators.map((investigator, index) => ({
       id: index + 1,
       name: investigator.name,
       email: investigator.email,
@@ -221,11 +398,19 @@ exports.suggestInvestigator = async (req, res) => {
       specializations: investigator.specialistIn,
       status: (investigator.assignedCases.length) == 0 ? "Free" : (investigator.assignedCases.length < 3 ? "Available" : "Busy")
     }));
-
    
-    if (data.length === 0) {
+    if (data2.length === 0) {
       return res.status(404).json({ success: false, message: "No active investigators found" });
     }
+    
+       let data = data2;
+    
+    if(data2.length>5){
+     data = data2
+    .sort((a, b) => b.performance - a.performance) // highest performance first
+    .slice(0, 5); // take top 5
+    }
+    
     res.status(200).json({ success: true, data });
   } catch (error) {
     console.error("❌ Error fetching investigator stats:", error);

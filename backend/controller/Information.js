@@ -353,7 +353,7 @@ exports.additionalDetails = async (req, res) => {
             if("Harassment"==category){                
             }else{
              prior = lost_money >= 100000 ? "High" :"Low";
-            }
+             }
 
 
     // ✅ Create complaint
