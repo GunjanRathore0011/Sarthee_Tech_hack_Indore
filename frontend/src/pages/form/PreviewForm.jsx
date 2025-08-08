@@ -1,8 +1,10 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { setNextStep } from '@/ReduxSlice/formData/formSlice';
+import { resetFormDataExceptAdditional, setNextStep } from '@/ReduxSlice/formData/formSlice';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+
 
 export default function PreviewForm({ onBack }) {
   const additionalDetail = useSelector((state) => state.formData.additionDetail);
@@ -13,7 +15,9 @@ export default function PreviewForm({ onBack }) {
 
   console.log("files", harassment.files)
   console.log('FILES:', harassment.files);
-console.log('IS ARRAY:', Array.isArray(harassment.files));
+  console.log('IS ARRAY:', Array.isArray(harassment.files));
+
+  const navigate = useNavigate();
 
 
 
@@ -35,7 +39,7 @@ console.log('IS ARRAY:', Array.isArray(harassment.files));
             <p><strong>Delay:</strong> {harassment.delay_in_report ? 'Yes' : 'No'}</p>
             <p><strong>Reason for Delay:</strong> {harassment.reson_of_delay}</p>
 
-              {harassment.files && harassment.files.length > 0 && (
+            {harassment.files && harassment.files.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-semibold mb-2">Uploaded Files:</h4>
                 <ul className="space-y-4">
@@ -231,7 +235,10 @@ console.log('IS ARRAY:', Array.isArray(harassment.files));
 
       if (data.success) {
         alert('✅ Form submitted successfully!');
-        
+        dispatch(resetFormDataExceptAdditional() ); // ✅ Reset form data except additional details
+        // ✅ Pass API response to the next page
+        navigate('/submitedcomplaint', { state: { responseData: data } });
+
         // dispatch(resetAllFormData());
       } else {
         alert('⚠️ Error submitting form: ' + data.message);
@@ -264,7 +271,7 @@ console.log('IS ARRAY:', Array.isArray(harassment.files));
 
       <div>
         <h3>Suspect Details</h3>
-        <p><strong>Name:</strong> {suspectData.name}</p>
+        <p><strong>Name:</strong> {suspectData.suspectedName}</p>
         <p><strong>Card Type:</strong> {suspectData.suspectedCard}</p>
         <p><strong>Card Number:</strong> {suspectData.suspectedCardNumber}</p>
         <p><strong>Details:</strong> {suspectData.details}</p>

@@ -28,7 +28,6 @@ function CyberCrimeForm({ onNext }) {
 
   const [accData, setAccData] = useState(savedAccData || {
     accountNumber: '',
-    lost_money: '',
     bankName: '',
     ifscCode: '',
     transactionId: '',
@@ -66,6 +65,9 @@ function CyberCrimeForm({ onNext }) {
       alert("Please fill required fields.");
       return;
     }
+    dispatch(setFinancialFraudForm({
+      ...formData,}));
+    console.log("Form Data:", formData);
 
     if (onNext) onNext(); // ✅ move to next step
   };

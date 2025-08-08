@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { FiMail, FiPhone } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
-import { setAdditionDetail } from '@/ReduxSlice/formData/formSlice';
+import { resetAllFormData, setAdditionDetail } from '@/ReduxSlice/formData/formSlice';
 // import { useDispatch } from 'react-redux';
 import { setuserAdditionalDetailsField } from '@/ReduxSlice/formData/formSlice';
 
@@ -68,11 +68,14 @@ const SignUp = () => {
         };
 
         try {
-            const res = await axios.post('http://localhost:4000/api/v1/auth/signup', payload);
+            const res = await axios.post('http://localhost:4000/api/v1/auth/signup', payload ,
+                { withCredentials: true } // Include credentials for session management
+            );
             console.log('Response:', res.data);
             alert('Registered successfully!');
             //  dispatch(resetAllFormData());
             // ✅ Dispatch user info into Redux
+            dispatch(resetAllFormData());
             dispatch(loginSuccess({ user: res.data.user })); // depends on your backend response format
 
             // ✅ Navigate to home/dashboard after login

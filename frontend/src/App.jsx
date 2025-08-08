@@ -16,6 +16,7 @@ import ComplaintManagement from './pages/AdminDashboard/ComplaintManagement';
 import OfficerManagement from './pages/AdminDashboard/OfficerManagement';
 import Analytics from './pages/AdminDashboard/Analytics';
 import CrimeMap from './pages/AdminDashboard/CrimeMap';
+import AfterComplaint from './pages/AfterComplaint';
 
 const App = () => {
   const location = useLocation();
@@ -45,6 +46,8 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/financial-fraud" element={<CyberCrimeForm />} />
         <Route path="/step-form" element={<MultiStepForm />} />
+        <Route path="/submitedcomplaint" element={<AfterComplaint/>} />
+
 
         {/* Admin Dashboard */}
         <Route path="/admin-dashboard" element={<ComplaintManagement />} />
