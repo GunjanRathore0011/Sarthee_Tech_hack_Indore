@@ -17,7 +17,8 @@ const ComplaintManagement = () => {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [investigatorId, setInvestigatorId] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+// console.log("Initial complaints state:", complaints);
+// console.log("Selected complaint state:", selectedComplaint);
   const fetchComplaints = async () => {
     try {
       const res = await axios.get('http://localhost:4000/api/v1/admin/dashboard');
@@ -69,6 +70,7 @@ const ComplaintManagement = () => {
   };
 
   const getStatusStyle = (status) => {
+    // console.log("Status for styling:", status);
     switch (status.toLowerCase()) {
       case 'pending':
         return 'bg-orange-100 text-orange-800 border border-orange-300';
@@ -105,8 +107,8 @@ const ComplaintManagement = () => {
               <TableHead>Case ID</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Priority</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Priority</TableHead>
               <TableHead>Assigned To</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>View</TableHead>
