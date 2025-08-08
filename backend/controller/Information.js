@@ -5,72 +5,73 @@ const VictimDetails = require("../models/Victim");
 const UploadToCloudinary = require("../utils/UploadToCloudinary");
 const Complaint = require("../models/Complaint");
 require('dotenv').config();
+const { io } = require("../index.js"); 
 
 exports.additionalDetails = async (req, res) => {
-    try {
-        const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
+  try {
+    const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
 
-        if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
-            return res.status(400).json({
-                message: "All information is required",
-                success: false,
-            });
-        }
-
-        // 👇 Declare uploaded in outer scope
-        let uploaded = null;
-        if (req.files && req.files.file) {
-            const fileData = req.files.file;
-            uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
-
-            if (!uploaded || !uploaded.secure_url) {
-                return res.status(500).json({
-                    message: "Failed to upload file",
-                    success: false,
-                });
-            }
-        }
-        console.log("File uploaded to Cloudinary:", uploaded);
-
-        const userId = req.user.userId;
-        const user = await User.findById(userId);
-
-        if (!user) {
-            return res.status(404).json({
-                message: "User not found",
-                success: false,
-            });
-        }
-
-        const addDetails = await AdditionDetails.create({
-            userId: user._id,
-            fullName,
-            documentId: uploaded?.secure_url || null, // ✅ handle optional file
-            dob,
-            gender,
-            street,
-            colony,
-            house,
-            state,
-            district,
-            policeStation,
-            pincode,
-        });
-
-        res.status(201).json({
-            message: "Additional details added successfully",
-            success: true,
-            data: addDetails,
-        });
-
-    } catch (error) {
-        console.error("Error in additionalDetails:", error.message);
-        res.status(500).json({
-            message: "Internal server error",
-            success: false,
-            error: error.message,
-        });
+    if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
+      return res.status(400).json({
+        message: "All information is required",
+        success: false,
+      });
     }
+
+    // 👇 Declare uploaded in outer scope
+    let uploaded = null;
+    if (req.files && req.files.file) {
+      const fileData = req.files.file;
+      uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
+
+      if (!uploaded || !uploaded.secure_url) {
+        return res.status(500).json({
+          message: "Failed to upload file",
+          success: false,
+        });
+      }
+    }
+    console.log("File uploaded to Cloudinary:", uploaded);
+
+    const userId = req.user.userId;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+        success: false,
+      });
+    }
+
+    const addDetails = await AdditionDetails.create({
+      userId: user._id,
+      fullName,
+      documentId: uploaded?.secure_url || null, // ✅ handle optional file
+      dob,
+      gender,
+      street,
+      colony,
+      house,
+      state,
+      district,
+      policeStation,
+      pincode,
+    });
+
+    res.status(201).json({
+      message: "Additional details added successfully",
+      success: true,
+      data: addDetails,
+    });
+
+  } catch (error) {
+    console.error("Error in additionalDetails:", error.message);
+    res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: error.message,
+    });
+  }
 };
 
 
@@ -105,7 +106,7 @@ exports.additionalDetails = async (req, res) => {
 //             });
 //         }
 
-        
+
 
 //         // ✅ Upload files to Cloudinary if they exist
 //         const imageUrls = [];
@@ -140,7 +141,7 @@ exports.additionalDetails = async (req, res) => {
 //             { userId: user._id },
 //             { $set: { complainId: complaintInfo._id } }
 //         );
-       
+
 //         const { bankName, accountNumber, ifscCode, transactionId, transactionDate } = req.body;
 //      if(bankName || accountNumber || ifscCode || transactionId || transactionDate){
 //         victimInformation( bankName, accountNumber, ifscCode, transactionId, transactionDate)
@@ -250,7 +251,7 @@ exports.additionalDetails = async (req, res) => {
 //             suspectedImages: imageUrls, // may be empty array
 //         });
 //         console.log("Suspected information created:", suspectInfo);
-        
+
 //     } catch (error) {
 //         console.error("❌ Error in suspectedInformation:", error.message);
 //         return res.status(500).json({
@@ -264,7 +265,7 @@ exports.additionalDetails = async (req, res) => {
 
 
 // ✅ SINGLE API: COMPLAINT INFORMATION
- exports.complaintInformation = async (req, res) => {
+exports.complaintInformation = async (req, res) => {
   try {
     // ✅ Parse JSON from FormData
     let body;
@@ -291,9 +292,9 @@ exports.additionalDetails = async (req, res) => {
       ifscCode,
       transactionId,
       transactionDate,
-      suspectedName="",
-      suspectedCard="",
-      suspectedCardNumber=""
+      suspectedName = "",
+      suspectedCard = "",
+      suspectedCardNumber = ""
     } = body;
 
     // ✅ Validate required fields
@@ -340,7 +341,7 @@ exports.additionalDetails = async (req, res) => {
 
     // ✅ Upload evidence images (FormData key: 'file')
     let imageUrls = [];
-        console.log("Received file:", req.files);
+    console.log("Received file:", req.files);
 
     if (req.files?.file) {
       const filesArray = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
@@ -348,6 +349,11 @@ exports.additionalDetails = async (req, res) => {
         const uploaded = await UploadToCloudinary(file.tempFilePath, "evidence");
         imageUrls.push(uploaded.secure_url);
       }
+    }
+    let prior = "Medium";
+    if ("Harassment" == category) {
+    } else {
+      prior = lost_money >= 100000 ? "High" : "Low";
     }
          let prior = "Medium";
             if("Harassment"==category){                
@@ -402,8 +408,8 @@ exports.additionalDetails = async (req, res) => {
     // ✅ Suspect Info (optional)
     const suspectFields = [suspectedName, suspectedCard, suspectedCardNumber];
     console.log("Suspect fields:", suspectFields);
-    
-     console.log("Suspect files received:", req.files);
+
+    console.log("Suspect files received:", req.files);
 
 
     if (suspectedName || suspectedCard || suspectedCardNumber) {
@@ -411,7 +417,7 @@ exports.additionalDetails = async (req, res) => {
       if (!alreadyExists) {
         const suspectImages = [];
         if (req.files?.suspect_file) {
-            console.log("Suspect files received:", req.files.suspect_file);
+          console.log("Suspect files received:", req.files.suspect_file);
           const suspectFiles = Array.isArray(req.files.suspect_file)
             ? req.files.suspect_file
             : [req.files.suspect_file];
@@ -430,6 +436,12 @@ exports.additionalDetails = async (req, res) => {
         });
       }
     }
+
+     io.emit("receive_notification", {
+      message: "New complaint submitted",
+      complaintId: complaintInfo._id
+    });
+
 
     return res.status(201).json({
       message: "✅ Complaint submitted successfully",
