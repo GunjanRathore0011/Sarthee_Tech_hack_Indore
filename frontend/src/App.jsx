@@ -16,7 +16,8 @@ import ComplaintManagement from './pages/AdminDashboard/ComplaintManagement';
 import OfficerManagement from './pages/AdminDashboard/OfficerManagement';
 import Analytics from './pages/AdminDashboard/Analytics';
 import CrimeMap from './pages/AdminDashboard/CrimeMap';
-import AfterComplaint from './pages/AfterComplaint';
+import OfficerNavbar from '../src/component/OfficerComponent/OfficerNavbar'
+import OfficerCaseSection from './pages/OfficerDashboard/OfficerCaseSection';
 
 const App = () => {
   const location = useLocation();
@@ -29,12 +30,21 @@ const App = () => {
     '/admin-analytics',
     '/crime-map'
   ];
-
+  const officerRoutes = [
+    '/officer-complaint-management'
+  ];
+  const isOfficerRoute = officerRoutes.includes(location.pathname);
   const isAdminRoute = adminRoutes.includes(location.pathname);
 
   return (
     <>
-      {isAdminRoute ? <AdminNavbar /> : <Navbar />}
+      {isAdminRoute ? (
+        <AdminNavbar />
+      ) : isOfficerRoute ? (
+        <OfficerNavbar />
+      ) : (
+        <Navbar />
+      )}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -58,9 +68,7 @@ const App = () => {
 
 
         {/* Officer Dashboard */}
-        <Route path="/officer-dashboard" element={<AdminHome />} />
-        <Route path="/officer-complaint-management" element={<ComplaintManagement />} />
-        <Route path="/officer-analytics" element={<Analytics />} />
+        <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />
 
       </Routes>
     </>

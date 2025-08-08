@@ -72,6 +72,7 @@ const Navbar = () => {
           </Link>
         )}
         <Link to='/admin-dashboard' className="mr-2"> Admin</Link>
+        <Link to='/officer-complaint-management' className="mr-2"> Officer</Link>
       </div>
     </nav>
   );
