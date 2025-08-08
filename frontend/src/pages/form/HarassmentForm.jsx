@@ -31,8 +31,8 @@ const HarassmentForm = ({ onNext }) => {
     }
   };
 
- const minLength = 200;
- const maxLength = 1500;
+  const minLength = 200;
+  const maxLength = 1500;
   useEffect(() => {
     dispatch(setHarassment(formData));
   }, [formData, dispatch]);
@@ -79,6 +79,9 @@ const HarassmentForm = ({ onNext }) => {
     };
 
     console.log('Submitted Data:', completeData);
+    dispatch(setHarassment(completeData));
+
+
     onNext(); // Proceed to next step
   };
 
@@ -130,30 +133,30 @@ const HarassmentForm = ({ onNext }) => {
         </div>
 
         {/* Description */}
-         <div>
-      <label className="block mb-1 font-semibold">Description (min 200 characters)</label>
-      <textarea
-        name="description"
-        rows="6"
-        value={formData.description}
-        onChange={handleChange}
-        className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-        required
-        minLength={minLength}
-        maxLength={maxLength}
-      ></textarea>
+        <div>
+          <label className="block mb-1 font-semibold">Description (min 200 characters)</label>
+          <textarea
+            name="description"
+            rows="6"
+            value={formData.description}
+            onChange={handleChange}
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            required
+            minLength={minLength}
+            maxLength={maxLength}
+          ></textarea>
 
-      {/* Word Counter Row */}
-      <div className="flex justify-between text-sm text-gray-600 mt-1">
-        <p>{formData.description.length} characters typed</p>
-        <p>{maxLength - formData.description.length} characters left</p>
-      </div>
+          {/* Word Counter Row */}
+          <div className="flex justify-between text-sm text-gray-600 mt-1">
+            <p>{formData.description.length} characters typed</p>
+            <p>{maxLength - formData.description.length} characters left</p>
+          </div>
 
-      {/* Error Display */}
-      {errors?.description && (
-        <p className="text-red-600 text-sm mt-1">{errors.description}</p>
-      )}
-    </div>
+          {/* Error Display */}
+          {errors?.description && (
+            <p className="text-red-600 text-sm mt-1">{errors.description}</p>
+          )}
+        </div>
 
         {/* Delay in Report */}
         <div>
@@ -202,7 +205,7 @@ const HarassmentForm = ({ onNext }) => {
 
         {/* File Upload */}
         <div>
-           <label className="block mb-2 text-sm font-medium text-gray-700">Upload Files</label>
+          <label className="block mb-2 text-sm font-medium text-gray-700">Upload Files</label>
           <input
             type="file"
             multiple

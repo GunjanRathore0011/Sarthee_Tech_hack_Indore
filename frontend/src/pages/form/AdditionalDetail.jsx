@@ -188,19 +188,7 @@ const AdditionalDetail = ({ onNext }) => {
                 />
             </div>
 
-            {/* Street */}
-            <div className="mb-4">
-                <label className="block mb-1 font-medium">Street / Locality</label>
-                <input
-                    type="text"
-                    name="street"
-                    value={formData.street}
-                    onChange={handleChange}
-                    placeholder="e.g., Main Street, near Post Office"
-                    className="w-full border p-2 rounded"
-                    required
-                />
-            </div>
+         
 
             {/* Colony */}
             <div className="mb-4">
@@ -211,6 +199,20 @@ const AdditionalDetail = ({ onNext }) => {
                     value={formData.colony}
                     onChange={handleChange}
                     placeholder="e.g., Shivaji Nagar"
+                    className="w-full border p-2 rounded"
+                    required
+                />
+            </div>
+
+               {/* Street */}
+            <div className="mb-4">
+                <label className="block mb-1 font-medium"> City</label>
+                <input
+                    type="text"
+                    name="street"
+                    value={formData.street}
+                    onChange={handleChange}
+                    placeholder="e.g., Main Street, near Post Office"
                     className="w-full border p-2 rounded"
                     required
                 />

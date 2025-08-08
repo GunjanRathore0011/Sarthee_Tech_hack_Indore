@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import FeedbackForm from './form/FeedbackForn';
 
 const TrackComplaint = () => {
   const [complaintId, setComplaintId] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [complaintData, setComplaintData] = useState(null);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
   const [showHindi, setShowHindi] = useState(true);
@@ -11,12 +13,13 @@ const TrackComplaint = () => {
   const handleTrack = async () => {
     if (!complaintId.trim()) return;
     try {
-      const response = await axios.get(`/api/track-complaint/${complaintId}`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `http://localhost:4000/api/v1/auth/complaintStatus/${complaintId}`,
+        { withCredentials: true }
+      );
 
-      if (response.data) {
-        console.log('Complaint Data:', response.data);
+      if (response.data?.success) {
+        setComplaintData(response.data);
         setSubmitted(true);
       } else {
         alert('Complaint not found!');
@@ -49,15 +52,20 @@ const TrackComplaint = () => {
     setShowHindi((prev) => !prev);
   };
 
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center px-4 py-12">
-      <div className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-2xl transition-all duration-300">
+      <div className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-3xl transition-all duration-300">
         <h2 className="text-3xl md:text-4xl font-extrabold text-blue-700 mb-4 text-center">
           Track Your Cyber Complaint
         </h2>
         <p className="text-center text-gray-600 mb-8 text-base">
-          Stay informed about the status of your cyber crime complaint. Enter your{' '}
-          <b>Complaint ID</b> below to track your case.
+          Enter your <b>Complaint ID</b> below to check the status of your case.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -77,15 +85,37 @@ const TrackComplaint = () => {
           </button>
         </div>
 
-        {submitted && (
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded-md text-green-800">
-            ✅ Complaint is being processed.
+        {submitted && complaintData && (
+          <div className="space-y-6 mt-8">
+            <div className="p-4 bg-green-100 border border-green-300 rounded-lg shadow-sm">
+              <p className="text-lg font-semibold text-green-800">
+                ✅ Complaint Found & Processed
+              </p>
+              <p className="text-sm text-gray-700">Complaint ID: <b>{complaintData.complaintId}</b></p>
+              <p className="text-sm text-gray-700">Current Status: <b className="text-blue-700">{complaintData.currentStatus}</b></p>
+            </div>
+
+            {/* Complaint History Timeline */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-3">📜 Complaint History</h3>
+              <div className="border-l-2 border-blue-500 pl-4 space-y-6">
+                {complaintData.fullHistory.map((entry, index) => (
+                  <div key={entry._id} className="relative pl-4">
+                    <div className="absolute -left-3 top-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-white" />
+                    <p className="text-sm text-gray-500 mb-1">{formatDate(entry.updatedAt)}</p>
+                    <p className="text-blue-700 font-semibold mb-1">{entry.status}</p>
+                    <p className="text-gray-700 text-sm">{entry.remark}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="text-sm mt-4 text-gray-700 space-y-2">
+        {/* Info */}
+        <div className="text-sm mt-8 text-gray-700 space-y-2">
           <p className="flex items-start gap-2">
-            🔐 <strong>Important:</strong> Only authorized users can access complaint status. Do not share your Complaint ID.
+            🔐 <strong>Important:</strong> Do not share your Complaint ID with unauthorized individuals.
           </p>
           <p className="flex items-start gap-2">
             ☎️ In emergencies, call National Cyber Helpline at <b>1930</b>
@@ -100,7 +130,6 @@ const TrackComplaint = () => {
               : '📢 Considering the progress so far, your opinion is important to us. Please share your feedback.'}
           </p>
 
-          {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
             className="text-sm text-blue-500 underline mb-3 block"
@@ -108,17 +137,23 @@ const TrackComplaint = () => {
             {showHindi ? 'Show in English' : 'हिंदी में दिखाएं'}
           </button>
 
-          {/* Feedback Btn */}
           <button
-            onClick={() => setFeedbackVisible(true)}
+            onClick={() => setFeedbackVisible(!feedbackVisible)}
             className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-md transition font-medium"
           >
-            Give Feedback
+            {feedbackVisible ? 'Hide Feedback' : 'Give Feedback'}
           </button>
+
+          {/* Inline Feedback Form */}
+          {feedbackVisible && (
+            <div className="mt-6">
+              <FeedbackForm/>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Feedback Modal */}
+      {/* Feedback Modal
       {feedbackVisible && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4">
           <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg animate-fade-in-up">
@@ -146,7 +181,7 @@ const TrackComplaint = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

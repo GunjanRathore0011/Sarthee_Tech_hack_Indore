@@ -352,7 +352,7 @@ exports.additionalDetails = async (req, res) => {
          let prior = "Medium";
             if("Harassment"==category){                
             }else{
-             prior = lost_money >= 100000 ? "High" :"Normal";
+             prior = lost_money >= 100000 ? "High" :"Low";
             }
 
 
