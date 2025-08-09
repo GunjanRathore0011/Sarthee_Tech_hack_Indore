@@ -18,6 +18,7 @@ import Analytics from './pages/AdminDashboard/Analytics';
 import CrimeMap from './pages/AdminDashboard/CrimeMap';
 import OfficerNavbar from '../src/component/OfficerComponent/OfficerNavbar'
 import OfficerCaseSection from './pages/OfficerDashboard/OfficerCaseSection';
+import AfterComplaint from './pages/AfterComplaint';
 
 const App = () => {
   const location = useLocation();
