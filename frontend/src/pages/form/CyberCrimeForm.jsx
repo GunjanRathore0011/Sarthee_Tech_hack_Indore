@@ -8,6 +8,9 @@ import {
 
 function CyberCrimeForm({ onNext }) {
   const dispatch = useDispatch();
+  const [errors, setErrors] = useState({});
+  const minLength = 200;
+  const maxLength = 1500;
 
   const savedFormData = useSelector((state) => state.formData.financialFraud.formData);
   const savedAccData = useSelector((state) => state.formData.financialFraud.accData);
@@ -61,12 +64,23 @@ function CyberCrimeForm({ onNext }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    let newErrors = {};
+    if (formData.description.length < 200) {
+      newErrors.description = 'Description must be at least 200 characters.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     if (!formData.description || !formData.incident_datetime || (lostMoney && !accData.accountNumber)) {
       alert("Please fill required fields.");
       return;
     }
     dispatch(setFinancialFraudForm({
-      ...formData,}));
+      ...formData,
+    }));
     console.log("Form Data:", formData);
 
     if (onNext) onNext(); // ✅ move to next step
@@ -95,7 +109,7 @@ function CyberCrimeForm({ onNext }) {
 
           {/* Subcategory */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Subcategory</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Subcategory <span className="text-red-500">*</span></label>
             <select
               value={formData.subCategory}
               onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
@@ -111,7 +125,7 @@ function CyberCrimeForm({ onNext }) {
 
           {/* Incident Date & Time */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Incident Date & Time</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Incident Date & Time <span className="text-red-500">*</span></label>
             <input
               type="datetime-local"
               value={formData.incident_datetime}
@@ -123,7 +137,7 @@ function CyberCrimeForm({ onNext }) {
 
           {/* Money Lost */}
           <div>
-            <label className="block mb-2 text-sm font-medium text-gray-700">Did you lose money?</label>
+            <label className="block mb-2 text-sm font-medium text-gray-700">Did you lose money? <span className="text-red-500">*</span></label>
             <div className="flex gap-6 mt-2">
               <label className="inline-flex items-center gap-2">
                 <input type="radio" name="lostMoney" checked={lostMoney} onChange={() => setLostMoney(true)} />
@@ -141,7 +155,7 @@ function CyberCrimeForm({ onNext }) {
         {lostMoney && (
           <>
             <div className="mt-8">
-              <label className="block mb-2 text-sm font-medium text-gray-700">Amount Lost</label>
+              <label className="block mb-2 text-sm font-medium text-gray-700">Amount Lost <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 value={formData.lost_money}
@@ -171,7 +185,7 @@ function CyberCrimeForm({ onNext }) {
               ))}
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">Transaction Date</label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Transaction Date <span className="text-red-500">*</span></label>
                 <input
                   type="date"
                   value={accData.transactionDate}
@@ -186,7 +200,7 @@ function CyberCrimeForm({ onNext }) {
 
         {/* Delay Section */}
         <div className="mt-8">
-          <label className="block mb-2 text-sm font-medium text-gray-700">Any delay in reporting?</label>
+          <label className="block mb-2 text-sm font-medium text-gray-700">Any delay in reporting?<span className="text-red-500">*</span></label>
           <div className="flex gap-6 mt-2">
             <label className="inline-flex items-center gap-2">
               <input type="radio" name="delay" checked={delay} onChange={() => setDelay(true)} />
@@ -211,21 +225,30 @@ function CyberCrimeForm({ onNext }) {
         </div>
 
         {/* Description */}
-        <div className="mt-8">
-          <label className="block mb-2 text-sm font-medium text-gray-700">Description</label>
+        <div>
+          <label className="block mb-1 font-semibold">Description <span className="text-red-500">*</span></label>
           <textarea
+            name="description"
             rows="5"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Minimum 200 characters"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            placeholder="Provide a detailed description of the incident (min 200 characters)"
             required
+            minLength={minLength}
+            maxLength={maxLength}
           ></textarea>
-          <p className={`text-sm mt-1 ${formData.description.length < 200 ? 'text-red-600' : 'text-green-600'}`}>
-            {formData.description.length < 200
-              ? `⚠️ ${200 - formData.description.length} more characters required`
-              : '✅ Character limit met'}
-          </p>
+
+          {/* Word Counter Row */}
+          <div className="flex justify-between text-sm text-gray-600 mt-1 mb-3">
+            <p>{formData.description.length} characters typed</p>
+            <p>{maxLength - formData.description.length} characters left</p>
+          </div>
+
+          {/* Error Display */}
+          {errors?.description && (
+            <p className="text-red-600 text-sm mt-1">{errors.description}</p>
+          )}
         </div>
 
         {/* File Upload */}
