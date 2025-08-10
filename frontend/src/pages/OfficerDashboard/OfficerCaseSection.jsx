@@ -1,0 +1,253 @@
+import React, { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Eye, AlertTriangle, Clock, FileText, Play, MessageSquare } from 'lucide-react';
+import { CaseDetailsPanel } from '@/component/OfficerComponent/CaseDetailsPanel';
+
+// Utility functions for badge colors
+const getPriorityBadge = (priority) => {
+    switch (priority) {
+        case 'High': return 'bg-red-100 text-red-700';
+        case 'Medium': return 'bg-yellow-100 text-yellow-700';
+        case 'Low': return 'bg-green-100 text-green-700';
+        default: return 'bg-gray-100 text-gray-700';
+    }
+};
+
+const getStatusBadge = (status) => {
+    switch (status) {
+        case 'Assigned': return 'bg-blue-100 text-blue-700';
+        case 'Investigating': return 'bg-purple-100 text-purple-700';
+        case 'Resolved': return 'bg-green-100 text-green-700';
+        default: return 'bg-gray-100 text-gray-700';
+    }
+};
+
+// Dummy Data
+const dummyActiveCases = [
+    {
+        id: '1',
+        caseId: 'CASE-2025-001',
+        priority: 'High',
+        status: 'Assigned',
+        crimeType: 'Cyberbullying',
+        location: 'Indore',
+        pinCode: '452001',
+        userName: 'Aarav Sharma',
+        description: 'The complainant has been receiving repeated threats via social media by unknown individuals...',
+        dateReceived: new Date(),
+        evidence: ['image1.png', 'chatlog.pdf']
+    },
+    {
+        id: '2',
+        caseId: 'CASE-2025-002',
+        priority: 'Medium',
+        status: 'Investigating',
+        crimeType: 'Online Fraud',
+        location: 'Bhopal',
+        pinCode: '462001',
+        userName: 'Neha Verma',
+        description: 'An unknown seller tricked the user into making an online payment and then disappeared...',
+        dateReceived: new Date(),
+        evidence: ['screenshot.png']
+    }
+];
+
+const dummyResolvedCases = [
+    {
+        id: '3',
+        caseId: 'CASE-2025-003',
+        priority: 'Low',
+        status: 'Resolved',
+        crimeType: 'Phishing',
+        location: 'Ujjain',
+        pinCode: '456001',
+        userName: 'Ravi Patel',
+        description: 'User received emails impersonating a government agency asking for personal information...',
+        dateReceived: new Date(),
+        evidence: ['email.jpg']
+    }
+];
+const mockCaseNotes = [
+    {
+        id: 'note-1',
+        caseId: 'CASE-2025-001',
+        note: 'Initial investigation started. Suspect identified.',
+        timestamp: new Date().toISOString(),
+        author: 'Officer Sharma',
+        type: 'update'
+    },
+    {
+        id: 'note-2',
+        caseId: 'CASE-2025-001',
+        note: 'Evidence collected from social media.',
+        timestamp: new Date().toISOString(),
+        author: 'Officer Sharma',
+        type: 'evidence'
+    },
+    {
+        id: 'note-3',
+        caseId: 'CASE-2025-002',
+        note: 'Victim’s statement recorded.',
+        timestamp: new Date().toISOString(),
+        author: 'Officer Verma',
+        type: 'update'
+    }
+];
+
+
+const OfficerCaseSection = () => {
+    const [activeTab, setActiveTab] = useState('cases');
+    const [activeCases, setActiveCases] = useState(dummyActiveCases);
+    const [resolvedCases, setResolvedCases] = useState(dummyResolvedCases);
+    const [selectedCase, setSelectedCase] = useState(null);
+
+    const handleStartInvestigation = (id) => {
+        alert(`Start investigation for case: ${id}`);
+    };
+
+    const handleUpdateStatus = (id, newStatus) => {
+        alert(`Marking case ${id} as ${newStatus}`);
+    };
+
+    const visibleCases = activeTab === 'cases' ? activeCases : resolvedCases;
+
+    return (
+        <>
+            <div className="px-6 py-6">
+                {/* Tabs */}
+                <div className="border-b border-blue-200 mb-6">
+                    <div className="flex space-x-8">
+                        {[
+                            { id: 'cases', label: 'Active Cases', count: activeCases.length },
+                            { id: 'resolved', label: 'Resolved Cases', count: resolvedCases.length }
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center space-x-2 py-4 border-b-2 transition-all text-sm font-medium tracking-wide ${activeTab === tab.id
+                                        ? 'border-blue-600 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-blue-600'
+                                    }`}
+                            >
+                                <span>{tab.label}</span>
+                                <Badge variant="outline" className="text-xs">
+                                    {tab.count}
+                                </Badge>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Case Cards */}
+                <div className="space-y-4">
+                    {visibleCases.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="text-gray-500 text-lg mb-2">
+                                {activeTab === 'cases' ? 'No active cases assigned' : 'No resolved cases'}
+                            </div>
+                            <p className="text-sm text-gray-400">
+                                {activeTab === 'cases'
+                                    ? 'New cases will appear here when assigned by admin'
+                                    : 'Resolved cases will be listed here'}
+                            </p>
+                        </div>
+                    ) : (
+                        visibleCases.map((complaint) => (
+                            <Card
+                                key={complaint.id}
+                                className="cyber-card p-6 cyber-transition hover:cyber-glow bg-white text-blue-900"
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-4 mb-3">
+                                            <h3 className="text-lg text-gray-600 font-semibold ">{complaint.caseId}</h3>
+                                            <Badge className={`${getPriorityBadge(complaint.priority)} border`}>
+                                                {complaint.priority === 'High' && <AlertTriangle className="h-3 w-3 mr-1" />}
+                                                {complaint.priority}
+                                            </Badge>
+                                            <Badge className={`${getStatusBadge(complaint.status)} border`}>
+                                                {complaint.status}
+                                            </Badge>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                                            <div>
+                                                <p className="text-sm text-muted-foreground">Crime Type</p>
+                                                <p className="font-medium">{complaint.crimeType}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-muted-foreground">Location</p>
+                                                <p className="font-medium">{complaint.location} ({complaint.pinCode})</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-muted-foreground">Complainant</p>
+                                                <p className="font-medium">{complaint.userName}</p>
+                                            </div>
+                                        </div>
+
+                                        <p className="text-muted-foreground line-clamp-2 mb-4">
+                                            {complaint.description}
+                                        </p>
+
+                                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                                            <Clock className="h-4 w-4" />
+                                            <span>Received: {new Date(complaint.dateReceived).toLocaleString()}</span>
+                                            <span className="mx-2">•</span>
+                                            <FileText className="h-4 w-4" />
+                                            <span>{complaint.evidence.length} evidence files</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col space-y-2 ml-6">
+                                        <Button
+                                            variant="default"
+                                            onClick={() => setSelectedCase(complaint)}
+                                            className="cyber-glow-secondary"
+                                        >
+                                            <Eye className="h-4 w-4 mr-2" />
+                                            View Details
+                                        </Button>
+
+                                        {complaint.status === 'Assigned' && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleStartInvestigation(complaint.id)}
+                                            >
+                                                <Play className="h-4 w-4 mr-2" />
+                                                Start Investigation
+                                            </Button>
+                                        )}
+
+                                        {complaint.status === 'Investigating' && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleUpdateStatus(complaint.id, 'Resolved')}
+                                            >
+                                                <MessageSquare className="h-4 w-4 mr-2" />
+                                                Mark Resolved
+                                            </Button>
+                                        )}
+                                    </div>
+                                </div>
+                            </Card>
+                        ))
+                    )}
+                </div>
+            </div>
+            {/* Case Details Modal */}
+            {selectedCase && (
+                <CaseDetailsPanel
+                    case={selectedCase}
+                    notes={mockCaseNotes.filter(note => note.caseId === selectedCase.caseId)}
+                    onClose={() => setSelectedCase(null)}
+                />
+            )}
+        </>
+    );
+};
+
+export default OfficerCaseSection;

@@ -14,7 +14,7 @@ const FeedbackForm = () => {
       setLoading(true);
       const response = await axios.post(
         '/api/submit-feedback',
-        { description: feedback },
+        { feedback : feedback },
         { withCredentials: true } // 🔐 send session cookies
       );
 

@@ -1,92 +1,109 @@
-import React, { useState } from 'react';
-import { FiMail, FiLock } from 'react-icons/fi';
+import React, { useState, useEffect } from 'react';
+import { FiMail, FiLock, FiRefreshCcw } from 'react-icons/fi';
 import logoImage from '../assets/images/logo.png';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '@/ReduxSlice/user/userSlice';
-import { setuserAdditionalDetailsField ,setAdditionDetail, resetAllFormData } from '@/ReduxSlice/formData/formSlice';
-
-
+import { setuserAdditionalDetailsField, setAdditionDetail, resetAllFormData } from '@/ReduxSlice/formData/formSlice';
+import { toast } from 'react-toastify';
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: '', otp: '' });
+  const [formData, setFormData] = useState({ email: '', otp: '', captchaInput: '' });
   const [otpSent, setOtpSent] = useState(false);
+  const [captcha, setCaptcha] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+
+  const [loadingOtp, setLoadingOtp] = useState(false);   // Loading for OTP button
+  const [loadingRegister, setLoadingRegister] = useState(false); // Loading for Register button
+  // Generate CAPTCHA
+  const generateCaptcha = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+    let code = '';
+    for (let i = 0; i < 5; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptcha(code);
+    // Clear the captcha input field
+    setFormData((prev) => ({ ...prev, captchaInput: '' }));
+  };
+
+  useEffect(() => {
+    generateCaptcha();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Inside component:
   const handleSendOtp = async () => {
     if (!formData.email) {
-      alert('Please enter your email address.');
+      toast.error('Please enter your email address.');
       return;
     }
+    setLoadingOtp(true); // Start loading
+
 
     try {
-      console.log('Sending OTP to:', formData.email);
-
-      const response = await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
+      await axios.post('http://localhost:4000/api/v1/auth/sendOTPforSignIn', {
         email: formData.email,
       });
-      console.log('OTP sent response:', response);
-      console.log('OTP sent response:', response.data);
-      alert('OTP sent successfully!');
+      toast.success('OTP sent successfully!');
       setOtpSent(true);
     } catch (error) {
-      console.error('Error sending OTP:', error);
-      alert(error.response?.data?.message || 'Failed to send OTP. Please try again.');
+      toast.error(error.response?.data?.message || 'Failed to send OTP');
+    }
+    finally {
+      setLoadingOtp(false); // Stop loading
     }
   };
 
   const handleLogin = async () => {
-    const { email, otp } = formData;
+    const { email, otp, captchaInput } = formData;
+         if(!otpSent){
+          toast.error('Please send OTP first.');
+          return;
+         }
 
-    if (!email || !otp) {
-      alert('Please enter both Email and OTP.');
+    if (!email || !otp || !captchaInput) {
+      toast.error('Please fill all fields.');
       return;
     }
-  
+
+    if (captchaInput !== captcha) {
+      toast.error('Incorrect CAPTCHA');
+      generateCaptcha();
+      return;
+    }
+    setLoadingRegister(true); // Start loading
+
     try {
-        const response = await axios.post(
-            'http://localhost:4000/api/v1/auth/signin',
-            {
-                email,
-                otp: Number(otp),
-            },
-            {
-                withCredentials: true,
-            }
-        );
+      const response = await axios.post(
+        'http://localhost:4000/api/v1/auth/signin',
+        { email, otp: Number(otp) },
+        { withCredentials: true }
+      );
 
-        dispatch(resetAllFormData());
+      dispatch(resetAllFormData());
+      const { user, additionalDetails } = response.data;
+      dispatch(loginSuccess({ user }));
 
-        const { user, additionalDetails } = response.data;
+      if (additionalDetails) {
+        dispatch(setAdditionDetail(additionalDetails));
+        dispatch(setuserAdditionalDetailsField({ fill: 1 }));
+      }
 
-        console.log('Login successful:', response.data);
-        console.log("addional details" , additionalDetails);
-        alert('Login successful!');
-
-        // 1. Store user info in userSlice
-        dispatch(loginSuccess({ user }));
-
-        // 2. If additionalDetails exist, store them in formSlice
-        if (additionalDetails) {
-            dispatch(setAdditionDetail(additionalDetails));
-            dispatch(setuserAdditionalDetailsField({ fill: 1 }));
-                    }
-
-        // 3. Redirect user
-        navigate('/');
-
+      navigate('/');
     } catch (error) {
-        console.error('Login failed:', error);
-        alert('Invalid OTP or email. Please try again.');
-    }};
+      toast.error("Invalid Otp or email")
+    }
+    finally {
+      setLoadingRegister(false); // Stop loading
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
@@ -121,7 +138,7 @@ const Login = () => {
             </div>
           </div>
 
-          {/* OTP Input + Send OTP Button */}
+          {/* OTP Input */}
           <div className="text-left mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">6-Digit OTP</label>
             <div className="flex gap-2 items-center">
@@ -135,33 +152,55 @@ const Login = () => {
                   value={formData.otp}
                   maxLength={6}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    // Allow only digits and max 6 characters
-                    if (/^\d{0,6}$/.test(value)) {
-                      handleChange(e);
-                    }
+                    if (/^\d{0,6}$/.test(e.target.value)) handleChange(e);
                   }}
                   disabled={!otpSent}
                   required
                 />
               </div>
-
               <button
                 type="button"
                 onClick={handleSendOtp}
-                className="text-blue-600 cursor-pointer border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 transition"
+                disabled={loadingOtp} // Disable during loading
+                className={`text-blue-600 cursor-pointer border text-sm border-blue-600 px-2 py-1 rounded transition 
+                                    ${loadingOtp ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'hover:bg-blue-50'}`}
               >
-                Send OTP
+                {loadingOtp ? 'Sending...' : 'Send OTP'}
               </button>
             </div>
           </div>
 
+          {/* CAPTCHA + Input in same line */}
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-2 border rounded bg-gray-200 font-mono tracking-widest select-none">
+              {captcha}
+            </span>
+            <FiRefreshCcw
+              onClick={generateCaptcha}
+              className="cursor-pointer text-gray-600 hover:text-black"
+              size={20}
+            />
+            <input
+              type="text"
+              name="captchaInput"
+              placeholder="Enter CAPTCHA"
+              className="flex-grow border rounded px-2 py-1 focus:outline-none"
+              value={formData.captchaInput}
+              onChange={handleChange}
+              required
+            />
+
+          </div>
+
           {/* Login Button */}
           <button
-            type='submit'
-            className="bg-blue-600 cursor-pointer text-white w-full py-2 rounded hover:bg-blue-700 transition"
+            type="submit"
+            disabled={loadingRegister} // Disable during loading
+            className={`w-full py-2 rounded text-white transition 
+                            ${loadingRegister ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
           >
-            Login Securely
+            {loadingRegister ? 'loging...' : 'Log in'}
+
           </button>
         </form>
 
@@ -170,10 +209,7 @@ const Login = () => {
           Don't have an account?{' '}
           <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link>
         </p>
-
-        <p className="text-xs text-gray-400 mt-2">
-          All activity is monitored for your safety
-        </p>
+        <p className="text-xs text-gray-400 mt-2">All activity is monitored for your safety</p>
       </div>
     </div>
   );

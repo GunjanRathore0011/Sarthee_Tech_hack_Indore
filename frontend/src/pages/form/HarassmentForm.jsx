@@ -15,7 +15,8 @@ const HarassmentForm = ({ onNext }) => {
   const dispatch = useDispatch();
   const harassmentData = useSelector((state) => state.formData.harassment);
 
-  const [delay, setDelay] = useState(harassmentData.delay_in_report ? 'Yes' : 'No'); const [errors, setErrors] = useState({});
+  const [delay, setDelay] = useState(harassmentData.delay_in_report ? 'Yes' : 'No'); 
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState(harassmentData);
 
@@ -33,6 +34,7 @@ const HarassmentForm = ({ onNext }) => {
 
   const minLength = 200;
   const maxLength = 1500;
+
   useEffect(() => {
     dispatch(setHarassment(formData));
   }, [formData, dispatch]);
@@ -104,7 +106,7 @@ const HarassmentForm = ({ onNext }) => {
 
         {/* Subcategory */}
         <div>
-          <label className="block mb-1 font-semibold">Subcategory</label>
+          <label className="block mb-1 font-semibold">Subcategory <span className="text-red-500">*</span></label>
           <select
             name="subCategory"
             value={formData.subCategory}
@@ -121,7 +123,7 @@ const HarassmentForm = ({ onNext }) => {
 
         {/* Incident Datetime */}
         <div>
-          <label className="block mb-1 font-semibold">Incident Date & Time</label>
+          <label className="block mb-1 font-semibold">Incident Date & Time <span className="text-red-500">*</span></label>
           <input
             type="datetime-local"
             name="incident_datetime"
@@ -134,13 +136,14 @@ const HarassmentForm = ({ onNext }) => {
 
         {/* Description */}
         <div>
-          <label className="block mb-1 font-semibold">Description (min 200 characters)</label>
+          <label className="block mb-1 font-semibold">Description <span className="text-red-500">*</span></label>
           <textarea
             name="description"
-            rows="6"
+            rows="5"
             value={formData.description}
             onChange={handleChange}
             className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            placeholder="Provide a detailed description of the incident (min 200 characters)"
             required
             minLength={minLength}
             maxLength={maxLength}
@@ -160,7 +163,7 @@ const HarassmentForm = ({ onNext }) => {
 
         {/* Delay in Report */}
         <div>
-          <label className="block mb-2 font-semibold">Delay in Reporting?</label>
+          <label className="block mb-2 font-semibold">Delay in Reporting? <span className="text-red-500">*</span></label>
           <div className="flex gap-4">
             <label className="flex items-center gap-2">
               <input
@@ -188,7 +191,7 @@ const HarassmentForm = ({ onNext }) => {
         {/* Reason for Delay */}
         {delay === 'Yes' && (
           <div>
-            <label className="block mb-1 font-semibold">Reason for Delay</label>
+            <label className="block mb-1 font-semibold">Reason for Delay <span className="text-red-500">*</span></label>
             <input
               type="text"
               name="reson_of_delay"

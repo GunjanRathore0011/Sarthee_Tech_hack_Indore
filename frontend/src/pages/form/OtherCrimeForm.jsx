@@ -9,6 +9,10 @@ function OtherCrimeForm({ onNext }) {
 
   // Delay state synced with Redux formData
   const [delay, setDelay] = useState(formData.delay_in_report);
+   const minLength = 200;
+  const maxLength = 1500;
+  const [errors, setErrors] = useState({});
+  
 
   // Sync delay_in_report in Redux when delay state changes
   useEffect(() => {
@@ -34,8 +38,21 @@ function OtherCrimeForm({ onNext }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // if (formData.description.length < 200) {
+    //   alert("Description must be at least 200 characters.");
+    //   return;
+    // }
+     let newErrors = {};
     if (formData.description.length < 200) {
-      alert("Description must be at least 200 characters.");
+      newErrors.description = 'Description must be at least 200 characters.';
+    }
+
+    if (delay === 'Yes' && formData.reson_of_delay.trim() === '') {
+      newErrors.reson_of_delay = 'Please provide a reason for the delay.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
     console.log('Other Crime Data:', formData);
@@ -64,7 +81,7 @@ function OtherCrimeForm({ onNext }) {
 
         {/* SubCategory */}
         <div className="mb-5">
-          <label className="block mb-2 font-semibold text-gray-700">SubCategory</label>
+          <label className="block mb-2 font-semibold text-gray-700">SubCategory <span className="text-red-500">*</span></label>
           <select
             name="subCategory"
             value={formData.subCategory || ''}
@@ -85,7 +102,7 @@ function OtherCrimeForm({ onNext }) {
 
         {/* Date of Incident */}
         <div className="mb-5">
-          <label className="block mb-2 font-semibold text-gray-700">Date of Incident</label>
+          <label className="block mb-2 font-semibold text-gray-700">Date of Incident <span className="text-red-500">*</span></label>
           <input
             type="datetime-local"
             name="incident_datetime"
@@ -98,7 +115,7 @@ function OtherCrimeForm({ onNext }) {
 
         {/* Delay in Reporting */}
         <div className="mb-5">
-          <label className="block mb-2 font-semibold text-gray-700">Is there any delay in reporting?</label>
+          <label className="block mb-2 font-semibold text-gray-700">Is there any delay in reporting? <span className="text-red-500">*</span></label>
           <div className="flex items-center gap-6">
             <label className="flex items-center gap-2 text-gray-700">
               <input
@@ -126,7 +143,7 @@ function OtherCrimeForm({ onNext }) {
         {/* Reason for Delay */}
         {delay && (
           <div className="mb-5">
-            <label className="block mb-2 font-semibold text-gray-700">Reason for Delay</label>
+            <label className="block mb-2 font-semibold text-gray-700">Reason for Delay <span className="text-red-500">*</span></label>
             <input
               type="text"
               name="reson_of_delay"
@@ -139,27 +156,31 @@ function OtherCrimeForm({ onNext }) {
           </div>
         )}
 
-        {/* Description */}
-        <div className="mb-5">
-          <label className="block mb-2 font-semibold text-gray-700">
-            Description <span className="text-red-500">*</span>
-          </label>
+         {/* Description */}
+        <div>
+          <label className="block mb-2 font-semibold">Description <span className="text-red-500">*</span></label>
           <textarea
             name="description"
+            rows="5"
             value={formData.description}
             onChange={handleChange}
-            className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-400 transition"
-            rows="4"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
             placeholder="Provide a detailed description of the incident (min 200 characters)"
             required
+            minLength={minLength}
+            maxLength={maxLength}
           ></textarea>
-          <p
-            className={`text-sm mt-1 ${formData.description.length < 200 ? 'text-red-600' : 'text-green-600'}`}
-          >
-            {formData.description.length < 200
-              ? `⚠️ At least 200 characters required. Current: ${formData.description.length}`
-              : '✅ Character requirement met.'}
-          </p>
+
+          {/* Word Counter Row */}
+          <div className="flex justify-between text-sm text-gray-600 mt-1 mb-3 ">
+            <p>{formData.description.length} characters typed</p>
+            <p>{maxLength - formData.description.length} characters left</p>
+          </div>
+
+          {/* Error Display */}
+          {errors?.description && (
+            <p className="text-red-600 text-sm mt-1">{errors.description}</p>
+          )}
         </div>
 
         {/* File Upload */}

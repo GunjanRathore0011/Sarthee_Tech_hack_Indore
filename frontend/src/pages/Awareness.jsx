@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaCheckCircle } from "react-icons/fa";
+import FeedbackForm from "./form/New";
 
 const Awareness = () => {
   useEffect(() => {
@@ -10,6 +11,9 @@ const Awareness = () => {
 
   return (
     <div className="bg-white text-gray-800">
+
+      <FeedbackForm />
+      
       {/* Header Section */}
       <section className="bg-gradient-to-r from-blue-100 to-blue-200 py-20 px-4 text-center" data-aos="fade-down">
         <h1 className="text-4xl md:text-5xl font-bold text-blue-700">Cyber Safety Awareness</h1>

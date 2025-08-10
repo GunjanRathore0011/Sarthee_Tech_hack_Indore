@@ -102,6 +102,14 @@ const formSlice = createSlice({
         setuserAdditionalDetailsField: (state, action) => {
             state.userAdditionalDetailsField = action.payload;
         },
+        resetFormDataExceptAdditional: (state) => {
+            return {
+                ...initialState,
+                additionDetail: state.additionDetail ,
+                 userAdditionalDetailsField: state.userAdditionalDetailsField
+            
+            };
+        },
 
         resetAllFormData: () => initialState,
     },
@@ -118,6 +126,7 @@ export const {
     setNextStep,
     setCategoryKey,
     setuserAdditionalDetailsField,
+    resetFormDataExceptAdditional,
 } = formSlice.actions;
 
 export default formSlice.reducer;
