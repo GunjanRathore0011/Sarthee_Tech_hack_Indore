@@ -304,34 +304,6 @@ exports.additionalDetails = async (req, res) => {
       });
     }
 
-    //         // ✅ Upload screenshots
-    //         let imageUrls = [];
-    //         if (req.files?.file) {
-    //             const filesArray = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
-    //             for (let file of filesArray) {
-    //                 const uploaded = await UploadToCloudinary(file.tempFilePath, "evidence");
-    //                 imageUrls.push(uploaded.secure_url);
-    //             }
-    //         }
-    //         let prior = "Medium";
-    //         if("Harassment"==category){                
-    //         }else{
-    //          prior = lost_money >= 100000 ? "High" :"Normal";
-    //         }
-
-    //         // ✅ Create complaint
-    //         const complaintInfo = await Complaint.create({
-    //             userId,
-    //             category,
-    //             subCategory,
-    //             lost_money,
-    //             delay_in_report,
-    //             reason_of_delay,
-    //             description,
-    //             screenShots: imageUrls,
-    //             priority: prior,
-    //             incident_datetime,
-    //         });
     const userId = req.user.userId;
     const user = await User.findById(userId);
     if (!user) {

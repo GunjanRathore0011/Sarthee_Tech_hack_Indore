@@ -289,7 +289,7 @@ exports.getUserDetails = async (req, res) => {
 //assign investigator to complaint
 exports.assignInvestigator = async (req, res) => {
   try {
-    const { complaintId, investigatorId } = req.body;
+    const { complaintId, investigatorId ,remark=''} = req.body;
     if (!complaintId || !investigatorId) {
       return res.status(400).json({
         success: false,
@@ -316,7 +316,11 @@ exports.assignInvestigator = async (req, res) => {
     //assign to the investigator
     const investigator = await InvestigatorSchema.findById(investigatorId)
     if (investigator) {
-      investigator.assignedCases.push(complaintId);
+      investigator.assignedCases.push({
+      caseId: complaintId,
+      assignedAt: new Date(),
+      remarks: remark || ''
+      });
       await investigator.save();
     }
    

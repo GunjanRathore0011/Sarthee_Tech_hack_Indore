@@ -4,7 +4,8 @@ const router = express.Router();
 const {getInvestigatorDetails,
      getAllInvestigators, 
      createInvestigator,
-     updateInvestigatorStatus
+     updateInvestigatorStatus,
+     allAssignedCases
     } = require('../controller/InvestigatorController');
 
 // Route to create a new investigator
@@ -18,6 +19,9 @@ router.get('/investigators', getAllInvestigators);
 
 // Route to update investigator status
 router.post('/investigatorStatus/:id', updateInvestigatorStatus);
+
+router.get('/allAssignedCases/:id',allAssignedCases)
+
 
 // Export the router
 module.exports = router;

@@ -24,7 +24,7 @@ exports.signUp = async (req, res) => {
             });
         } 
         // Validate OTP
-        const otpRecord = await OTP.findOne({ email });
+        const otpRecord = await OTP.findOne({ email,otp });
 
         if (!otpRecord) {
             return res.status(400).json({
@@ -70,8 +70,6 @@ exports.signUp = async (req, res) => {
         });
     }
 }
-
-
 
 //send otp for singup
 exports.sendOTPforSignUp = async (req, res) => {
@@ -204,8 +202,6 @@ exports.sendOTPforSignIn = async (req, res) => {
         });
     }
 }
-
-
 
 //sign in with email and otp
 exports.signin = async (req, res) => {

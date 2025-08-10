@@ -3,6 +3,11 @@ const AdditionDetails = require("../models/AdditionDetails");
 const fs = require('fs');
 const path = require('path');
 const puppeteer = require('puppeteer');
+const User = require("../models/User");
+const Feedback = require("../models/Feedback");
+require('dotenv').config();
+const cloudinary = require('cloudinary').v2;
+
 
 // GET /api/v1/complaint/:id/
 exports.getComplaintStatus = async (req, res) => {
@@ -119,23 +124,48 @@ exports.generateComplaintPDF = async (req, res) => {
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
 
-    const fileName = `Complaint_${crn || Date.now()}.pdf`;
-    const filePath = path.join(__dirname, '..', 'pdfs', fileName);
+        
+    // await page.pdf({
+    //   path: filePath,
+    //   format: 'A4',
+    //   printBackground: true
+    // });
 
-    await page.pdf({
-      path: filePath,
-      format: 'A4',
+    // await browser.close();
+
+    // // Respond with link
+    // res.status(200).json({
+    //   message: 'PDF generated successfully',
+    //   file: `/pdfs/${fileName}`
+    // });
+     const pdfBuffer = await page.pdf({
+      format: "A4",
       printBackground: true
     });
 
     await browser.close();
+  console.log(pdfBuffer);
 
-    // Respond with link
-    res.status(200).json({
-      message: 'PDF generated successfully',
-      file: `/pdfs/${fileName}`
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {folder: "reports", 
+      resource_type: "auto", // auto-detect MIME type
+      // format: "pdf",         // force extension to .pdf
+      public_id: `complaint_${complaintId}`, // optional naming
+      // type: "upload"
+        }, // raw = for non-image files
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      stream.end(pdfBuffer);
     });
-
+    res.status(200).json({
+      success: true,
+      message: "PDF generated and uploaded successfully",
+      fileUrl: uploadResult.secure_url
+    });
   } catch (error) {
     console.error("❌ Error in generateComplaintPDF:", error);
     res.status(500).json({
@@ -143,4 +173,49 @@ exports.generateComplaintPDF = async (req, res) => {
       message: "Internal Server Error"
     });
   }
+}
+
+
+//save pdf
+exports.saveFeedback = async (req, res) => {
+    try {
+        const {  feedback } = req.body;
+        const userId = req.user.userId; // Get user ID from the authenticated session
+
+        // Validate input
+        if (!userId || !feedback) {
+            return res.status(400).json({
+                message: "User ID and feedback are required",
+                success: false,
+            });
+        }
+
+        // Check if user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+                success: false,
+            });
+        }
+
+        // Create new feedback
+        const newFeedback = await Feedback.create({
+            userId,
+            feedback,
+        });
+
+        res.status(201).json({
+            message: "Feedback saved successfully",
+            success: true,
+            feedback: newFeedback,
+        });
+    } catch (error) {
+        console.error("Error saving feedback:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            success: false,
+            error: error.message,
+        });
+    }
 }
