@@ -116,8 +116,11 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     };
 
     return (
-        <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="w-[96vw] max-h-[90vh] overflow-y-auto">
+        <>
+        
+        <div className='w-full h-full flex items-center justify-center'>
+<Dialog open={true} onOpenChange={onClose}>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
 
 
                 <DialogHeader>
@@ -311,5 +314,8 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 </div>
             </DialogContent>
         </Dialog>
+
+        </div>
+        </>
     );
 };

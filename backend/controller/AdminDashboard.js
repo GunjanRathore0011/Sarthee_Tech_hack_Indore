@@ -212,6 +212,7 @@ exports.dashboard = async (req, res) => {
     });
 
     let formattedComplaints;
+    
     // Sort newest first
     if(formattedComplaint.length<startIndex){
    formattedComplaints =formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
