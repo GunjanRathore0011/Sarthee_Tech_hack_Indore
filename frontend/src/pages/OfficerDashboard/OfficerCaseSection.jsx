@@ -115,7 +115,7 @@ const OfficerCaseSection = () => {
 
     return (
         <>
-            <div className="px-6 py-6">
+            <div className="px-6 py-6 min-h-screen">
                 {/* Tabs */}
                 <div className="border-b border-blue-200 mb-6">
                     <div className="flex space-x-8">
@@ -127,8 +127,8 @@ const OfficerCaseSection = () => {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center space-x-2 py-4 border-b-2 transition-all text-sm font-medium tracking-wide ${activeTab === tab.id
-                                        ? 'border-blue-600 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-blue-600'
+                                    ? 'border-blue-600 text-blue-600'
+                                    : 'border-transparent text-gray-500 hover:text-blue-600'
                                     }`}
                             >
                                 <span>{tab.label}</span>
@@ -237,15 +237,16 @@ const OfficerCaseSection = () => {
                         ))
                     )}
                 </div>
+                {/* Case Details Modal */}
+                {selectedCase && (
+                    <CaseDetailsPanel
+                        case={selectedCase}
+                        notes={mockCaseNotes.filter(note => note.caseId === selectedCase.caseId)}
+                        onClose={() => setSelectedCase(null)}
+                    />
+                )}
             </div>
-            {/* Case Details Modal */}
-            {selectedCase && (
-                <CaseDetailsPanel
-                    case={selectedCase}
-                    notes={mockCaseNotes.filter(note => note.caseId === selectedCase.caseId)}
-                    onClose={() => setSelectedCase(null)}
-                />
-            )}
+
         </>
     );
 };

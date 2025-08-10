@@ -25,8 +25,10 @@ const OfficerManagement = () => {
 
       // ✅ Ensure data is array before setting
       if (Array.isArray(response.data.data)) {
-        setOfficers(response.data.data);
-      } else {
+          setOfficers(response.data.data);
+        }
+
+      else {
         console.error("Invalid officer data format:", response.data.data);
         setOfficers([]);
       }
@@ -131,12 +133,8 @@ const OfficerManagement = () => {
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center space-x-2">
                   <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                    {officer.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .slice(0, 3)
-                      .toUpperCase()}
+                    {officer.name ? officer.name.split(" ").map(n => n[0]).join("").slice(0,3).toUpperCase() : ""}
+
                   </div>
                   <div>
                     <div>{officer.name}</div>
