@@ -18,6 +18,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { X, Plus } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export const AddOfficerModal = ({ isOpen, onClose, onAddOfficer }) => {
     const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ export const AddOfficerModal = ({ isOpen, onClose, onAddOfficer }) => {
     });
 
     const [newSpecialization, setNewSpecialization] = useState('');
-
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,6 +49,7 @@ export const AddOfficerModal = ({ isOpen, onClose, onAddOfficer }) => {
             onAddOfficer(data);
             setFormData({ name: '', badgeId: '', email: '', phone: '', password: '', station: '', specialistIn: [] });
             onClose();
+            navigate('/officer-management'); // Redirect to officers page after adding
         } catch (error) {
             console.error('Axios error:', error);
             alert('Failed to add officer.');
@@ -184,7 +186,7 @@ export const AddOfficerModal = ({ isOpen, onClose, onAddOfficer }) => {
                         <Button type="button" variant="outline" onClick={onClose}>
                             Cancel
                         </Button>
-                        <Button type="submit" className="cyber-glow">
+                        <Button type="submit" className="cyber-glow ">
                             Add Officer
                         </Button>
                     </div>
