@@ -8,6 +8,7 @@ import TestimonialSlider from "@/component/TestimonialSlider";
 import FaqSection from "@/component/FaqSection";
 import HelpBanner from "@/component/HelpBanner";
 import { useNavigate } from "react-router-dom";
+import PatternAlertsCard from "@/component/PatternAlertsCard";
 
 const Home = () => {
   useEffect(() => {
@@ -62,6 +63,9 @@ const Home = () => {
       <TestimonialSlider></TestimonialSlider>
       <FaqSection></FaqSection>
       <HelpBanner></HelpBanner>
+    
+      <PatternAlertsCard></PatternAlertsCard>
+    
     </>
   );
 };
