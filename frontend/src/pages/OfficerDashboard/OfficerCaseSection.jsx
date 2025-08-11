@@ -24,51 +24,51 @@ const getStatusBadge = (status) => {
     }
 };
 
-// Dummy Data
-const dummyActiveCases = [
-    {
-        id: '1',
-        caseId: 'CASE-2025-001',
-        priority: 'High',
-        status: 'Assigned',
-        crimeType: 'Cyberbullying',
-        location: 'Indore',
-        pinCode: '452001',
-        userName: 'Aarav Sharma',
-        description: 'The complainant has been receiving repeated threats via social media by unknown individuals...',
-        dateReceived: new Date(),
-        evidence: ['image1.png', 'chatlog.pdf']
-    },
-    {
-        id: '2',
-        caseId: 'CASE-2025-002',
-        priority: 'Medium',
-        status: 'Investigating',
-        crimeType: 'Online Fraud',
-        location: 'Bhopal',
-        pinCode: '462001',
-        userName: 'Neha Verma',
-        description: 'An unknown seller tricked the user into making an online payment and then disappeared...',
-        dateReceived: new Date(),
-        evidence: ['screenshot.png']
-    }
-];
+// // Dummy Data
+// const dummyActiveCases = [
+//     {
+//         id: '1',
+//         caseId: 'CASE-2025-001',
+//         priority: 'High',
+//         status: 'Assigned',
+//         crimeType: 'Cyberbullying',
+//         location: 'Indore',
+//         pinCode: '452001',
+//         userName: 'Aarav Sharma',
+//         description: 'The complainant has been receiving repeated threats via social media by unknown individuals...',
+//         dateReceived: new Date(),
+//         evidence: ['image1.png', 'chatlog.pdf']
+//     },
+//     {
+//         id: '2',
+//         caseId: 'CASE-2025-002',
+//         priority: 'Medium',
+//         status: 'Investigating',
+//         crimeType: 'Online Fraud',
+//         location: 'Bhopal',
+//         pinCode: '462001',
+//         userName: 'Neha Verma',
+//         description: 'An unknown seller tricked the user into making an online payment and then disappeared...',
+//         dateReceived: new Date(),
+//         evidence: ['screenshot.png']
+//     }
+// ];
 
-const dummyResolvedCases = [
-    {
-        id: '3',
-        caseId: 'CASE-2025-003',
-        priority: 'Low',
-        status: 'Resolved',
-        crimeType: 'Phishing',
-        location: 'Ujjain',
-        pinCode: '456001',
-        userName: 'Ravi Patel',
-        description: 'User received emails impersonating a government agency asking for personal information...',
-        dateReceived: new Date(),
-        evidence: ['email.jpg']
-    }
-];
+// const dummyResolvedCases = [
+//     {
+//         id: '3',
+//         caseId: 'CASE-2025-003',
+//         priority: 'Low',
+//         status: 'Resolved',
+//         crimeType: 'Phishing',
+//         location: 'Ujjain',
+//         pinCode: '456001',
+//         userName: 'Ravi Patel',
+//         description: 'User received emails impersonating a government agency asking for personal information...',
+//         dateReceived: new Date(),
+//         evidence: ['email.jpg']
+//     }
+// ];
 const mockCaseNotes = [
     {
         id: 'note-1',
@@ -98,8 +98,8 @@ const mockCaseNotes = [
 
 const OfficerCaseSection = () => {
     const [activeTab, setActiveTab] = useState('cases');
-    const [activeCases, setActiveCases] = useState(dummyActiveCases);
-    const [resolvedCases, setResolvedCases] = useState(dummyResolvedCases);
+    const [activeCases, setActiveCases] = useState([]);
+    const [resolvedCases, setResolvedCases] = useState([]);
     const [selectedCase, setSelectedCase] = useState(null);
 
     const handleStartInvestigation = (id) => {
@@ -113,14 +113,23 @@ const OfficerCaseSection = () => {
     const visibleCases = activeTab === 'cases' ? activeCases : resolvedCases;
     const fetchAssignedCases = async () => {
         try {
-            const investigatorId = '689822b4e33f01bfa847bf19';
+            const investigatorId = '6894dc7bb49528b5997cf5a4';
             const res = await fetch(`http://localhost:4000/api/v1/investigator/allAssignedCases/${investigatorId}`);
             const result = await res.json();
-            console.log('Assigned Cases Response:', result);
+            console.log('Assigned Cases Response:', result.activeCases);
+
+            if (result.success) {
+                setActiveCases(result.activeCases);
+                setResolvedCases(result.resolvedCases);
+            }
         } catch (error) {
             console.error('Error fetching assigned cases:', error);
         }
     };
+
+    const handleMarkResolved = (caseId) => {
+        alert(`Marking case ${caseId} as resolved`);
+    }
 
     useEffect(() => {
         fetchAssignedCases();
@@ -191,13 +200,16 @@ const OfficerCaseSection = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm text-muted-foreground">Location</p>
-                                                <p className="font-medium">{complaint.location} ({complaint.pinCode})</p>
+                                                <p className="font-medium">
+                                                    {complaint.location} {complaint.pinCode ? `(${complaint.pinCode})` : ''}
+                                                </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-muted-foreground">Complainant</p>
                                                 <p className="font-medium">{complaint.userName}</p>
                                             </div>
                                         </div>
+                                        <p className="text-sm text-muted-foreground">Description</p>
 
                                         <p className="text-muted-foreground line-clamp-2 mb-4">
                                             {complaint.description}
@@ -209,6 +221,17 @@ const OfficerCaseSection = () => {
                                             <span className="mx-2">•</span>
                                             <FileText className="h-4 w-4" />
                                             <span>{complaint.evidence.length} evidence files</span>
+                                            <span className="mx-2">•</span>
+                                            <FileText className="h-4 w-4" />
+                                            <a
+                                                href={complaint.complaint_report}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline"
+                                            >
+                                                Complaint Report
+                                            </a>
+
                                         </div>
                                     </div>
 
@@ -222,7 +245,7 @@ const OfficerCaseSection = () => {
                                             View Details
                                         </Button>
 
-                                        {complaint.status === 'Assigned' && (
+                                        {complaint.status === 'AssignInvestigator' && (
                                             <Button
                                                 variant="outline"
                                                 size="sm"
@@ -233,11 +256,11 @@ const OfficerCaseSection = () => {
                                             </Button>
                                         )}
 
-                                        {complaint.status === 'Investigating' && (
+                                        {complaint.status === 'AssignInvestigator' && (
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => handleUpdateStatus(complaint.id, 'Resolved')}
+                                                onClick={() => handleMarkResolved(complaint.caseId)}
                                             >
                                                 <MessageSquare className="h-4 w-4 mr-2" />
                                                 Mark Resolved

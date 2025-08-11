@@ -1,15 +1,16 @@
 const Investigator = require("../models/InvestigatorSchema");
 const AdditionDetails = require("../models/AdditionDetails");
+const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const mongoose = require('mongoose');
 require('dotenv').config();
 
 exports.createInvestigator = async (req, res) => {
     try {
-        const { name, badgeId, email, phone, password,station ,specialistIn,isActive=1} = req.body; 
+        const { name, badgeId, email, phone, password, station, specialistIn, isActive = 1 } = req.body;
         const investigator = new Investigator({
             name,
-            badgeId,    
+            badgeId,
             email,
             phone,
             password,
@@ -30,15 +31,15 @@ exports.createInvestigator = async (req, res) => {
             message: "Internal server error",
             error: error.message
         });
-    }   
+    }
 };
 
 exports.getInvestigatorDetails = async (req, res) => {
     try {
         const investigatorId = req.params.badgeId;
-        const investigator = await Investigator.findOne({ investigatorId }) 
-        .select('name badgeId email phone station specialistIn isActive assignedCases')
-        .populate('assignedCases.caseId');
+        const investigator = await Investigator.findOne({ investigatorId })
+            .select('name badgeId email phone station specialistIn isActive assignedCases')
+            .populate('assignedCases.caseId');
 
         if (!investigator) {
             return res.status(404).json({
@@ -68,17 +69,17 @@ exports.getAllInvestigators = async (req, res) => {
             .populate('assignedCases.caseId')
             .select('category subCategory status priority createdAt');
 
-            //aggregate functions
-            const totalInvestigator = Investigator.countDocuments();
-            const activeInvestigator =Investigator.countDocuments({isActive: true});
+        //aggregate functions
+        const totalInvestigator = Investigator.countDocuments();
+        const activeInvestigator = Investigator.countDocuments({ isActive: true });
 
 
         res.status(200).json({
             success: true,
             message: "All investigators fetched successfully",
             data: investigators,
-            totalInvestigator:totalInvestigator,
-            activeInvestigator:activeInvestigator
+            totalInvestigator: totalInvestigator,
+            activeInvestigator: activeInvestigator
         });
     } catch (error) {
         console.error("Error fetching all investigators:", error);
@@ -102,11 +103,11 @@ exports.updateInvestigatorStatus = async (req, res) => {
         } else {
             badgeObjectId = mongoose.Types.ObjectId(investigatorId);
         }
-        
-        const investigator = await Investigator.findOneAndUpdate({ badgeId:badgeObjectId}, {
+
+        const investigator = await Investigator.findOneAndUpdate({ badgeId: badgeObjectId }, {
             isActive
         }, { new: true });
-        
+
         if (!investigator) {
             return res.status(404).json({
                 success: false,
@@ -126,42 +127,75 @@ exports.updateInvestigatorStatus = async (req, res) => {
             message: "Internal server error",
             error: error.message
         });
-    }   
+    }
 };
-
-//investigator see all this cases assigned
 exports.allAssignedCases = async (req, res) => {
     try {
         const investigatorId = req.params.id;
 
-        if (!investigatorId) {
-            return res.status(400).json({
-                success: false,
-                message: "Investigator ID is required"
-            });
-        }
-
-        // Validate and convert to ObjectId
         if (!mongoose.Types.ObjectId.isValid(investigatorId)) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid Investigator ID format"
-            });
+            return res.status(400).json({ success: false, message: "Invalid Investigator ID format" });
         }
 
-        const investigator = await Investigator.findById(new mongoose.Types.ObjectId(investigatorId));
-
+        // 1. Investigator ke assigned case IDs
+        const investigator = await Investigator.findById(investigatorId).select("assignedCases.caseId");
         if (!investigator) {
-            return res.status(404).json({
-                success: false,
-                message: "Investigator not found"
+            return res.status(404).json({ success: false, message: "Investigator not found" });
+        }
+
+        const assignedCaseIds = investigator.assignedCases.map(c => c.caseId);
+        if (!assignedCaseIds.length) {
+            return res.status(200).json({
+                success: true,
+                message: "No cases assigned",
+                activeCases: [],
+                resolvedCases: []
             });
         }
 
-        res.status(200).json({
+        // 2. Complaint schema se data
+        const complaints = await Complaint.find({ _id: { $in: assignedCaseIds } })
+            .select('userId category subCategory status priority description createdAt screenShots complain_report');
+
+// const complaint = await Complaint.find({ _id: { $in: assignedCaseIds } })
+//            console.log("Complaints:", complaint)
+
+        // console.log("Assigned Cases:", complaints);
+        const activeCases = [];
+        const resolvedCases = [];
+
+        // 3. Har complaint ke liye AdditionalDetails fetch
+        for (const c of complaints) {
+            const userDetails = await AdditionDetails.findOne({ userId: c.userId })
+                .select('fullName street district state pincode');
+
+            const caseData = {
+                id: c._id,
+                caseId: `CASE-${c.createdAt.getFullYear()}-${String(c._id).slice(-3)}`,
+                priority: c.priority,
+                status: c.status,
+                crimeType: c.subCategory,
+                location: userDetails ? `${userDetails.street || ''}, ${userDetails.district || ''}, ${userDetails.state || ''}`.trim() : "N/A",
+                pinCode: userDetails?.pincode || "N/A",
+                userName: userDetails?.fullName || "N/A",
+                description: c.description,
+                dateReceived: c.createdAt,
+                evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
+                complaint_report: c.complain_report || 'N/A'
+            };
+
+            if (c.status?.toLowerCase() === "resolved") {
+                resolvedCases.push(caseData);
+            } else {
+                activeCases.push(caseData);
+            }
+        }
+
+        return res.status(200).json({
             success: true,
             message: "Assigned cases fetched successfully",
-            data: investigator.assignedCases
+            activeCases,
+            resolvedCases
         });
 
     } catch (error) {
