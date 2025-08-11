@@ -28,7 +28,7 @@ const ComplaintManagement = () => {
     month: ''
   });
 
-  console.log("complaints", complaints);
+  // console.log("complaints", complaints);
 
   // Fetch complaints with pagination & filters
   const fetchComplaints = async (append = false) => {
@@ -37,6 +37,7 @@ const ComplaintManagement = () => {
       const res = await axios.get('http://localhost:4000/api/v1/admin/dashboard', { params });
 
       if (Array.isArray(res.data.data)) {
+        // console.log('Fetched complaints:', res.data.data);
         if (append) {
           setComplaints((prev) => [...prev, ...res.data.data]);
         } else {

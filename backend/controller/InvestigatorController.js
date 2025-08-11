@@ -132,27 +132,24 @@ exports.updateInvestigatorStatus = async (req, res) => {
 //investigator see all this cases assigned
 exports.allAssignedCases = async (req, res) => {
     try {
-    const badgeId = req.params.id;
-    // console.log(req.params)
-        if (!badgeId) {
+        const investigatorId = req.params.id;
+
+        if (!investigatorId) {
             return res.status(400).json({
-            success: false,
-            message: "Investigator ID is required"
+                success: false,
+                message: "Investigator ID is required"
             });
         }
-        // Convert string badgeId to ObjectId if necessary
-        let badgeObjectId = badgeId;
-        if (!mongoose.Types.ObjectId.isValid(badgeId)) {
-            // If badgeId is not a valid ObjectId, try to find by badgeId field
-            // Otherwise, convert to ObjectId
-        } else {
-            badgeObjectId = mongoose.Types.ObjectId(badgeId);
+
+        // Validate and convert to ObjectId
+        if (!mongoose.Types.ObjectId.isValid(investigatorId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Investigator ID format"
+            });
         }
-        console.log(badgeId," ",badgeObjectId);
-        
-        const investigator = await Investigator.findOne({ badgeId: badgeObjectId })
-            // .select('assignedCases')
-            // .populate('assignedCases.caseId');
+
+        const investigator = await Investigator.findById(new mongoose.Types.ObjectId(investigatorId));
 
         if (!investigator) {
             return res.status(404).json({
@@ -166,6 +163,7 @@ exports.allAssignedCases = async (req, res) => {
             message: "Assigned cases fetched successfully",
             data: investigator.assignedCases
         });
+
     } catch (error) {
         console.error("Error fetching assigned cases:", error);
         return res.status(500).json({

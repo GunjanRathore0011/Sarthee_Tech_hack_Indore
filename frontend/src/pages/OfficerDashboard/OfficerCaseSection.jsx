@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -96,7 +96,6 @@ const mockCaseNotes = [
     }
 ];
 
-
 const OfficerCaseSection = () => {
     const [activeTab, setActiveTab] = useState('cases');
     const [activeCases, setActiveCases] = useState(dummyActiveCases);
@@ -112,7 +111,20 @@ const OfficerCaseSection = () => {
     };
 
     const visibleCases = activeTab === 'cases' ? activeCases : resolvedCases;
+    const fetchAssignedCases = async () => {
+        try {
+            const investigatorId = '689822b4e33f01bfa847bf19';
+            const res = await fetch(`http://localhost:4000/api/v1/investigator/allAssignedCases/${investigatorId}`);
+            const result = await res.json();
+            console.log('Assigned Cases Response:', result);
+        } catch (error) {
+            console.error('Error fetching assigned cases:', error);
+        }
+    };
 
+    useEffect(() => {
+        fetchAssignedCases();
+    }, []);
     return (
         <>
             <div className="px-6 py-6 min-h-screen">
