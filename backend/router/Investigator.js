@@ -5,7 +5,8 @@ const {getInvestigatorDetails,
      getAllInvestigators, 
      createInvestigator,
      updateInvestigatorStatus,
-     allAssignedCases
+     allAssignedCases,
+     updateComplaintStatus
     } = require('../controller/InvestigatorController');
 
 // Route to create a new investigator
@@ -21,6 +22,9 @@ router.get('/investigators', getAllInvestigators);
 router.post('/investigatorStatus/:id', updateInvestigatorStatus);
 
 router.get('/allAssignedCases/:id',allAssignedCases)
+
+//update status 
+router.post('/updateComplaintStatus',updateComplaintStatus)
 
 
 // Export the router
