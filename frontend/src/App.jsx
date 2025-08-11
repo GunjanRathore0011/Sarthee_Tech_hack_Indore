@@ -19,6 +19,8 @@ import CrimeMap from './pages/AdminDashboard/CrimeMap';
 import OfficerNavbar from '../src/component/OfficerComponent/OfficerNavbar'
 import OfficerCaseSection from './pages/OfficerDashboard/OfficerCaseSection';
 import AfterComplaint from './pages/AfterComplaint';
+import AdminNotifications from './component/AdminComponent/AdminNotifications';
+import OfficerNotifications from './component/OfficerComponent/OfficerNotifications';
 
 const App = () => {
   const location = useLocation();
@@ -66,10 +68,11 @@ const App = () => {
         <Route path="/officer-management" element={<OfficerManagement />} />
         <Route path="/admin-analytics" element={<Analytics />} />
         <Route path="/crime-map" element={<CrimeMap />} />
-
+        <Route path='/admin-notifications' element={<AdminNotifications/>}/>
 
         {/* Officer Dashboard */}
         <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />
+        <Route path='/officer-notifications' element={<OfficerNotifications/>} />
 
       </Routes>
     </>

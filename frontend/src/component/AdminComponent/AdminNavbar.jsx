@@ -1,10 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiLogOut } from 'react-icons/fi';
+import { FiUser, FiLogOut, FiBell } from 'react-icons/fi';
 import { MdOutlineReport, MdOutlineAnalytics, MdOutlinePerson, MdOutlineMap } from 'react-icons/md';
 import shieldIcon from '../../assets/images/logo.png';
 import AdminDashboardStats from './AdminDashboardStats';
-import NotificationDropdown from '@/pages/NotificationDropdown';
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -38,7 +37,9 @@ const AdminNavbar = () => {
 
           {/* Right: Action Icons */}
           <div className="flex items-center space-x-8 text-xl">
-            <NotificationDropdown />
+            <Link to="/admin-notifications" title="Notifications">
+              <FiBell className="hover:text-blue-600 transition duration-150" />
+            </Link>
             <Link to="/admin-profile" title="Profile">
               <FiUser className="hover:text-blue-600 transition duration-150" />
             </Link>

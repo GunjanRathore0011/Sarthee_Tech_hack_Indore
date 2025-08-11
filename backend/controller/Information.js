@@ -400,6 +400,7 @@ exports.complaintInformation = async (req, res) => {
           suspectedCardNumber,
           suspectedImages: suspectImages,
         });
+        checkAndCreateAlerts(suspect).catch(err => console.error('Pattern check error', err));
       }
     }
 
@@ -407,7 +408,7 @@ exports.complaintInformation = async (req, res) => {
       message: "New complaint submitted",
       complaintId: complaintInfo._id
     });
-
+ 
 
     return res.status(201).json({
       message: "✅ Complaint submitted successfully",

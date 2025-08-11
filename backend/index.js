@@ -76,6 +76,9 @@ app.use("/pdfs", express.static(path.join(__dirname, "pdfs")));
 const userRouter = require("./router/User");
 const adminRouter = require("./router/Admin");
 const investigatorRouter = require("./router/Investigator");
+const patternsRouter = require("./router/Patterns");
+
+app.use("/api/v1/patterns", patternsRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the API");

@@ -23,11 +23,11 @@ const OfficerNavbar = () => {
           <img
             src={shieldIcon}
             alt="Logo"
-            className="h-10 w-10 cursor-pointer"
+            className="h-10 w-10 cursor-pointer" 
             onClick={() => navigate('/officer-dashboard')}
           />
           <div className="flex flex-col">
-            <span className="text-xl font-extrabold tracking-wide text-blue-600">
+            <span className="text-xl font-extrabold tracking-wide text-blue=600">
               CyberSentinel
             </span>
             <span className="text-sm text-gray-400 -mt-1">
