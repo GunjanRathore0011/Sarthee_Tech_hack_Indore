@@ -1,8 +1,8 @@
 const Investigator = require("../models/InvestigatorSchema");
 const AdditionDetails = require("../models/AdditionDetails");
-const User = require("../models/User");
 const mongoose = require('mongoose');
 require('dotenv').config();
+const Complaint = require("../models/Complaint");
 
 exports.createInvestigator = async (req, res) => {
     try {
@@ -174,4 +174,35 @@ exports.allAssignedCases = async (req, res) => {
             error: error.message
         });
     }
+};
+
+//update complain
+exports.updateComplaintStatus = async (req, res) => {
+  try {
+    const { complaintId, newStatus, remark } = req.body;
+
+    const updatedComplaint = await Complaint.findByIdAndUpdate(
+      complaintId,
+      {
+        status: newStatus,
+        $push: {
+          statusHistory: {
+            status: newStatus,
+            remark,
+            updatedAt: new Date(),
+          }
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedComplaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    res.status(200).json({ message: "Status updated successfully", data: updatedComplaint });
+  } catch (error) {
+    console.error("Error updating complaint status:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
 };

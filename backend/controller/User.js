@@ -56,8 +56,6 @@ exports.getComplaintStatus = async (req, res) => {
 
 //get pdf
 // controllers/pdfController.js 
-const streamifier = require("streamifier");
-
 exports.generateComplaintPDF = async (req, res) => {
   try {
     const { complaintId } = req.body;
@@ -80,6 +78,7 @@ exports.generateComplaintPDF = async (req, res) => {
       complaintSummary: complaint.description,
       category: complaint.category,
       crn: complaint._id,
+      generatedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
     };
 
     // Load and replace HTML template
