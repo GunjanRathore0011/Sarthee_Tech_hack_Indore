@@ -56,134 +56,94 @@ exports.getComplaintStatus = async (req, res) => {
 
 //get pdf
 // controllers/pdfController.js 
+const streamifier = require("streamifier");
+
 exports.generateComplaintPDF = async (req, res) => {
   try {
     const { complaintId } = req.body;
     if (!complaintId) {
-      return res.status(400).json({
-        success: false,
-        message: "Complaint ID is required."
-      });
-    }
-    const complaint = await Complaint.findById(complaintId);
-    if (!complaint) {
-      return res.status(404).json({
-        success: false,
-        message: "Complaint not found."
-      });
-    }
-    const additionalDetails = await AdditionDetails.findOne({ complainIds: complaint._id });
-    if (!additionalDetails) {
-      return res.status(404).json({
-        success: false,
-        message: "Additional details not found for this complaint."
-      });
+      return res.status(400).json({ success: false, message: "Complaint ID is required." });
     }
 
-    let dataset = {
+    const complaint = await Complaint.findById(complaintId);
+    const additionalDetails = await AdditionDetails.findOne({ complainIds: complaint._id });
+    if (!complaint || !additionalDetails) {
+      return res.status(404).json({ success: false, message: "Complaint or details not found." });
+    }
+
+    const dataset = {
       fullName: additionalDetails.fullName,
-      address: additionalDetails.colony + ', ' + additionalDetails.street,
+      address: `${additionalDetails.colony}, ${additionalDetails.street}`,
       district: additionalDetails.district,
       state: additionalDetails.state,
       pincode: additionalDetails.pincode,
       complaintSummary: complaint.description,
       category: complaint.category,
       crn: complaint._id,
-    }
+    };
 
-    const {
-      fullName,
-      address,
-      district,
-      state,
-      pincode,
-      complaintSummary,
-      category,
-      crn
-    } = dataset;
-
-    // Load template
+    // Load and replace HTML template
     const templatePath = path.join(__dirname, '..', 'utils', 'complaintTemplate.html');
     let html = fs.readFileSync(templatePath, 'utf-8');
+    for (let key in dataset) {
+      html = html.replace(`{{${key}}}`, dataset[key]);
+    }
 
-    // Replace variables
-    html = html
-      .replace('{{fullName}}', fullName)
-      .replace('{{address}}', address)
-      .replace('{{district}}', district)
-      .replace('{{state}}', state)
-      .replace('{{pincode}}', pincode)
-      .replace('{{complaintSummary}}', complaintSummary)
-      .replace('{{category}}', category)
-      .replace('{{crn}}', crn);
-
-    // Launch browser and generate PDF
+    // Generate PDF
     const browser = await puppeteer.launch();
-
-
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'load' });
-
-        
-    // await page.pdf({
-    //   path: filePath,
-    //   format: 'A4',
-    //   printBackground: true
-    // });
-
-    // await browser.close();
-
-    // // Respond with link
-    // res.status(200).json({
-    //   message: 'PDF generated successfully',
-    //   file: `/pdfs/${fileName}`
-    // });
-     const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true
-    });
-
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
     await browser.close();
-  console.log(pdfBuffer);
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {folder: "reports", 
-      resource_type: "auto", // auto-detect MIME type
-      // format: "pdf",         // force extension to .pdf
-      public_id: `complaint_${complaintId}`, // optional naming
-      // type: "upload"
-        }, // raw = for non-image files
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      stream.end(pdfBuffer);
-    });
+const tempPath = path.join(__dirname, "temp.pdf");
+fs.writeFileSync(tempPath, pdfBuffer);
+
+
+    // Upload to Cloudinary (unsigned raw preset)
+   const result = await new Promise((resolve, reject) => {
+  cloudinary.uploader.unsigned_upload(
+    tempPath,
+    "public_pdf", // unsigned preset name
+    { folder: "reports",
+      resource_type: "image", // treat PDF as an image for inline preview
+      public_id: `complaint_${complaintId}`,
+     }, // no resource_type here
+    (err, uploadResult) => {
+      fs.unlinkSync(tempPath); // cleanup
+      if (err) reject(err);
+      else resolve(uploadResult);
+    }
+  );
+});
+
+  
+  // Save result.secure_url in complain_report and persist to DB
+  complaint.complain_report = result.secure_url;
+  await complaint.save();
+
+
     res.status(200).json({
       success: true,
       message: "PDF generated and uploaded successfully",
-      fileUrl: uploadResult.secure_url
+      fileUrl: result.secure_url
     });
+
   } catch (error) {
     console.error("❌ Error in generateComplaintPDF:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal Server Error"
-    });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-}
+};
 
 
 //save pdf
 exports.saveFeedback = async (req, res) => {
     try {
-        const {  feedback } = req.body;
+        const {  feedback,rating } = req.body;
         const userId = req.user.userId; // Get user ID from the authenticated session
 
         // Validate input
-        if (!userId || !feedback) {
+        if (!userId || !rating) {
             return res.status(400).json({
                 message: "User ID and feedback are required",
                 success: false,
@@ -202,6 +162,7 @@ exports.saveFeedback = async (req, res) => {
         // Create new feedback
         const newFeedback = await Feedback.create({
             userId,
+            rating,
             feedback,
         });
 

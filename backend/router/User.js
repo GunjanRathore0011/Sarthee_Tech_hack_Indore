@@ -4,7 +4,8 @@ const { sendOTPforSignUp,sendOTPforSignIn,signUp,signin,logout} = require('../co
 const { isAuthenticatedUser } = require('../middleware/auth');
 const {additionalDetails,complaintInformation} = require('../controller/Information');
 const {getComplaintStatus,
-    generateComplaintPDF
+    generateComplaintPDF,
+    saveFeedback
     } = require('../controller/User');
 
 
@@ -25,7 +26,8 @@ router.post('/complaintInformation', isAuthenticatedUser, complaintInformation);
 router.get('/complaintStatus/:id', isAuthenticatedUser, getComplaintStatus);
 
 //pdf download
-router.post('/generateComplaintPDF',generateComplaintPDF)
+router.post('/generateComplaintPDF',generateComplaintPDF);
+router.post('/giveFeedback', saveFeedback);
 
 
 //check status of the user

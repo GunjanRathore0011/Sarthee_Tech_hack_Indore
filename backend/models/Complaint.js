@@ -80,6 +80,10 @@ statusHistory: [
     type: [String], // Array of image/file URLs
     default: [] // default to an empty array if no screenshots are provided
     },
+    complain_report:{
+      type : String,
+      default:''
+    }
 
   
 }, {
