@@ -139,12 +139,15 @@ exports.allAssignedCases = async (req, res) => {
         }
 
         // 1. Investigator ke assigned case IDs
-        const investigator = await Investigator.findById(investigatorId).select("assignedCases.caseId");
+        const investigator = await Investigator.findById(investigatorId).select("assignedCases.caseId assignedCases.assignedAt");
         if (!investigator) {
             return res.status(404).json({ success: false, message: "Investigator not found" });
         }
-
+        // console.log("Investigator:", investigator);
         const assignedCaseIds = investigator.assignedCases.map(c => c.caseId);
+
+        // console.log("Assigned Case IDs:", assignedCaseIds);
+
         if (!assignedCaseIds.length) {
             return res.status(200).json({
                 success: true,
@@ -158,8 +161,8 @@ exports.allAssignedCases = async (req, res) => {
         const complaints = await Complaint.find({ _id: { $in: assignedCaseIds } })
             .select('userId category subCategory status priority description createdAt screenShots complain_report');
 
-// const complaint = await Complaint.find({ _id: { $in: assignedCaseIds } })
-//            console.log("Complaints:", complaint)
+        // const complaint = await Complaint.find({ _id: { $in: assignedCaseIds } })
+        //            console.log("Complaints:", complaint)
 
         // console.log("Assigned Cases:", complaints);
         const activeCases = [];
@@ -169,6 +172,10 @@ exports.allAssignedCases = async (req, res) => {
         for (const c of complaints) {
             const userDetails = await AdditionDetails.findOne({ userId: c.userId })
                 .select('fullName street district state pincode');
+
+            // Find assignedAt for this case
+            const assignedCase = investigator.assignedCases.find(ac => ac.caseId.toString() === c._id.toString());
+            const assignedAt = assignedCase ? assignedCase.assignedAt : null;
 
             const caseData = {
                 id: c._id,
@@ -180,7 +187,7 @@ exports.allAssignedCases = async (req, res) => {
                 pinCode: userDetails?.pincode || "N/A",
                 userName: userDetails?.fullName || "N/A",
                 description: c.description,
-                dateReceived: c.createdAt,
+                dateReceived: assignedAt || c.createdAt,  // Use assignedAt if found, else fallback to complaint creation date
                 evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
                 complaint_report: c.complain_report || 'N/A'
             };
@@ -191,6 +198,7 @@ exports.allAssignedCases = async (req, res) => {
                 activeCases.push(caseData);
             }
         }
+
 
         return res.status(200).json({
             success: true,
