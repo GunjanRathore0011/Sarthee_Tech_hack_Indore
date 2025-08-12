@@ -21,6 +21,7 @@ import OfficerCaseSection from './pages/OfficerDashboard/OfficerCaseSection';
 import AfterComplaint from './pages/AfterComplaint';
 import AdminNotifications from './component/AdminComponent/AdminNotifications';
 import OfficerNotifications from './component/OfficerComponent/OfficerNotifications';
+import ScamDetector from './component/ScamDetector';
 
 const App = () => {
   const location = useLocation();
@@ -60,6 +61,7 @@ const App = () => {
         <Route path="/financial-fraud" element={<CyberCrimeForm />} />
         <Route path="/step-form" element={<MultiStepForm />} />
         <Route path="/submitedcomplaint" element={<AfterComplaint/>} />
+        <Route path="/scan" element={<ScamDetector />} />
 
 
         {/* Admin Dashboard */}

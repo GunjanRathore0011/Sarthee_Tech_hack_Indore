@@ -17,7 +17,7 @@ exports.additionalDetails = async (req, res) => {
         success: false,
       });
     }
-
+     console.log("Received additional details:", );
     // 👇 Declare uploaded in outer scope
     let uploaded = null;
     if (req.files && req.files.file) {

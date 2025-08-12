@@ -16,10 +16,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    otp: {
-        type:Number,
-        required: true,
-    },
+
     accountType: {
         type: String,
         enum: ["User", "Officier"],

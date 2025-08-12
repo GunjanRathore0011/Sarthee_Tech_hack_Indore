@@ -3,8 +3,8 @@ const AdditionDetails = require("../models/AdditionDetails");
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const mongoose = require('mongoose');
+
 require('dotenv').config();
-const Complaint = require("../models/Complaint");
 
 exports.createInvestigator = async (req, res) => {
     try {
@@ -20,6 +20,16 @@ exports.createInvestigator = async (req, res) => {
             isActive
         });
         await investigator.save();
+
+        // Create a User entry for the investigator
+        const user = new User({ 
+            userName: name,
+            email,
+            number: phone,
+            accountType: "Officier",
+            additionDetails: investigator._id // Link to the investigator's details
+        });
+        await user.save();
         res.status(201).json({
             success: true,
             message: "Investigator created successfully",

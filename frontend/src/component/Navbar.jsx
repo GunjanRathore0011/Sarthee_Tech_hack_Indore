@@ -50,6 +50,12 @@ const Navbar = () => {
         >
           Contact Us
         </Link>
+        <Link
+          to="/scan"
+          className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
+        >
+          Scan 
+        </Link>
       </div>
 
       <div className="font-medium">
