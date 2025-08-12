@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, AlertTriangle, Clock, FileText, Play, MessageSquare } from 'lucide-react';
 import { CaseDetailsPanel } from '@/component/OfficerComponent/CaseDetailsPanel';
+import { DialogDemo } from '@/component/DialogDemo';
+import { useSelector } from 'react-redux';
 
 // Utility functions for badge colors
 const getPriorityBadge = (priority) => {
@@ -24,51 +26,6 @@ const getStatusBadge = (status) => {
     }
 };
 
-// // Dummy Data
-// const dummyActiveCases = [
-//     {
-//         id: '1',
-//         caseId: 'CASE-2025-001',
-//         priority: 'High',
-//         status: 'Assigned',
-//         crimeType: 'Cyberbullying',
-//         location: 'Indore',
-//         pinCode: '452001',
-//         userName: 'Aarav Sharma',
-//         description: 'The complainant has been receiving repeated threats via social media by unknown individuals...',
-//         dateReceived: new Date(),
-//         evidence: ['image1.png', 'chatlog.pdf']
-//     },
-//     {
-//         id: '2',
-//         caseId: 'CASE-2025-002',
-//         priority: 'Medium',
-//         status: 'Investigating',
-//         crimeType: 'Online Fraud',
-//         location: 'Bhopal',
-//         pinCode: '462001',
-//         userName: 'Neha Verma',
-//         description: 'An unknown seller tricked the user into making an online payment and then disappeared...',
-//         dateReceived: new Date(),
-//         evidence: ['screenshot.png']
-//     }
-// ];
-
-// const dummyResolvedCases = [
-//     {
-//         id: '3',
-//         caseId: 'CASE-2025-003',
-//         priority: 'Low',
-//         status: 'Resolved',
-//         crimeType: 'Phishing',
-//         location: 'Ujjain',
-//         pinCode: '456001',
-//         userName: 'Ravi Patel',
-//         description: 'User received emails impersonating a government agency asking for personal information...',
-//         dateReceived: new Date(),
-//         evidence: ['email.jpg']
-//     }
-// ];
 const mockCaseNotes = [
     {
         id: 'note-1',
@@ -102,6 +59,10 @@ const OfficerCaseSection = () => {
     const [resolvedCases, setResolvedCases] = useState([]);
     const [selectedCase, setSelectedCase] = useState(null);
 
+    const currentUser= useSelector((state) => state.user);
+    const investigatorId=currentUser.user.additionDetails;
+;
+    console.log('Investigator ID:', investigatorId);
     const handleStartInvestigation = (id) => {
         alert(`Start investigation for case: ${id}`);
     };
@@ -113,10 +74,10 @@ const OfficerCaseSection = () => {
     const visibleCases = activeTab === 'cases' ? activeCases : resolvedCases;
     const fetchAssignedCases = async () => {
         try {
-            const investigatorId = '6894dc7bb49528b5997cf5a4';
+            
             const res = await fetch(`http://localhost:4000/api/v1/investigator/allAssignedCases/${investigatorId}`);
             const result = await res.json();
-            console.log('Assigned Cases Response:', result.activeCases);
+            // console.log('Assigned Cases Response:', result.activeCases);
 
             if (result.success) {
                 setActiveCases(result.activeCases);
@@ -280,6 +241,8 @@ const OfficerCaseSection = () => {
                         onClose={() => setSelectedCase(null)}
                     />
                 )}
+                
+                {/* <DialogDemo /> */}
             </div>
 
         </>
