@@ -1,11 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaSuitcase, FaPlay, FaCheckCircle, FaClock } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const OfficerDashboardStats = () => {
+
+  const currentUser = useSelector((state) => state.user);
+  const investigatorId = currentUser.user.additionDetails;
+  const [activeCases, setActiveCases] = useState();
+  const [resolvedCases, setResolvedCases] = useState();
+
+    const fetchAssignedCases = async () => {
+        try {
+            
+            const res = await fetch(`http://localhost:4000/api/v1/investigator/allAssignedCases/${investigatorId}`);
+            const result = await res.json();
+            // console.log('Assigned Cases Response:', result.activeCases);
+
+            if (result.success) {
+                setActiveCases(result.activeCases.length);
+                setResolvedCases(result.resolvedCases.length);
+            }
+        } catch (error) {
+            toast.error('Error fetching assigned cases:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAssignedCases();
+    }, []);
+
   const stats = [
     {
       label: "Active Cases",
-      value: 1,
+      value: activeCases,
       icon: <FaSuitcase className="text-blue-600 text-2xl" />,
     },
     {
@@ -15,7 +44,7 @@ const OfficerDashboardStats = () => {
     },
     {
       label: "Resolved",
-      value: 0,
+      value: resolvedCases,
       icon: <FaCheckCircle className="text-green-600 text-2xl" />,
     },
     {

@@ -396,7 +396,8 @@ const ComplaintManagement = () => {
             <div className="flex flex-col gap-4 mt-4">
               {officers.length > 0 ? (
                 officers
-                  .filter(inv => inv.status === "Free")  // only free investigators
+                  // .filter(inv => inv.status === "Free")  // only free investigators
+                   .filter(inv => inv.status === "Free" || inv.status === "Available")
                   .map((inv) => {
                     const borderColor = "border-green-500";
                     const statusBg = "bg-green-100 text-green-700";
@@ -413,7 +414,7 @@ const ComplaintManagement = () => {
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold text-lg">{inv.name}</h3>
                           <span className={`px-2 py-1 text-xs rounded-full ${statusBg}`}>
-                            Available
+                            {inv.status}
                           </span>
                         </div>
 
