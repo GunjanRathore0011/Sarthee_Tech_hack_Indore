@@ -25,11 +25,15 @@ import {
     Pause,
     CheckCircle,
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNotes }) => {
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
+    const currentUser= useSelector((state) => state.user);
+    const investigator=currentUser.user;
+    console.log('Investigator ID:', investigator);
     console.log("Complaint Data:", complaint.id);
 
     const currentUser = useSelector((state) => state.user);
@@ -93,6 +97,29 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
         }
     };
 
+    const handleAddNote = () => {
+        if (newNote.trim()) {
+            const newCaseNote = {
+                id: `note-${Date.now()}`,
+                caseId: complaint.caseId,
+                note: newNote.trim(),
+                timestamp: new Date().toISOString(),
+                author: 'Current Officer',
+                type: 'investigation',
+            };
+
+            const updatedNotes = [...caseNotes, newCaseNote];
+            setCaseNotes(updatedNotes);
+            onUpdateNotes?.(updatedNotes);
+            setNewNote('');
+
+            toast({
+                title: 'Note Added',
+                description: 'Investigation note has been added successfully',
+            });
+        }
+    };
+
     const handleStatusUpdate = () => {
         toast({
             title: 'Status Updated',
@@ -128,6 +155,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
             description: `Downloading ${evidenceName}`,
         });
     };
+
 
     return (
         <>
