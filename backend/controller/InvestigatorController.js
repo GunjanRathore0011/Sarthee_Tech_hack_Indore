@@ -257,3 +257,44 @@ exports.updateComplaintStatus = async (req, res) => {
     res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
+
+exports.AddCaseNoteSchema = async (req, res) => {
+    try {
+        const { complaintId, investigatorId, note } = req.body;
+    
+        if (!caseId || !investigatorId || !note) {
+        return res.status(400).json({ message: "All fields are required" });
+        }
+    
+        const newNote = new CaseNote({
+        caseId,
+        investigatorId,
+        note,
+        createdAt: new Date()
+        });
+    
+        await newNote.save();
+    
+        res.status(201).json({ message: "Case note added successfully", data: newNote });
+    } catch (error) {
+        console.error("Error adding case note:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+    }
+
+
+exports.getCaseNotes = async (req, res) => {
+    try {
+        const { complaintId } = req.params;
+
+        const notes = await CaseNote.find({ complaintId })
+            .populate("investigatorId", "name")
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ success: true, data: notes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Server Error" ,error: error.message });
+    }
+};
+
