@@ -67,6 +67,7 @@ exports.additionalDetails = async (req, res) => {
   try {
     console.log("Received additional details request:", req.body);
     const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
+    console.log("Received additional details:", req.body);
 
     if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
       return res.status(400).json({
