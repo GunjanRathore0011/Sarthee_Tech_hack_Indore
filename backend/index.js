@@ -28,7 +28,7 @@ const io = new Server(server, {
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp/",
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
 }));
 // ✅ Export io so controllers can use it
 module.exports.io = io;
@@ -41,14 +41,7 @@ app.use(
   })
 );
 
-// ✅ File upload middleware
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "/tmp/",
-    limits: { fileSize: 10 * 1024 * 1024 },
-  })
-);
+
 
 // ✅ JSON middleware
 app.use(express.json());

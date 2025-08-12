@@ -51,7 +51,7 @@ const AdditionDetails = new mongoose.Schema({
   state: {
     type: String,
     default: 'Madhya Pradesh',
-    required: true,
+    // required: true,
   },
 
   district: {

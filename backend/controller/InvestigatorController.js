@@ -4,7 +4,6 @@ const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const mongoose = require('mongoose');
 require('dotenv').config();
-const Complaint = require("../models/Complaint");
 
 exports.createInvestigator = async (req, res) => {
     try {

@@ -7,8 +7,65 @@ const Complaint = require("../models/Complaint");
 require('dotenv').config();
 const { io } = require("../index.js"); 
 
+// import Jimp from "jimp";
+// import QrCode from "qrcode-reader";
+const Jimp = require('jimp');
+const QrCode = require('qrcode-reader');
+const Tesseract = require('tesseract.js');
+
+
+async function detectAadhaarFromBuffer(fileBuffer) {
+    // ===== 1️⃣ Load Image from Buffer =====
+    let image;
+    try {
+        image = await Jimp.read(fileBuffer);
+    } catch (err) {
+        throw new Error("❌ Invalid image buffer");
+    }
+
+    // ===== 2️⃣ OCR Detection (Hindi + English) =====
+    console.log("🔍 Running OCR...");
+    const { data: { text } } = await Tesseract.recognize(fileBuffer, "hin+eng");
+
+    console.log("\n🔍 OCR Extracted Text:\n", text);
+
+    const aadhaarKeywords = [
+        "government of india",
+        "भारत सरकार",
+        "मेरी आधार मेरी पहचान",
+        "dob",
+        "आधार",
+        "aadhaar"
+    ];
+
+    const textLower = text.toLowerCase();
+    const textMatch = aadhaarKeywords.some(keyword =>
+        textLower.includes(keyword.toLowerCase())
+    );
+
+    // ===== 3️⃣ QR Code Presence Check =====
+    console.log("📷 Checking QR Code...");
+    let qrFound = false;
+    await new Promise((resolve) => {
+        const qr = new QrCode();
+        qr.callback = (err, value) => {
+            if (value) qrFound = true; // Found QR
+            resolve();
+        };
+        qr.decode(image.bitmap);
+    });
+
+    // ===== 4️⃣ Final Decision =====
+    console.log(`OCR Keyword Match: ${textMatch}`);
+    console.log(`QR Code Found: ${qrFound}`);
+
+    return textMatch && qrFound;
+}
+
+
 exports.additionalDetails = async (req, res) => {
   try {
+    console.log("Received additional details request:", req.body);
     const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
 
     if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
@@ -22,6 +79,15 @@ exports.additionalDetails = async (req, res) => {
     let uploaded = null;
     if (req.files && req.files.file) {
       const fileData = req.files.file;
+
+
+      // Check if the file is an Aadhaar card
+        // const isAadhaar = await detectAadhaarFromBuffer(fileData.data);
+        // if (!isAadhaar) {
+        //     return res.status(400).json({ error: "Not a valid Aadhaar card" });
+        // }
+
+
       uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
 
       if (!uploaded || !uploaded.secure_url) {
