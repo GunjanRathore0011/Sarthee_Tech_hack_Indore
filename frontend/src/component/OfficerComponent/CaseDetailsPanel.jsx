@@ -4,8 +4,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { useSelector } from 'react-redux';
-
 import axios from 'axios';
 // import { toast } from '@/components/ui/use-toast';
 import {
@@ -31,11 +29,12 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
-    console.log('Investigator ID:', investigator);
-    console.log("Complaint Data:", complaint.id);
+   
 
     const currentUser = useSelector((state) => state.user);
     const investigatorId = currentUser.user.additionDetails;
+     console.log('Investigator ID:', investigatorId);
+    console.log("Complaint Data:", complaint.id);
 
     const fetchNotes = async () => {
         try {
