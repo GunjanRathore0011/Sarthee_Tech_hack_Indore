@@ -61,8 +61,8 @@ const OfficerCaseSection = () => {
 
     const currentUser= useSelector((state) => state.user);
     const investigatorId=currentUser.user.additionDetails;
-;
-    console.log('Investigator ID:', investigatorId);
+
+    // console.log('Investigator ID:', investigatorId);
     const handleStartInvestigation = (id) => {
         alert(`Start investigation for case: ${id}`);
     };
@@ -244,7 +244,7 @@ const OfficerCaseSection = () => {
                 
                 {/* <DialogDemo /> */}
             </div>
-
+ 
         </>
     );
 };

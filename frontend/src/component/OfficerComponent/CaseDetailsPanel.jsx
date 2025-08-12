@@ -22,11 +22,15 @@ import {
     Pause,
     CheckCircle,
 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNotes }) => {
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
+    const currentUser= useSelector((state) => state.user);
+    const investigator=currentUser.user;
+    console.log('Investigator ID:', investigator);
 
     const getEvidenceIcon = (type) => {
         switch (type) {
@@ -63,7 +67,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 caseId: complaint.caseId,
                 note: newNote.trim(),
                 timestamp: new Date().toISOString(),
-                author: 'Current Officer',
+                author: investigator.userName || 'Investigator',
                 type: 'investigation',
             };
 
@@ -72,10 +76,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
             onUpdateNotes?.(updatedNotes);
             setNewNote('');
 
-            toast({
-                title: 'Note Added',
-                description: 'Investigation note has been added successfully',
-            });
+            
         }
     };
 
@@ -114,6 +115,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
             description: `Downloading ${evidenceName}`,
         });
     };
+
 
     return (
         <>
