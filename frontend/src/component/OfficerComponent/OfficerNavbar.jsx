@@ -5,6 +5,7 @@ import { HiOutlineDocumentText } from 'react-icons/hi';
 import { MdOutlineReport } from 'react-icons/md';
 import shieldIcon from '../../assets/images/logo.png'; // Adjust path if needed
 import OfficerDashboardStats from './OfficerDashboardStats';
+import OfficerNotifications from './OfficerNotifications';
 
 const OfficerNavbar = () => {
   const navigate = useNavigate();
@@ -43,9 +44,7 @@ const OfficerNavbar = () => {
             <span>Rule Book</span>
           </Link>
 
-          <Link to="/officer-notifications" title="Notifications">
-            <FiBell className="hover:text-blue-600 transition duration-150" />
-          </Link>
+          <OfficerNotifications/>
 
           <Link to="/officer-settings" title="Settings">
             <FiSettings className="hover:text-blue-600 transition duration-150" />
