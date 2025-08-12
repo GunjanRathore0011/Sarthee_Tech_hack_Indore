@@ -132,7 +132,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Full Name */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">Full Name <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">Full Name</label>
                 <input
                     type="text"
                     name="fullName"
@@ -145,7 +145,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Date of Birth */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">Date of Birth <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">Date of Birth</label>
                 <input
                     type="date"
                     name="dob"
@@ -159,7 +159,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Gender */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">Gender <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">Gender</label>
                 <select
                     name="gender"
                     value={formData.gender}
@@ -176,7 +176,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* House */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">House No. / Building Name <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">House No. / Building Name</label>
                 <input
                     type="text"
                     name="house"
@@ -192,7 +192,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Colony */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">Colony / Area <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">Colony / Area</label>
                 <input
                     type="text"
                     name="colony"
@@ -206,7 +206,7 @@ const AdditionalDetail = ({ onNext }) => {
 
                {/* Street */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium"> City <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium"> City</label>
                 <input
                     type="text"
                     name="street"
@@ -220,7 +220,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* State */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">State <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">State</label>
                 <input
                     type="text"
                     name="state"
@@ -232,7 +232,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* District */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">District <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">District</label>
                 <select
                     name="district"
                     value={formData.district}
@@ -249,7 +249,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Police Station */}
             <div className="mb-4">
-                <label className="block mb-1 font-medium">Police Station <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">Police Station</label>
                 <input
                     type="text"
                     name="policeStation"
@@ -263,7 +263,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Pincode */}
             <div className="mb-6">
-                <label className="block mb-1 font-medium">Pincode <span className="text-red-500">*</span></label>
+                <label className="block mb-1 font-medium">Pincode</label>
                 <input
                     type="text"
                     name="pincode"
@@ -283,7 +283,7 @@ const AdditionalDetail = ({ onNext }) => {
 
             {/* Photo Upload */}
             <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Upload a goverment ID <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Upload a goverment ID</label>
                 <input
                     type="file"
                     accept=".jpg,.jpeg,.png"

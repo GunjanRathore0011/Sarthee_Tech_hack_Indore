@@ -8,10 +8,13 @@ const {getComplaintStatus,
     saveFeedback
     } = require('../controller/User');
 
+const {scanText} = require('../controller/scamCheck');
+
 
 router.post('/signup', signUp);
 router.post('/signin', signin)
 
+router.post('/check-scam' , scanText);
 //router for sendotp to user email
 router.post('/sendOTPforSignIn', sendOTPforSignIn);
 router.post('/sendOTPforSignUp', sendOTPforSignUp);
