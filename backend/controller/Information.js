@@ -6,6 +6,7 @@ const UploadToCloudinary = require("../utils/UploadToCloudinary");
 const Complaint = require("../models/Complaint");
 require('dotenv').config();
 const { io } = require("../index.js"); 
+const fs = require('fs');
 
 // import Jimp from "jimp";
 // import QrCode from "qrcode-reader";
@@ -16,11 +17,15 @@ const Tesseract = require('tesseract.js');
 
 async function detectAadhaarFromBuffer(fileBuffer) {
     // ===== 1️⃣ Load Image from Buffer =====
+    console.log("Buffer length:", fileBuffer.length);
+console.log("First 20 bytes:", fileBuffer.toString("hex", 0, 20));
+
     let image;
     try {
         image = await Jimp.read(fileBuffer);
     } catch (err) {
-        throw new Error("❌ Invalid image buffer");
+       console.error("Jimp failed to read buffer:", err);
+        throw new Error("Invalid image type or corrupted file"); 
     }
 
     // ===== 2️⃣ OCR Detection (Hindi + English) =====
@@ -68,7 +73,7 @@ exports.additionalDetails = async (req, res) => {
     console.log("Received additional details request:", req.body);
     const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
 
-    if (!fullName || !dob || !house || !street || !colony || !state || !district || !policeStation || !pincode) {
+    if (!fullName || !dob || !house || !street || !colony ||  !district || !policeStation || !pincode) {
       return res.status(400).json({
         message: "All information is required",
         success: false,
@@ -80,12 +85,14 @@ exports.additionalDetails = async (req, res) => {
     if (req.files && req.files.file) {
       const fileData = req.files.file;
 
+    
+const fileBuffer = fs.readFileSync(fileData.tempFilePath);
+console.log("File buffer length:", fileBuffer);
 
-      // Check if the file is an Aadhaar card
-        // const isAadhaar = await detectAadhaarFromBuffer(fileData.data);
-        // if (!isAadhaar) {
-        //     return res.status(400).json({ error: "Not a valid Aadhaar card" });
-        // }
+        const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
+        if (!isAadhaar) {
+            return res.status(400).json({ error: "Not a valid Aadhaar card" });
+        }
 
 
       uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
