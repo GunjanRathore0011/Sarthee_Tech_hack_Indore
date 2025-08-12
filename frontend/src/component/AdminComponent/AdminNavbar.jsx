@@ -4,6 +4,7 @@ import { FiUser, FiLogOut, FiBell } from 'react-icons/fi';
 import { MdOutlineReport, MdOutlineAnalytics, MdOutlinePerson, MdOutlineMap } from 'react-icons/md';
 import shieldIcon from '../../assets/images/logo.png';
 import AdminDashboardStats from './AdminDashboardStats';
+import AdminNotifications from './AdminNotifications';
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -37,9 +38,7 @@ const AdminNavbar = () => {
 
           {/* Right: Action Icons */}
           <div className="flex items-center space-x-8 text-xl">
-            <Link to="/admin-notifications" title="Notifications">
-              <FiBell className="hover:text-blue-600 transition duration-150" />
-            </Link>
+            <AdminNotifications />
             <Link to="/admin-profile" title="Profile">
               <FiUser className="hover:text-blue-600 transition duration-150" />
             </Link>

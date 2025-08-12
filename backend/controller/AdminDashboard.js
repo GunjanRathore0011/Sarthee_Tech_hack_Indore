@@ -6,6 +6,8 @@ const Complaint = require("../models/Complaint");
 const InvestigatorSchema =require("../models/InvestigatorSchema")
 const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
+const { io } = require("../index.js"); 
+
 
 
 
@@ -326,6 +328,13 @@ exports.assignInvestigator = async (req, res) => {
     }
    
     await complain.save();
+   
+     io.emit("complaint_assigned", {
+    investigatorId,
+    complaintId,
+    message: `New complaint assign : ${complaintId}`
+  });
+
     res.status(200).json({
         success: true,
         message: "Investigator assigned successfully.",

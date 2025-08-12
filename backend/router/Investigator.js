@@ -6,14 +6,22 @@ const {getInvestigatorDetails,
      createInvestigator,
      updateInvestigatorStatus,
      allAssignedCases,
-     updateComplaintStatus
+     updateComplaintStatus,
+     getCaseNotes,
+     AddCaseNoteSchema,
+
     } = require('../controller/InvestigatorController');
+
+//Add and get notes for a case
+router.post('/addCaseNote', AddCaseNoteSchema);
+router.get('/getCaseNotes', getCaseNotes);
 
 // Route to create a new investigator
 router.post('/investigator', createInvestigator);
 
 // Route to get details of a specific investigator by ID
 router.get('/investigator/:id', getInvestigatorDetails);
+
 
 // Route to get all investigators
 router.get('/investigators', getAllInvestigators);
