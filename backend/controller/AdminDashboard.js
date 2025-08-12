@@ -406,7 +406,7 @@ exports.suggestInvestigator = async (req, res) => {
     const activeInvestigators = investigators.filter(inv => inv.isActive);
 
     const data2 = activeInvestigators.map((investigator, index) => ({
-      id: index + 1,
+      id: investigator._id,
       name: investigator.name,
       email: investigator.email,
       activeCases: investigator.assignedCases.length,
@@ -425,7 +425,6 @@ exports.suggestInvestigator = async (req, res) => {
     if(data2.length>5){
      data = data2
     .sort((a, b) => b.performance - a.performance) // highest performance first
-    .slice(0, 5); // take top 5
     }
     
     res.status(200).json({ success: true, data });

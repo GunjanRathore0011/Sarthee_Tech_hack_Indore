@@ -3,6 +3,7 @@ const AdditionDetails = require("../models/AdditionDetails");
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const mongoose = require('mongoose');
+const caseNoteSchema = require("../models/caseNoteSchema ");
 
 require('dotenv').config();
 
@@ -22,7 +23,7 @@ exports.createInvestigator = async (req, res) => {
         await investigator.save();
 
         // Create a User entry for the investigator
-        const user = new User({ 
+        const user = new User({
             userName: name,
             email,
             number: phone,
@@ -229,72 +230,73 @@ exports.allAssignedCases = async (req, res) => {
 
 //update complain
 exports.updateComplaintStatus = async (req, res) => {
-  try {
-    const { complaintId, newStatus, remark } = req.body;
+    try {
+        const { complaintId, newStatus, remark } = req.body;
 
-    const updatedComplaint = await Complaint.findByIdAndUpdate(
-      complaintId,
-      {
-        status: newStatus,
-        $push: {
-          statusHistory: {
-            status: newStatus,
-            remark,
-            updatedAt: new Date(),
-          }
-        },
-      },
-      { new: true }
-    );
+        const updatedComplaint = await Complaint.findByIdAndUpdate(
+            complaintId,
+            {
+                status: newStatus,
+                $push: {
+                    statusHistory: {
+                        status: newStatus,
+                        remark,
+                        updatedAt: new Date(),
+                    }
+                },
+            },
+            { new: true }
+        );
 
-    if (!updatedComplaint) {
-      return res.status(404).json({ message: "Complaint not found" });
+        if (!updatedComplaint) {
+            return res.status(404).json({ message: "Complaint not found" });
+        }
+
+        res.status(200).json({ message: "Status updated successfully", data: updatedComplaint });
+    } catch (error) {
+        console.error("Error updating complaint status:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
     }
-
-    res.status(200).json({ message: "Status updated successfully", data: updatedComplaint });
-  } catch (error) {
-    console.error("Error updating complaint status:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  }
 };
 
 exports.AddCaseNoteSchema = async (req, res) => {
     try {
         const { complaintId, investigatorId, note } = req.body;
-    
-        if (!caseId || !investigatorId || !note) {
-        return res.status(400).json({ message: "All fields are required" });
+
+        if (!complaintId || !investigatorId || !note) {
+            return res.status(400).json({ message: "All fields are required" });
         }
-    
-        const newNote = new CaseNote({
-        caseId,
-        investigatorId,
-        note,
-        createdAt: new Date()
+
+        const newNote = new caseNoteSchema({
+            caseId:complaintId,
+            investigatorId,
+            noteText:note,
+            createdAt: new Date()
         });
-    
+
         await newNote.save();
-    
+
         res.status(201).json({ message: "Case note added successfully", data: newNote });
     } catch (error) {
         console.error("Error adding case note:", error);
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
-    }
+}
 
 
 exports.getCaseNotes = async (req, res) => {
     try {
-        const { complaintId } = req.params;
+        const { complaintId } = req.query;
+        console.log("Fetching notes for complaintId:", complaintId);
 
-        const notes = await CaseNote.find({ complaintId })
+        const notes = await caseNoteSchema.find({caseId:complaintId })
             .populate("investigatorId", "name")
-            .sort({ createdAt: -1 });
-
+            .sort({ createdAt: 1 });
+        console.log("Notes:", notes);
         res.status(200).json({ success: true, data: notes });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: "Server Error" ,error: error.message });
+        res.status(500).json({ success: false, message: "Server Error", error: error.message });
     }
 };
 
