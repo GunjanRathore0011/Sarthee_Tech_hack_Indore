@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { UserPlus } from 'lucide-react';
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-toastify';
@@ -17,6 +17,9 @@ const ComplaintManagement = () => {
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [investigatorId, setInvestigatorId] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [officers, setOfficers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // New States for Pagination & Filters
   const [startIndex, setStartIndex] = useState(0);
@@ -29,6 +32,69 @@ const ComplaintManagement = () => {
   });
 
   // console.log("complaints", complaints);
+  const subCategories = [
+    "Banking Fraud", "UPI / Wallet Fraud", "Loan Fraud", "Investment Scam",
+    "Online Shopping Fraud", "Insurance Fraud", "Job/Work-from-Home Scam",
+    "Lottery/Prize/KYC Scam", "ATM Skimming", "Online Loan App Harassment",
+    'Sexual Harassment', 'Verbal Abuse', 'Physical Abuse', 'Cyberbullying',
+    'Stalking', 'Discrimination', "Hacking", "Cyberbullying", "Identity Theft",
+    "Online Defamation", "Phishing (non-financial)", "Unauthorized Access",
+    "Social Media Abuse"];
+
+
+  // investigators data
+  const fetchOfficerData = async () => {
+    try {
+      setLoading(true); // start loader
+      console.log("Fetching officer data...");
+
+      const response = await axios.get(
+        "http://localhost:4000/api/v1/admin/suggestInvestigator"
+      );
+
+      console.log("Fetched officer data:", response.data.data);
+
+      if (Array.isArray(response.data.data)) {
+        setOfficers(response.data.data);
+      } else {
+        console.error("Invalid officer data format:", response.data.data);
+        setOfficers([]);
+      }
+    } catch (error) {
+      console.error("Error fetching officer data:", error);
+      setOfficers([]);
+    } finally {
+      setLoading(false); // stop loader
+    }
+  };
+
+  // const investigators = [
+  //   {
+  //     id: "INV101",
+  //     name: "Raj Sharma",
+  //     specialization: "Cyber Fraud",
+  //     performance: 92,
+  //     activeCases: 3,
+  //     isFree: true
+  //   },
+  //   {
+  //     id: "INV102",
+  //     name: "Anita Verma",
+  //     specialization: "Hacking",
+  //     performance: 88,
+  //     activeCases: 5,
+  //     isFree: false
+  //   },
+  //   {
+  //     id: "INV103",
+  //     name: "Karan Mehta",
+  //     specialization: "Identity Theft",
+  //     performance: 95,
+  //     activeCases: 1,
+  //     isFree: true
+  //   }
+  // ];
+
 
   // Fetch complaints with pagination & filters
   const fetchComplaints = async (append = false) => {
@@ -80,33 +146,36 @@ const ComplaintManagement = () => {
 
   const onAssignCase = (complaint) => {
     setSelectedComplaint(complaint);
+    fetchOfficerData(); // Fetch officers when assigning
     setInvestigatorId('');
     setIsDialogOpen(true);
   };
 
-  const handleAssign = async () => {
-    if (!investigatorId.trim()) {
-      toast.error("Investigator ID is required");
-      return;
-    }
-    try {
-      const response = await axios.post('http://localhost:4000/api/v1/admin/assignInvestigator', {
-        complaintId: selectedComplaint._id,
-        investigatorId,
-      });
+  const handleAssign = async (id) => {
+  if (!id || !id.trim()) {
+    toast.error("Investigator ID is required");
+    return;
+  }
 
-      if (response.data.success) {
-        toast.success("Investigator assigned successfully");
-        fetchComplaints(false);
-        setIsDialogOpen(false);
-      } else {
-        toast.error("Failed to assign investigator");
-      }
-    } catch (error) {
-      console.error("Assignment error:", error);
-      toast.error("Error assigning investigator");
+  try {
+    const response = await axios.post('http://localhost:4000/api/v1/admin/assignInvestigator', {
+      complaintId: selectedComplaint._id,
+      investigatorId: id,   // use id directly here
+    });
+
+    if (response.data.success) {
+      toast.success("Investigator assigned successfully");
+      fetchComplaints(false);
+      setIsDialogOpen(false);
+      setInvestigatorId(""); // reset if needed
+    } else {
+      toast.error("Failed to assign investigator");
     }
-  };
+  } catch (error) {
+    console.error("Assignment error:", error);
+    toast.error("Error assigning investigator");
+  }
+};
 
   const getStatusStyle = (status) => {
     switch (status.toLowerCase()) {
@@ -176,15 +245,21 @@ const ComplaintManagement = () => {
           {/* Sub Category */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600 mb-1.5 ml-1">Sub Category</label>
-            <input
-              type="text"
+            <select
               name="subCategory"
               value={filters.subCategory}
               onChange={handleFilterChange}
-              placeholder="Enter sub category"
               className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none min-w-[180px]"
-            />
+            >
+              <option value="">All</option>
+              {subCategories.map((subCat, index) => (
+                <option key={index} value={subCat}>
+                  {subCat}
+                </option>
+              ))}
+            </select>
           </div>
+
 
           {/* Month */}
           <div className="flex flex-col">
@@ -298,26 +373,91 @@ const ComplaintManagement = () => {
       )}
 
       {/* Assign Investigator Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (open) fetchOfficerData();
+          setIsDialogOpen(open);
+        }}
+      >
+           <DialogContent className="w-[700px] h-[800px] max-h-[90vh] overflow-y-auto">
+
           <DialogHeader>
             <DialogTitle>Assign Investigator</DialogTitle>
+            <DialogDescription>
+              Select an available investigator to assign to this case.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-2">
-            <label className="block mb-1 font-medium">Investigator ID</label>
-            <Input
-              value={investigatorId}
-              onChange={(e) => setInvestigatorId(e.target.value)}
-              placeholder="Enter Investigator ID"
-            />
-          </div>
+
+          {loading ? (
+            <p className="text-gray-500 text-center">Loading investigators...</p>
+          ) : (
+            <div className="flex flex-col gap-4 mt-4">
+              {officers.length > 0 ? (
+                officers
+                  .filter(inv => inv.status === "Free")  // only free investigators
+                  .map((inv) => {
+                    const borderColor = "border-green-500";
+                    const statusBg = "bg-green-100 text-green-700";
+                    const isClickable = true;
+
+                    return (
+                      <div
+                        key={inv.id}
+                        onClick={() => handleAssign(inv.id)}
+                        className={`flex flex-col p-4 border-l-4 ${borderColor} rounded-lg shadow-sm 
+            transition hover:shadow-lg cursor-pointer bg-white`}
+                      >
+                        {/* Name + Status */}
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-semibold text-lg">{inv.name}</h3>
+                          <span className={`px-2 py-1 text-xs rounded-full ${statusBg}`}>
+                            Available
+                          </span>
+                        </div>
+
+                        {/* Specializations */}
+                        <p className="text-sm text-gray-600 mt-1">
+                          Specializations:{" "}
+                          <span className="font-medium">
+                            {inv.specializations?.join(", ") || "N/A"}
+                          </span>
+                        </p>
+
+                        {/* Performance & Active Cases */}
+                        <div className="flex items-center gap-6 mt-2 text-sm text-gray-700">
+                          <span>
+                            Performance:{" "}
+                            <span className="font-semibold">
+                              {inv.performance !== null ? inv.performance + "%" : "N/A"}
+                            </span>
+                          </span>
+                          <span>
+                            Active Cases:{" "}
+                            <span className="font-semibold">{inv.activeCases}</span>
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+              ) : (
+                <p className="text-gray-500 text-center">No available investigators found.</p>
+              )}
+
+            </div>
+          )}
+
           <DialogFooter>
-            <Button onClick={handleAssign} className="bg-blue-600 text-white hover:bg-blue-700">
-              Confirm Assign
+            <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+
+
     </div>
   );
 };
