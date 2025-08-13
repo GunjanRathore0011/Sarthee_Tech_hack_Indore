@@ -22,6 +22,7 @@ import AfterComplaint from './pages/AfterComplaint';
 import AdminNotifications from './component/AdminComponent/AdminNotifications';
 import OfficerNotifications from './component/OfficerComponent/OfficerNotifications';
 import ScamDetector from './component/ScamDetector';
+import PatternAlert from './pages/AdminDashboard/PatternAlert';
 
 const App = () => {
   const location = useLocation();
@@ -32,7 +33,8 @@ const App = () => {
     '/complaint-management',
     '/officer-management',
     '/admin-analytics',
-    '/crime-map'
+    '/crime-map',
+    '/pattern-alert'
   ];
   const officerRoutes = [
     '/officer-complaint-management'
@@ -70,6 +72,7 @@ const App = () => {
         <Route path="/officer-management" element={<OfficerManagement />} />
         <Route path="/admin-analytics" element={<Analytics />} />
         <Route path="/crime-map" element={<CrimeMap />} />
+        <Route path='/pattern-alert' element={<PatternAlert/>} />
 
         {/* Officer Dashboard */}
         <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />

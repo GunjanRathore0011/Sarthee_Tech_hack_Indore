@@ -69,6 +69,10 @@ const AdminNavbar = () => {
             <MdOutlineMap className="text-lg" />
             <span>Crime Map</span>
           </Link>
+          <Link to="/pattern-alert" className="flex items-center space-x-2 hover:text-blue-600 transition">
+            <MdOutlineMap className="text-lg" />
+            <span>Pattern</span>
+          </Link>
         </div>
       </div>
 
