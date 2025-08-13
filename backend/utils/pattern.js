@@ -1,6 +1,6 @@
 const SuspectModel = require('../models/SuspectSchema');
 const PatternAlert = require('../models/PatternAlert');
-
+ 
 async function checkAndCreateAlerts(suspect) {
   // 1) Name-based
   console.log('Checking suspect for patterns:', suspect);
@@ -48,15 +48,20 @@ async function checkAndCreateAlerts(suspect) {
     }
   }
 }
+function normalizeIds(ids) {
+  return Array.from(new Set(ids.map(id => id.toString())));
+}
 
 async function upsertPatternAlert(type, key, complaints) {
   const now = new Date();
+  const newComplaints = normalizeIds(complaints);
+
   const existing = await PatternAlert.findOne({ type, key });
-  console.log('Checking existing alert:', type, key, existing);
   if (existing) {
-    existing.count = Math.max(existing.count, complaints.length);
+    const mergedComplaints = normalizeIds([...(existing.complaints || []), ...newComplaints]);
+    existing.complaints = mergedComplaints;
+    existing.count = mergedComplaints.length;
     existing.lastDetectedAt = now;
-    existing.complaints = Array.from(new Set([...(existing.complaints||[]), ...complaints]));
     existing.riskScore = computeRisk(type, key, existing.count);
     await existing.save();
     return existing;
@@ -64,16 +69,17 @@ async function upsertPatternAlert(type, key, complaints) {
     const alert = new PatternAlert({
       type,
       key,
-      count: complaints.length,
-      complaints,
+      complaints: newComplaints,
+      count: newComplaints.length,
       firstDetectedAt: now,
       lastDetectedAt: now,
-      riskScore: computeRisk(type, key, complaints.length)
+      riskScore: computeRisk(type, key, newComplaints.length)
     });
     await alert.save();
     return alert;
   }
 }
+
 
 function computeRisk(type, key, count) {
   // simple heuristic - you can improve

@@ -178,7 +178,8 @@ exports.allAssignedCases = async (req, res) => {
         // console.log("Assigned Cases:", complaints);
         const activeCases = [];
         const resolvedCases = [];
-
+        let pendingActions=0;
+        let investigatingCases =0;
         // 3. Har complaint ke liye AdditionalDetails fetch
         for (const c of complaints) {
             const userDetails = await AdditionDetails.findOne({ userId: c.userId })
@@ -202,7 +203,10 @@ exports.allAssignedCases = async (req, res) => {
                 evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
                 complaint_report: c.complain_report || 'N/A'
             };
+            if(c.status==="AssignInvestigator") pendingActions++;
+            if(c.status==="In_review") investigatingCases++;
 
+            // Separate into active and resolved cases
             if (c.status?.toLowerCase() === "resolved") {
                 resolvedCases.push(caseData);
             } else {
@@ -215,7 +219,9 @@ exports.allAssignedCases = async (req, res) => {
             success: true,
             message: "Assigned cases fetched successfully",
             activeCases,
-            resolvedCases
+            resolvedCases,
+            pendingActions,
+            investigatingCases,
         });
 
     } catch (error) {
@@ -252,7 +258,7 @@ exports.updateComplaintStatus = async (req, res) => {
             return res.status(404).json({ message: "Complaint not found" });
         }
 
-        res.status(200).json({ message: "Status updated successfully", data: updatedComplaint });
+        res.status(200).json({success:true, message: "Status updated successfully", data: updatedComplaint });
     } catch (error) {
         console.error("Error updating complaint status:", error);
         res.status(500).json({ message: "Internal server error", error: error.message });

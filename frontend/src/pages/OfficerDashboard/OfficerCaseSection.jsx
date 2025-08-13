@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Eye, AlertTriangle, Clock, FileText, Play, MessageSquare } from 'lucide-react';
 import { CaseDetailsPanel } from '@/component/OfficerComponent/CaseDetailsPanel';
 import { DialogDemo } from '@/component/DialogDemo';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { fetchAssignedCases } from '@/ReduxSlice/stats/statsSlice';
 
 // Utility functions for badge colors
 const getPriorityBadge = (priority) => {
@@ -59,22 +62,43 @@ const OfficerCaseSection = () => {
     const [resolvedCases, setResolvedCases] = useState([]);
     const [selectedCase, setSelectedCase] = useState(null);
 
-    const currentUser= useSelector((state) => state.user);
-    const investigatorId=currentUser.user.additionDetails;
+    const currentUser = useSelector((state) => state.user);
+    const investigatorId = currentUser.user.additionDetails;
 
+    const dispatch = useDispatch();
     // console.log('Investigator ID:', investigatorId);
-    const handleStartInvestigation = (id) => {
-        alert(`Start investigation for case: ${id}`);
+    const handleStartInvestigation = async (id) => {
+        try {
+            const res = await axios.post(`http://localhost:4000/api/v1/investigator/updateComplaintStatus`, {
+                complaintId: id,
+                newStatus: "In_review",
+                remark: "Investigation started by officer"
+            });
+
+            const result = await res.data;
+
+            if (result.success) {
+                toast.success('Investigation started successfully');
+                fetchAssignedCase(); // Fetch updated cases after starting investigation
+                dispatch(fetchAssignedCases(investigatorId)); // only this is enough
+            } else {
+                toast.error('Failed to start investigation');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Error starting investigation');
+        }
     };
+
 
     const handleUpdateStatus = (id, newStatus) => {
         alert(`Marking case ${id} as ${newStatus}`);
     };
 
     const visibleCases = activeTab === 'cases' ? activeCases : resolvedCases;
-    const fetchAssignedCases = async () => {
+    const fetchAssignedCase = async () => {
         try {
-            
+
             const res = await fetch(`http://localhost:4000/api/v1/investigator/allAssignedCases/${investigatorId}`);
             const result = await res.json();
             // console.log('Assigned Cases Response:', result.activeCases);
@@ -88,13 +112,33 @@ const OfficerCaseSection = () => {
         }
     };
 
-    const handleMarkResolved = (caseId) => {
-        alert(`Marking case ${caseId} as resolved`);
+    const handleMarkResolved = async(id) => {
+         try {
+            const res = await axios.post(`http://localhost:4000/api/v1/investigator/updateComplaintStatus`, {
+                complaintId: id,
+                newStatus: "Resolved",
+                remark: "Congratulations! Your case has been resolved successfully."
+            });
+
+            const result = await res.data;
+
+            if (result.success) {
+                toast.success('Case marked as resolved successfully');
+                fetchAssignedCase(); // Fetch updated cases after starting investigation
+                dispatch(fetchAssignedCases(investigatorId)); // only this is enough
+            } else {
+                toast.error('Failed to mark case as resolved');
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error('Error marking case as resolved');
+        }
     }
 
     useEffect(() => {
-        fetchAssignedCases();
+        fetchAssignedCase();
     }, []);
+
     return (
         <>
             <div className="px-6 py-6 min-h-screen">
@@ -217,11 +261,11 @@ const OfficerCaseSection = () => {
                                             </Button>
                                         )}
 
-                                        {complaint.status === 'AssignInvestigator' && (
+                                        {complaint.status !== 'Resolved' && (
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                onClick={() => handleMarkResolved(complaint.caseId)}
+                                                onClick={() => handleMarkResolved(complaint.id)}
                                             >
                                                 <MessageSquare className="h-4 w-4 mr-2" />
                                                 Mark Resolved
@@ -241,10 +285,10 @@ const OfficerCaseSection = () => {
                         onClose={() => setSelectedCase(null)}
                     />
                 )}
-                
+
                 {/* <DialogDemo /> */}
             </div>
- 
+
         </>
     );
 };

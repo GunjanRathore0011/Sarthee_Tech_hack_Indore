@@ -23,18 +23,19 @@ import {
     Pause,
     CheckCircle,
 } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAssignedCases } from '@/ReduxSlice/stats/statsSlice';
 
 export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNotes }) => {
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
-   
+   const dispatch = useDispatch();
 
     const currentUser = useSelector((state) => state.user);
     const investigatorId = currentUser.user.additionDetails;
-     console.log('Investigator ID:', investigatorId);
-    console.log("Complaint Data:", complaint.id);
+    //  console.log('Investigator ID:', investigatorId);
+    // console.log("Complaint Data:", complaint.id);
 
     const fetchNotes = async () => {
         try {
@@ -93,11 +94,21 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 return 'text-gray-600 bg-gray-100';
         }
     };
-    const handleStatusUpdate = () => {
-        toast({
-            title: 'Status Updated',
-            description: `Case status updated to ${selectedStatus}`,
-        });
+    const handleStatusUpdate =async () => {
+        try{
+            const res = await axios.post(`http://localhost:4000/api/v1/investigator/updateComplaintStatus`, {
+            complaintId: complaint.id,
+            newStatus: "AssignInvestigator",
+            remark: "Investigation started by officer"
+            })
+            const result = res.data;
+            dispatch(fetchAssignedCases(investigatorId));
+            console.log('Status Update Response:', result);
+        }
+        catch (error) {
+            console.error("Failed to update status", error);
+        }
+
     };
 
     const handleContactComplainant = () => {
