@@ -1,28 +1,28 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Suspect = require('../models/SuspectSchema');
-const { checkAndCreateAlerts } = require('../utils/pattern');
+const PatternAlert = require('../models/PatternAlert');
+
+function normalizeIds(ids) {
+  return Array.from(new Set(ids.map(id => id.toString())));
+}
 
 (async () => {
-  try {
-    await mongoose.connect(process.env.DATABASE_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+  await mongoose.connect(process.env.DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
 
-    console.log('Connected to MongoDB');
+  console.log('Connected');
 
-    const suspects = await Suspect.find({});
-    console.log(`Found ${suspects.length} suspects`);
-
-    for (const suspect of suspects) {
-      await checkAndCreateAlerts(suspect);
-    }
-
-    console.log('Pattern detection complete for old suspects');
-    process.exit(0);
-  } catch (err) {
-    console.error('Error running pattern check:', err);
-    process.exit(1);
+  const alerts = await PatternAlert.find({});
+  for (const alert of alerts) {
+    const uniqueComplaints = normalizeIds(alert.complaints || []);
+    alert.complaints = uniqueComplaints;
+    alert.count = uniqueComplaints.length;
+    await alert.save();
+    console.log(`Updated alert ${alert._id} with ${uniqueComplaints.length} unique complaints`);
   }
+
+  console.log('Migration complete');
+  process.exit(0);
 })();
