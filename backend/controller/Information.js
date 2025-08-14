@@ -5,10 +5,15 @@ const VictimDetails = require("../models/Victim");
 const UploadToCloudinary = require("../utils/UploadToCloudinary");
 const Complaint = require("../models/Complaint");
 require('dotenv').config();
-const { io } = require("../index.js"); 
+const { io } = require("../index.js");
 const fs = require('fs');
 // const checkAndCreateAlerts = require("../utils/pattern.js");
-const {checkAndCreateAlerts} = require("../utils/pattern.js");
+const { checkAndCreateAlerts } = require("../utils/pattern.js");
+
+const path = require('path');
+const puppeteer = require('puppeteer');
+const cloudinary = require('cloudinary').v2;
+
 
 // import Jimp from "jimp";
 // import QrCode from "qrcode-reader";
@@ -18,55 +23,55 @@ const Tesseract = require('tesseract.js');
 
 
 async function detectAadhaarFromBuffer(fileBuffer) {
-    // ===== 1️⃣ Load Image from Buffer =====
-    console.log("Buffer length:", fileBuffer.length);
-console.log("First 20 bytes:", fileBuffer.toString("hex", 0, 20));
+  // ===== 1️⃣ Load Image from Buffer =====
+  console.log("Buffer length:", fileBuffer.length);
+  console.log("First 20 bytes:", fileBuffer.toString("hex", 0, 20));
 
-    let image;
-    try {
-        image = await Jimp.read(fileBuffer);
-    } catch (err) {
-       console.error("Jimp failed to read buffer:", err);
-        throw new Error("Invalid image type or corrupted file"); 
-    }
+  let image;
+  try {
+    image = await Jimp.read(fileBuffer);
+  } catch (err) {
+    console.error("Jimp failed to read buffer:", err);
+    throw new Error("Invalid image type or corrupted file");
+  }
 
-    // ===== 2️⃣ OCR Detection (Hindi + English) =====
-    console.log("🔍 Running OCR...");
-    const { data: { text } } = await Tesseract.recognize(fileBuffer, "hin+eng");
+  // ===== 2️⃣ OCR Detection (Hindi + English) =====
+  console.log("🔍 Running OCR...");
+  const { data: { text } } = await Tesseract.recognize(fileBuffer, "hin+eng");
 
-    console.log("\n🔍 OCR Extracted Text:\n", text);
+  console.log("\n🔍 OCR Extracted Text:\n", text);
 
-    const aadhaarKeywords = [
-        "government of india",
-        "भारत सरकार",
-        "मेरी आधार मेरी पहचान",
-        "dob",
-        "आधार",
-        "aadhaar"
-    ];
+  const aadhaarKeywords = [
+    "government of india",
+    "भारत सरकार",
+    "मेरी आधार मेरी पहचान",
+    "dob",
+    "आधार",
+    "aadhaar"
+  ];
 
-    const textLower = text.toLowerCase();
-    const textMatch = aadhaarKeywords.some(keyword =>
-        textLower.includes(keyword.toLowerCase())
-    );
+  const textLower = text.toLowerCase();
+  const textMatch = aadhaarKeywords.some(keyword =>
+    textLower.includes(keyword.toLowerCase())
+  );
 
-    // ===== 3️⃣ QR Code Presence Check =====
-    console.log("📷 Checking QR Code...");
-    let qrFound = false;
-    await new Promise((resolve) => {
-        const qr = new QrCode();
-        qr.callback = (err, value) => {
-            if (value) qrFound = true; // Found QR
-            resolve();
-        };
-        qr.decode(image.bitmap);
-    });
+  // ===== 3️⃣ QR Code Presence Check =====
+  console.log("📷 Checking QR Code...");
+  let qrFound = false;
+  await new Promise((resolve) => {
+    const qr = new QrCode();
+    qr.callback = (err, value) => {
+      if (value) qrFound = true; // Found QR
+      resolve();
+    };
+    qr.decode(image.bitmap);
+  });
 
-    // ===== 4️⃣ Final Decision =====
-    console.log(`OCR Keyword Match: ${textMatch}`);
-    console.log(`QR Code Found: ${qrFound}`);
+  // ===== 4️⃣ Final Decision =====
+  console.log(`OCR Keyword Match: ${textMatch}`);
+  console.log(`QR Code Found: ${qrFound}`);
 
-    return textMatch && qrFound;
+  return textMatch && qrFound;
 }
 
 
@@ -76,26 +81,26 @@ exports.additionalDetails = async (req, res) => {
     const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
     console.log("Received additional details:", req.body);
 
-    if (!fullName || !dob || !house || !street || !colony ||  !district || !policeStation || !pincode) {
+    if (!fullName || !dob || !house || !street || !colony || !district || !policeStation || !pincode) {
       return res.status(400).json({
         message: "All information is required",
         success: false,
       });
     }
-     console.log("Received additional details:", );
+    console.log("Received additional details:",);
     // 👇 Declare uploaded in outer scope
     let uploaded = null;
     if (req.files && req.files.file) {
       const fileData = req.files.file;
 
-    
-// const fileBuffer = fs.readFileSync(fileData.tempFilePath);
-// console.log("File buffer length:", fileBuffer);
 
-//         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
-//         if (!isAadhaar) {
-//             return res.status(400).json({ error: "Not a valid Aadhaar card" });
-//         }
+      // const fileBuffer = fs.readFileSync(fileData.tempFilePath);
+      // console.log("File buffer length:", fileBuffer);
+
+      //         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
+      //         if (!isAadhaar) {
+      //             return res.status(400).json({ error: "Not a valid Aadhaar card" });
+      //         }
 
 
       uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
@@ -149,194 +154,6 @@ exports.additionalDetails = async (req, res) => {
     });
   }
 };
-
-
-// //complaint information
-// exports.complaintInformation = async (req, res) => {
-//     try {
-//         const {
-//             category,
-//             subCategory,
-//             lost_money,
-//             delay_in_report,
-//             reason_of_delay,
-//             description,
-//             incident_datetime,
-//         } = req.body;
-
-//         // ✅ Validate required fields
-//         if (!category || !subCategory || lost_money === undefined || !description || !incident_datetime) {
-//             return res.status(400).json({
-//                 message: "All fields are required",
-//                 success: false,
-//             });
-//         }
-
-//         // ✅ Get user and complaint
-//         const userId = req.user.userId;
-//         const user = await User.findById(userId);
-//         if (!user) {
-//             return res.status(404).json({
-//                 message: "User not found",
-//                 success: false,
-//             });
-//         }
-
-
-
-//         // ✅ Upload files to Cloudinary if they exist
-//         const imageUrls = [];
-
-//         if (req.files && req.files.file) {
-//     const fileData = req.files.file;
-//     const filesArray = Array.isArray(fileData) ? fileData : [fileData];
-
-//     for (let file of filesArray) {
-//         const uploaded = await UploadToCloudinary(file.tempFilePath, "evidence");
-//         imageUrls.push(uploaded.secure_url);
-//     }
-// }
-
-// console.log("Uploaded image URLs:", imageUrls);
-
-//         // ✅ Create complaint information record
-//         const complaintInfo = await Complaint.create({
-//             userId: user._id,
-//             category,
-//             subCategory,
-//             lost_money,
-//             delay_in_report,
-//             reason_of_delay,
-//             description,
-//             screenShots: imageUrls, // array can be empty if no files uploaded
-//             incident_datetime,
-//         });
-//         console.log("Complaint information created:", complaintInfo);
-//         //add additional details reference
-//         await AdditionDetails.updateOne(
-//             { userId: user._id },
-//             { $set: { complainId: complaintInfo._id } }
-//         );
-
-//         const { bankName, accountNumber, ifscCode, transactionId, transactionDate } = req.body;
-//      if(bankName || accountNumber || ifscCode || transactionId || transactionDate){
-//         victimInformation( bankName, accountNumber, ifscCode, transactionId, transactionDate)
-//      }
-//       const { suspectedName, suspectedCard, suspectedCardNumber } = req.body;
-//       if(suspectedName || !suspectedCard || !suspectedCardNumber){
-//      suspectedInformation(suspectedName, suspectedCard, suspectedCardNumber);
-//       }
-//       return res.status(201).json({
-//             message: "Complaint information added successfully",
-//             success: true,
-//             data: complaintInfo,
-//         });
-
-//     } catch (error) {
-//         console.error("❌ Error in complaintInformation:", error.message);
-//         return res.status(500).json({
-//             message: "Internal server error",
-//             success: false,
-//             error: error.message,
-//         });
-//     }
-// };
-
-// // victim information
-//     const victimInformation = async ( bankName, accountNumber, ifscCode, transactionId, transactionDate) => {
-//         try {
-//             if (!bankName || !accountNumber || !ifscCode || !transactionId || !transactionDate) {
-//                 return res.status(400).json({
-//                     message: "All fields are required",
-//                     success: false,
-//                 });
-//             }
-//             const userId = req.user.userId; // Get user ID from the authenticated session
-
-//             const complainId = await Complaint.findOne({ userId: userId });
-//             if (!complainId) {
-//                 return res.status(404).json({
-//                     message: "Complaint not found",
-//                     success: false,
-//                 });
-//             }
-
-//             // Create victim information
-//             const victimInfo = await VictimDetails.create({
-//                 complainId: complainId._id, // Associate with the user
-//                 bankName,
-//                 accountNumber,
-//                 ifscCode,
-//                 transactionId,
-//                 transactionDate,
-//                 // screenshots,
-//             });          
-//             console.log("Victim information created:", victimInfo);
-//         } catch (error) {
-//             console.error("Error in victimInformation:", error.message);
-//             res.status(500).json({
-//                 message: "Internal server error",
-//                 success: false,
-//                 error: error.message,
-//             });
-//         }
-
-//     };
-// // suspected information
-//  const suspectedInformation = async (suspectedName, suspectedCard, suspectedCardNumber) => {
-//     try {  
-
-//         // Validate required fields
-//         if (!suspectedName || !suspectedCard || !suspectedCardNumber) {
-//             return res.status(400).json({
-//                 message: "All fields are required",
-//                 success: false,
-//             });
-//         }
-
-//         // Get user ID from the session
-//         const userId = req.user.userId;
-
-//         // Get complain ID
-//         const complainId = await Complaint.findOne({ userId });
-//         if (!complainId) {
-//             return res.status(404).json({
-//                 message: "Complaint not found",
-//                 success: false,
-//             });
-//         }
-
-//         // 🔄 Upload images only if present
-//         const imageUrls = [];
-//         if (req.files && req.files.file) {
-//             const fileData = req.files.file;
-//             const filesArray = Array.isArray(fileData) ? fileData : [fileData];
-
-//             for (let file of filesArray) {
-//                 const uploaded = await UploadToCloudinary(file.tempFilePath, "suspectedImages");
-//                 imageUrls.push(uploaded.secure_url);
-//             }
-//         }
-
-//         // 🧾 Save data to MongoDB
-//         const suspectInfo = await SuspectSchema.create({
-//             complainId: complainId._id,
-//             suspectedName,
-//             suspectedCard,
-//             suspectedCardNumber,
-//             suspectedImages: imageUrls, // may be empty array
-//         });
-//         console.log("Suspected information created:", suspectInfo);
-
-//     } catch (error) {
-//         console.error("❌ Error in suspectedInformation:", error.message);
-//         return res.status(500).json({
-//             message: "Internal server error",
-//             success: false,
-//             error: error.message,
-//         });
-//     }
-// };
 
 
 
@@ -430,6 +247,79 @@ exports.complaintInformation = async (req, res) => {
       { upsert: false }
     );
 
+
+
+    //  ---generate pdf-----------
+    const additionalDetails = await AdditionDetails.findOne({ complainIds: complaintInfo._id });
+    if (!additionalDetails) {
+      return res.status(404).json({
+        message: "Additional details not found for this complaint",
+        success: false,
+      });
+    }
+
+    const dataset = {
+      fullName: additionalDetails.fullName,
+      address: `${additionalDetails.colony}, ${additionalDetails.street}`,
+      district: additionalDetails.district,
+      state: additionalDetails.state,
+      pincode: additionalDetails.pincode,
+      complaintSummary: complaintInfo.description,
+      category: complaintInfo.category,
+      crn: complaintInfo._id,
+      generatedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
+    };
+
+
+    // Load and replace HTML template
+    const templatePath = path.join(__dirname, '..', 'utils', 'complaintTemplate.html');
+    let html = fs.readFileSync(templatePath, 'utf-8');
+    for (let key in dataset) {
+      html = html.replace(`{{${key}}}`, dataset[key]);
+    }
+
+    // Generate PDF
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'load' });
+    const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+    await browser.close();
+
+    const tempPath = path.join(__dirname, "temp.pdf");
+    fs.writeFileSync(tempPath, pdfBuffer);
+
+
+    // Upload to Cloudinary (unsigned raw preset)
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.unsigned_upload(
+        tempPath,
+        "public_pdf", // unsigned preset name
+        {
+          folder: "reports",
+          resource_type: "image", // treat PDF as an image for inline preview
+          public_id: `complaint_${complaintInfo._id}`,
+        }, // no resource_type here
+        (err, uploadResult) => {
+          fs.unlinkSync(tempPath); // cleanup
+          if (err) reject(err);
+          else resolve(uploadResult);
+        }
+      );
+    });
+    console.log("PDF uploaded to Cloudinary:", result.secure_url);
+    // Save result.secure_url in complain_report and persist to DB
+    complaintInfo.complain_report = result.secure_url;
+    await complaintInfo.save();
+
+    console.log("Complaint report URL saved:", complaintInfo.complain_report);
+
+
+
+
+
+
+
+
     // ✅ Victim Info (optional)
     const victimFields = [bankName, accountNumber, ifscCode, transactionId, transactionDate];
     const hasVictimInfo = victimFields.every(Boolean);
@@ -480,11 +370,11 @@ exports.complaintInformation = async (req, res) => {
       }
     }
 
-     io.emit("receive_notification", {
+    io.emit("receive_notification", {
       message: "New complaint submitted",
       complaintId: complaintInfo._id
     });
- 
+
 
     return res.status(201).json({
       message: "✅ Complaint submitted successfully",
