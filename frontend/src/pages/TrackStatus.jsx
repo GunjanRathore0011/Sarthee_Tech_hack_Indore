@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import FeedbackForm from './form/FeedbackForn';
+// import FeedbackForm from './form/FeedbackForn';
+import ComplaintFeedback from './form/New';
+import { toast } from 'react-toastify';
 
 const TrackComplaint = () => {
   const [complaintId, setComplaintId] = useState('');
@@ -12,6 +14,8 @@ const TrackComplaint = () => {
 
   const handleTrack = async () => {
     if (!complaintId.trim()) return;
+    setSubmitted(false);
+    setComplaintData(null);
     try {
       const response = await axios.get(
         `http://localhost:4000/api/v1/auth/complaintStatus/${complaintId}`,
@@ -22,29 +26,11 @@ const TrackComplaint = () => {
         setComplaintData(response.data);
         setSubmitted(true);
       } else {
-        alert('Complaint not found!');
+        toast.error('Complaint not found!');
       }
     } catch (error) {
       console.error('Error tracking complaint:', error);
-      alert('Error tracking complaint.');
-    }
-  };
-
-  const handleFeedbackSubmit = async () => {
-    if (!feedbackText.trim()) return;
-
-    try {
-      await axios.post(
-        '/api/feedback',
-        { feedback: feedbackText },
-        { withCredentials: true }
-      );
-      alert('Thanks for your feedback!');
-      setFeedbackText('');
-      setFeedbackVisible(false);
-    } catch (err) {
-      console.error('Feedback error:', err);
-      alert('Failed to submit feedback');
+      toast.error(error.response?.data?.message || 'Something went wrong!');
     }
   };
 
@@ -147,41 +133,12 @@ const TrackComplaint = () => {
           {/* Inline Feedback Form */}
           {feedbackVisible && (
             <div className="mt-6">
-              <FeedbackForm/>
+              {/* <FeedbackForm/> */}
+              <ComplaintFeedback/>
             </div>
           )}
         </div>
       </div>
-
-      {/* Feedback Modal
-      {feedbackVisible && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center px-4">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-lg animate-fade-in-up">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Your Feedback</h3>
-            <textarea
-              rows="5"
-              className="w-full border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition rounded-md p-3 text-gray-800"
-              placeholder="Write your experience or feedback here..."
-              value={feedbackText}
-              onChange={(e) => setFeedbackText(e.target.value)}
-            />
-            <div className="text-right mt-4 flex justify-end gap-3">
-              <button
-                onClick={() => setFeedbackVisible(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleFeedbackSubmit}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition font-medium"
-              >
-                Submit Feedback
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

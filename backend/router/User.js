@@ -31,7 +31,7 @@ router.get('/complaintStatus/:id', isAuthenticatedUser, getComplaintStatus);
 
 //pdf download
 router.post('/generateComplaintPDF',generateComplaintPDF);
-router.post('/giveFeedback', saveFeedback);
+router.post('/giveFeedback',isAuthenticatedUser, saveFeedback);
 
 
 // get user details by user ID

@@ -9,13 +9,13 @@ const ComplaintFeedback = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  useEffect(() => {
-    // Check if user has already given feedback
-    const alreadySubmitted = localStorage.getItem("complaintFeedbackGiven");
-    if (alreadySubmitted) {
-      setSubmitted(true);
-    }
-  }, []);
+  // useEffect(() => {
+  //   // Check if user has already given feedback
+  //   const alreadySubmitted = localStorage.getItem("complaintFeedbackGiven");
+  //   if (alreadySubmitted) {
+  //     setSubmitted(true);
+  //   }
+  // }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,22 +26,22 @@ const ComplaintFeedback = () => {
     }
 
     setLoading(true);
-    setSubmitted(true);
-    // try {
-    //   await axios.post(
-    //     "http://localhost:4000/api/v1/feedback",
-    //     { rating, description },
-    //     { withCredentials: true }
-    //   );
+    // setSubmitted(true);
+    try {
+      await axios.post(
+        "http://localhost:4000/api/v1/auth/giveFeedback",
+        { rating, description },
+        { withCredentials: true }
+      );
 
-    //   // Mark feedback as given
-    //   localStorage.setItem("complaintFeedbackGiven", "true");
-    //   setSubmitted(true);
-    // } catch (error) {
-    //   alert(error.response?.data?.message || "Something went wrong.");
-    // } finally {
-    //   setLoading(false);
-    // }
+      // Mark feedback as given
+      // localStorage.setItem("complaintFeedbackGiven", "true");
+      setSubmitted(true);
+    } catch (error) {
+      alert(error.response?.data || "Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -73,9 +73,8 @@ const ComplaintFeedback = () => {
           <FaStar
             key={star}
             size={30}
-            className={`cursor-pointer transition-colors duration-200 ${
-              (hover || rating) >= star ? "text-blue-500" : "text-gray-300"
-            }`}
+            className={`cursor-pointer transition-colors duration-200 ${(hover || rating) >= star ? "text-blue-500" : "text-gray-300"
+              }`}
             onClick={() => setRating(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
@@ -96,11 +95,10 @@ const ComplaintFeedback = () => {
       <button
         onClick={handleSubmit}
         disabled={loading}
-        className={`w-full py-2 rounded text-white transition ${
-          loading
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
+        className={`w-full py-2 rounded text-white transition ${loading
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-blue-600 hover:bg-blue-700"
+          }`}
       >
         {loading ? "Submitting..." : "Submit Feedback"}
       </button>

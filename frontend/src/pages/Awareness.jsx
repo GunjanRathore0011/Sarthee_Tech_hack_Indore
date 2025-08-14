@@ -12,7 +12,7 @@ const Awareness = () => {
   return (
     <div className="bg-white text-gray-800">
 
-      <FeedbackForm />
+      {/* <FeedbackForm /> */}
       
       {/* Header Section */}
       <section className="bg-gradient-to-r from-blue-100 to-blue-200 py-20 px-4 text-center" data-aos="fade-down">

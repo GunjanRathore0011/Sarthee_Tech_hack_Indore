@@ -103,7 +103,7 @@ exports.additionalDetails = async (req, res) => {
       //         }
 
 
-      uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
+      uploaded = await UploadToCloudinary(fileData, "governmentId");
 
       if (!uploaded || !uploaded.secure_url) {
         return res.status(500).json({
@@ -405,6 +405,7 @@ exports.complaintInformation = async (req, res) => {
       _id: complaintInfo._id,
       category: complaintInfo.category,
       subCategory: complaintInfo.subCategory,
+      reportpdf: complaintInfo.complain_report,
       statusHistory: complaintInfo.statusHistory,
       priority: complaintInfo.priority,
       incident_datetime: complaintInfo.incident_datetime,

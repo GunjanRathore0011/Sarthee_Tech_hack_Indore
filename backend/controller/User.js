@@ -9,7 +9,8 @@ require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 
 
-// GET /api/v1/complaint/:id/
+const mongoose = require("mongoose");
+
 exports.getComplaintStatus = async (req, res) => {
   try {
     const id = req.params.id;
@@ -18,6 +19,13 @@ exports.getComplaintStatus = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Complaint ID is required."
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Complaint ID format."
       });
     }
 
@@ -30,18 +38,11 @@ exports.getComplaintStatus = async (req, res) => {
       });
     }
 
-    const latestStatus = complaint.status;
-    const history = complaint.statusHistory || [];
-
-    // const latestEntry = history.length > 0 ? history[history.length - 1] : null;
-
     res.status(200).json({
       success: true,
       complaintId: complaint._id,
-      currentStatus: latestStatus,
-      //   latestRemark: latestEntry ? latestEntry.remark : 'No remark available.',
-      //   lastUpdated: latestEntry ? latestEntry.updatedAt : complaint.updatedAt,
-      fullHistory: history
+      currentStatus: complaint.status,
+      fullHistory: complaint.statusHistory || []
     });
 
   } catch (err) {
@@ -52,6 +53,7 @@ exports.getComplaintStatus = async (req, res) => {
     });
   }
 };
+
 
 
 //get pdf
@@ -139,7 +141,7 @@ fs.writeFileSync(tempPath, pdfBuffer);
 //save pdf
 exports.saveFeedback = async (req, res) => {
     try {
-        const {  feedback,rating } = req.body;
+        const {  description,rating } = req.body;
         const userId = req.user.userId; // Get user ID from the authenticated session
 
         // Validate input
@@ -163,7 +165,7 @@ exports.saveFeedback = async (req, res) => {
         const newFeedback = await Feedback.create({
             userId,
             rating,
-            feedback,
+            description,
         });
 
         res.status(201).json({
