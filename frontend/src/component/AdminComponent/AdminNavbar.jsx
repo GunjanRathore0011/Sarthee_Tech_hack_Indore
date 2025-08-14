@@ -1,17 +1,23 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FiUser, FiLogOut, FiBell } from 'react-icons/fi';
-import { MdOutlineReport, MdOutlineAnalytics, MdOutlinePerson, MdOutlineMap } from 'react-icons/md';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { FiUser, FiLogOut } from 'react-icons/fi';
+import { MdOutlineReport, MdOutlineAnalytics, MdOutlinePerson, MdOutlineMap, MdOutlineHandshake } from 'react-icons/md';
 import shieldIcon from '../../assets/images/logo.png';
 import AdminDashboardStats from './AdminDashboardStats';
 import AdminNotifications from './AdminNotifications';
+import { RiMapPinLine } from 'react-icons/ri';
+import { GiNetworkBars } from 'react-icons/gi';
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     navigate('/login');
   };
+
+  // Utility to check active route
+  const isActive = (path) => location.pathname === path;
 
   return (
     <>
@@ -24,10 +30,10 @@ const AdminNavbar = () => {
               src={shieldIcon}
               alt="Logo"
               className="h-10 w-10 cursor-pointer"
-              onClick={() => navigate('/admin-dashboard')}
+              onClick={() => navigate('/complaint-management')}
             />
             <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-wide text-blue=600">
+              <span className="text-xl font-extrabold tracking-wide text-blue-600">
                 CyberSentinel
               </span>
               <span className="text-sm text-gray-400 -mt-1">
@@ -49,29 +55,65 @@ const AdminNavbar = () => {
         </nav>
 
         {/* Bottom Navigation Menu */}
-        <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-3 flex space-x-10">
-          <Link to="/complaint-management" className="flex items-center space-x-2 hover:text-blue-600 transition">
+        <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
+          <Link
+            to="/complaint-management"
+            className={`flex items-center  space-x-2 transition ${
+              isActive('/complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+          >
             <MdOutlineReport className="text-lg" />
             <span>Complaints</span>
           </Link>
 
-          <Link to="/admin-analytics" className="flex items-center space-x-2 hover:text-blue-600 transition">
+          <Link
+            to="/admin-analytics"
+            className={`flex items-center space-x-2 transition ${
+              isActive('/admin-analytics') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+          >
             <MdOutlineAnalytics className="text-lg" />
             <span>Analytics</span>
           </Link>
 
-          <Link to="/officer-management" className="flex items-center space-x-2 hover:text-blue-600 transition">
+          <Link
+            to="/officer-management"
+            className={`flex items-center space-x-2 transition ${
+              isActive('/officer-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+          >
             <MdOutlinePerson className="text-lg" />
             <span>Officers</span>
           </Link>
 
-          <Link to="/crime-map" className="flex items-center space-x-2 hover:text-blue-600 transition">
-            <MdOutlineMap className="text-lg" />
+          <Link
+            to="/crime-map"
+            className={`flex items-center space-x-2 transition ${
+              isActive('/crime-map') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+          >
+            <RiMapPinLine className="text-lg" />
             <span>Crime Map</span>
           </Link>
-          <Link to="/pattern-alert" className="flex items-center space-x-2 hover:text-blue-600 transition">
-            <MdOutlineMap className="text-lg" />
+
+          <Link
+            to="/pattern-alert"
+            className={`flex items-center space-x-2 transition ${
+              isActive('/pattern-alert') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+          >
+            <GiNetworkBars className="text-lg" />
             <span>Pattern</span>
+          </Link>
+
+          <Link
+            to="/admin/platform-coordination"
+            className={`flex items-center space-x-2 transition ${
+              isActive('/admin/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+          >
+            <MdOutlineHandshake className="text-lg" />
+            <span>Platform Coordination</span>
           </Link>
         </div>
       </div>
