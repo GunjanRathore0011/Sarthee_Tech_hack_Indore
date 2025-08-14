@@ -70,7 +70,7 @@ const userRouter = require("./router/User");
 const adminRouter = require("./router/Admin");
 const investigatorRouter = require("./router/Investigator");
 const patternsRouter = require("./router/Patterns");
-
+const platformRequestRoutes = require("./router/platformRequestRoutes");
 app.use("/api/v1/patterns", patternsRouter);
 
 app.get("/", (req, res) => {
@@ -80,6 +80,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", userRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/investigator", investigatorRouter);
+app.use("/api/platform-requests", platformRequestRoutes);
 
 // ✅ Session check route
 app.get("/check-session", (req, res) => {
