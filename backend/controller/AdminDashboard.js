@@ -154,8 +154,9 @@ const { io } = require("../index.js");
 
 exports.dashboard = async (req, res) => {
   try {
-    const { subCategory, status, priority, month ,startIndex=0 } = req.query;
-
+    const { subCategory, status, priority, month  } = req.query;
+const startIndex = parseInt(req.query.startIndex) || 0
+      const limit = parseInt(req.query.limit) || 6
     // Build filter dynamically for Complaint
     const complaintFilter = {};
 

@@ -74,7 +74,7 @@ export const AddOfficerModal = ({ isOpen, onClose, onAddOfficer }) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md h-[90%]">
                 <DialogHeader>
                     <DialogTitle>Add New Officer</DialogTitle>
                 </DialogHeader>

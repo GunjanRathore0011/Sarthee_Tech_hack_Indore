@@ -57,7 +57,10 @@ const OfficerManagement = () => {
   };
 
   const totalOfficers = officers.length;
-  const available = officers.filter((o) => o.status === "Free").length;
+  const available = officers.filter(
+  (o) => o.status === "Free" || o.status === "Available"
+).length;
+
   const totalActiveCases = officers.reduce((sum, o) => sum + o.activeCases, 0);
   const avgPerformance =
     totalOfficers > 0

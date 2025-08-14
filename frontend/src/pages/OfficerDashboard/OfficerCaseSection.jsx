@@ -225,7 +225,15 @@ const OfficerCaseSection = () => {
                                             <span>Received: {new Date(complaint.dateReceived).toLocaleString()}</span>
                                             <span className="mx-2">•</span>
                                             <FileText className="h-4 w-4" />
-                                            <span>{complaint.evidence.length} evidence files</span>
+                                            {/* <span>{complaint.evidence.length} evidence files</span> */}
+                                            <a
+                                                href={complaint.evidence}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 underline"
+                                            >
+                                                Evidence Files
+                                            </a>
                                             <span className="mx-2">•</span>
                                             <FileText className="h-4 w-4" />
                                             <a

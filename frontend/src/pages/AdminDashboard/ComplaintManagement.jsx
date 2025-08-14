@@ -22,7 +22,6 @@ const ComplaintManagement = () => {
   const [loading, setLoading] = useState(false);
 
   // New States for Pagination & Filters
-  const [startIndex, setStartIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [filters, setFilters] = useState({
     status: '',
@@ -31,6 +30,8 @@ const ComplaintManagement = () => {
     month: ''
   });
 
+
+  // console.log("filters", filters);
   // console.log("complaints", complaints);
   const subCategories = [
     "Banking Fraud", "UPI / Wallet Fraud", "Loan Fraud", "Investment Scam",
@@ -46,13 +47,13 @@ const ComplaintManagement = () => {
   const fetchOfficerData = async () => {
     try {
       setLoading(true); // start loader
-      console.log("Fetching officer data...");
+      // console.log("Fetching officer data...");
 
       const response = await axios.get(
         "http://localhost:4000/api/v1/admin/suggestInvestigator"
       );
 
-      console.log("Fetched officer data:", response.data.data);
+      // console.log("Fetched officer data:", response.data.data);
 
       if (Array.isArray(response.data.data)) {
         setOfficers(response.data.data);
@@ -68,70 +69,48 @@ const ComplaintManagement = () => {
     }
   };
 
-  // const investigators = [
-  //   {
-  //     id: "INV101",
-  //     name: "Raj Sharma",
-  //     specialization: "Cyber Fraud",
-  //     performance: 92,
-  //     activeCases: 3,
-  //     isFree: true
-  //   },
-  //   {
-  //     id: "INV102",
-  //     name: "Anita Verma",
-  //     specialization: "Hacking",
-  //     performance: 88,
-  //     activeCases: 5,
-  //     isFree: false
-  //   },
-  //   {
-  //     id: "INV103",
-  //     name: "Karan Mehta",
-  //     specialization: "Identity Theft",
-  //     performance: 95,
-  //     activeCases: 1,
-  //     isFree: true
-  //   }
-  // ];
-
 
   // Fetch complaints with pagination & filters
-  const fetchComplaints = async (append = false) => {
+  const fetchComplaints = async () => {
     try {
-      const params = { startIndex, limit: 5, ...filters }; // ✅ Always fetch 5
+
+      const params = { ...filters };
       const res = await axios.get('http://localhost:4000/api/v1/admin/dashboard', { params });
+      const result = res.data;
+      console.log("Fetched complaints:", result);
+      setComplaints(result.data);
 
-      if (Array.isArray(res.data.data)) {
-        // console.log('Fetched complaints:', res.data.data);
-        if (append) {
-          setComplaints((prev) => [...prev, ...res.data.data]);
-        } else {
-          setComplaints(res.data.data);
-        }
-
-        // ✅ Only show "Show More" if exactly 5 were returned
-        setHasMore(res.data.data.length === 5);
-      } else {
-        setComplaints([]);
-        setHasMore(false);
+      setHasMore(true); // Reset hasMore to true
+      if (result.data.length < 10) {
+        setHasMore(false); // No more data to load
       }
     } catch (error) {
-      console.error('Error fetching complaints:', error);
+      console.error("Error fetching complaints:", error);
+      toast.error("Failed to fetch complaints");
     }
   };
 
 
   // Initial load
   useEffect(() => {
-    fetchComplaints(false);
-  }, [startIndex]);
+    fetchComplaints();
+  }, []);
 
   // Show more
-  const handleShowMore = () => {
-    if (!hasMore) return;
-    setStartIndex((prev) => prev + 5);
+  const handleShowMore = async () => {
+
+    const startIndex = complaints.length; // Start from the current length
+
+    const params = { startIndex, limit: 10, ...filters }; // ✅ Always fetch 5
+    const res = await axios.get('http://localhost:4000/api/v1/admin/dashboard', { params });
+    const result = res.data.data;
+    console.log("Fetched more complaints:", result);
+    setComplaints(prev => [...prev, ...result]);
+    if (result.length < 10) {
+      setHasMore(false); // No more data to load
+    }
   };
+
 
   // Filter change handler
   const handleFilterChange = (e) => {
@@ -140,8 +119,7 @@ const ComplaintManagement = () => {
 
   // Apply filters
   const applyFilters = () => {
-    setStartIndex(0);
-    fetchComplaints(false);
+    fetchComplaints();
   };
 
   const onAssignCase = (complaint) => {
@@ -152,30 +130,30 @@ const ComplaintManagement = () => {
   };
 
   const handleAssign = async (id) => {
-  if (!id || !id.trim()) {
-    toast.error("Investigator ID is required");
-    return;
-  }
-
-  try {
-    const response = await axios.post('http://localhost:4000/api/v1/admin/assignInvestigator', {
-      complaintId: selectedComplaint._id,
-      investigatorId: id,   // use id directly here
-    });
-
-    if (response.data.success) {
-      toast.success("Investigator assigned successfully");
-      fetchComplaints(false);
-      setIsDialogOpen(false);
-      setInvestigatorId(""); // reset if needed
-    } else {
-      toast.error("Failed to assign investigator");
+    if (!id || !id.trim()) {
+      toast.error("Investigator ID is required");
+      return;
     }
-  } catch (error) {
-    console.error("Assignment error:", error);
-    toast.error("Error assigning investigator");
-  }
-};
+
+    try {
+      const response = await axios.post('http://localhost:4000/api/v1/admin/assignInvestigator', {
+        complaintId: selectedComplaint._id,
+        investigatorId: id,   // use id directly here
+      });
+
+      if (response.data.success) {
+        toast.success("Investigator assigned successfully");
+        fetchComplaints(false);
+        setIsDialogOpen(false);
+        setInvestigatorId(""); // reset if needed
+      } else {
+        toast.error("Failed to assign investigator");
+      }
+    } catch (error) {
+      console.error("Assignment error:", error);
+      toast.error("Error assigning investigator");
+    }
+  };
 
   const getStatusStyle = (status) => {
     switch (status.toLowerCase()) {
@@ -283,8 +261,13 @@ const ComplaintManagement = () => {
               Apply
             </Button>
             <Button
-              onClick={() =>
-                setFilters({ status: '', priority: '', subCategory: '', month: '' })
+              onClick={() => {
+                const emptyFilters = { status: '', priority: '', subCategory: '', month: '' };
+                // console.log("Reset filters about to run"); // simple log first
+                setFilters(emptyFilters);                  // update state
+                // console.log("Empty filters object:", emptyFilters); // log the object itself
+                applyFilters();
+              }
               }
               className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg"
             >
@@ -364,13 +347,17 @@ const ComplaintManagement = () => {
       </div>
 
       {/* Show More Button */}
-      {hasMore && complaints.length > 0 && (
+      {hasMore && complaints.length > 0 ? (
         <div className="flex justify-center mt-4">
           <Button onClick={handleShowMore} className="bg-blue-600 text-white">
             Show More
           </Button>
         </div>
-      )}
+      ) :
+        (<div>
+          <p className="text-gray-500 text-center mt-4">No more complaints to show.</p>
+        </div>)
+      }
 
       {/* Assign Investigator Dialog */}
 
@@ -381,7 +368,7 @@ const ComplaintManagement = () => {
           setIsDialogOpen(open);
         }}
       >
-           <DialogContent className="w-[700px] h-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[700px] h-[800px] max-h-[90vh] overflow-y-auto">
 
           <DialogHeader>
             <DialogTitle>Assign Investigator</DialogTitle>
@@ -397,7 +384,7 @@ const ComplaintManagement = () => {
               {officers.length > 0 ? (
                 officers
                   // .filter(inv => inv.status === "Free")  // only free investigators
-                   .filter(inv => inv.status === "Free" || inv.status === "Available")
+                  .filter(inv => inv.status === "Free" || inv.status === "Available")
                   .map((inv) => {
                     const borderColor = "border-green-500";
                     const statusBg = "bg-green-100 text-green-700";

@@ -30,12 +30,21 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
-   const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
     const currentUser = useSelector((state) => state.user);
     const investigatorId = currentUser.user.additionDetails;
     //  console.log('Investigator ID:', investigatorId);
     // console.log("Complaint Data:", complaint.id);
+    const [isContactOpen, setIsContactOpen] = useState(false);
+
+    // Sample complainant details (you can replace with dynamic data from props/state)
+    const complainant = {
+        name: "Rahul Sharma",
+        email: "rahul@example.com",
+        phone: "+91 9876543210"
+    };
+
 
     const fetchNotes = async () => {
         try {
@@ -94,12 +103,12 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 return 'text-gray-600 bg-gray-100';
         }
     };
-    const handleStatusUpdate =async () => {
-        try{
+    const handleStatusUpdate = async () => {
+        try {
             const res = await axios.post(`http://localhost:4000/api/v1/investigator/updateComplaintStatus`, {
-            complaintId: complaint.id,
-            newStatus: "AssignInvestigator",
-            remark: "Investigation started by officer"
+                complaintId: complaint.id,
+                newStatus: "AssignInvestigator",
+                remark: "Investigation started by officer"
             })
             const result = res.data;
             dispatch(fetchAssignedCases(investigatorId));
@@ -112,12 +121,8 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     };
 
     const handleContactComplainant = () => {
-        toast({
-            title: 'Contacting Complainant',
-            description: `Sending notification to ${complaint.userEmail}`,
-        });
+        setIsContactOpen(true);
     };
-
     const handleViewRuleBook = () => {
         toast({
             title: 'Rule Book Opened',
@@ -134,10 +139,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     };
 
     const handleDownloadEvidence = (evidenceName) => {
-        toast({
-            title: 'Download Started',
-            description: `Downloading ${evidenceName}`,
-        });
+        console.log(evidenceName);
     };
 
 
@@ -226,21 +228,25 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                             >
                                                 <div className="flex items-center justify-between mb-2">
                                                     <div className="flex items-center space-x-2">
-                                                        {getEvidenceIcon(evidence.type)}
-                                                        <span className="font-medium text-sm">{evidence.name}</span>
+                                                        {getEvidenceIcon()}
+                                                        <span className="font-medium text-sm">View Evidence</span>
                                                     </div>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleDownloadEvidence(evidence.name)}
+                                                    <a
+                                                        href={evidence}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                     >
-                                                        <Download className="h-4 w-4 text-blue-600" />
-                                                    </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleDownloadEvidence(evidence)}
+                                                        >
+                                                            <Download className="h-4 w-4 text-blue-600" />
+                                                        </Button>
+                                                    </a>
+
                                                 </div>
-                                                <p className="text-xs text-blue-500">
-                                                    Uploaded: {new Date(evidence.uploadDate).toLocaleString()}
-                                                </p>
-                                                <p className="text-xs text-blue-500 capitalize">Type: {evidence.type}</p>
+
                                             </div>
                                         ))}
                                     </div>
@@ -343,6 +349,21 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 </Dialog>
 
             </div>
+
+
+            {/* Contact Dialog */}
+            <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Complainant Contact Details</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-2">
+                        <p><strong>Name:</strong> {complainant.name}</p>
+                        <p><strong>Email:</strong> {complainant.email}</p>
+                        <p><strong>Phone:</strong> {complainant.phone}</p>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 };
