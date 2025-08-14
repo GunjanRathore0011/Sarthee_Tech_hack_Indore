@@ -5,7 +5,8 @@ const { isAuthenticatedUser } = require('../middleware/auth');
 const {additionalDetails,complaintInformation} = require('../controller/Information');
 const {getComplaintStatus,
     generateComplaintPDF,
-    saveFeedback
+    saveFeedback,
+    getUser
     } = require('../controller/User');
 
 const {scanText} = require('../controller/scamCheck');
@@ -32,6 +33,9 @@ router.get('/complaintStatus/:id', isAuthenticatedUser, getComplaintStatus);
 router.post('/generateComplaintPDF',generateComplaintPDF);
 router.post('/giveFeedback', saveFeedback);
 
+
+// get user details by user ID
+router.get('/getUser/:id', getUser);
 
 //check status of the user
 module.exports = router;

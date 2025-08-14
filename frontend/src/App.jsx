@@ -34,7 +34,8 @@ const App = () => {
     '/officer-management',
     '/admin-analytics',
     '/crime-map',
-    '/pattern-alert'
+    '/pattern-alert',
+    '/admin-profile',
   ];
   const officerRoutes = [
     '/officer-complaint-management'
@@ -73,6 +74,7 @@ const App = () => {
         <Route path="/admin-analytics" element={<Analytics />} />
         <Route path="/crime-map" element={<CrimeMap />} />
         <Route path='/pattern-alert' element={<PatternAlert/>} />
+        <Route path="/admin-profile" element={<AdminHome />} />
 
         {/* Officer Dashboard */}
         <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />

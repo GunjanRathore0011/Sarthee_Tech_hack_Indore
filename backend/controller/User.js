@@ -179,3 +179,33 @@ exports.saveFeedback = async (req, res) => {
         });
     }
 }
+
+exports.getUser= async (req, res) => {
+  try {
+    const userId = req.params.id; // Get user ID from the authenticated session     
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required."
+      });
+    } 
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found."
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } 
+  catch (err) {
+    console.error("❌ Error in getUser:", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
+  } 
+};

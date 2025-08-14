@@ -27,7 +27,7 @@ exports.createInvestigator = async (req, res) => {
             userName: name,
             email,
             number: phone,
-            accountType: "Officier",
+            accountType: "Officer",
             additionDetails: investigator._id // Link to the investigator's details
         });
         await user.save();
@@ -191,6 +191,7 @@ exports.allAssignedCases = async (req, res) => {
 
             const caseData = {
                 id: c._id,
+                userId: c.userId,
                 caseId: `CASE-${c.createdAt.getFullYear()}-${String(c._id).slice(-3)}`,
                 priority: c.priority,
                 status: c.status,

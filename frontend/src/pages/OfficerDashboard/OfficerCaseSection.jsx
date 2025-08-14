@@ -275,7 +275,7 @@ const OfficerCaseSection = () => {
                                                 size="sm"
                                                 onClick={() => handleMarkResolved(complaint.id)}
                                             >
-                                                <MessageSquare className="h-4 w-4 mr-2" />
+                                                <MessageSquare className="h-4 w-4 mr-2 "  />
                                                 Mark Resolved
                                             </Button>
                                         )}
@@ -289,6 +289,8 @@ const OfficerCaseSection = () => {
                 {selectedCase && (
                     <CaseDetailsPanel
                         case={selectedCase}
+                        onStartInvestigation={handleStartInvestigation}
+                        onMarkResolved={handleMarkResolved}
                         notes={mockCaseNotes.filter(note => note.caseId === selectedCase.caseId)}
                         onClose={() => setSelectedCase(null)}
                     />

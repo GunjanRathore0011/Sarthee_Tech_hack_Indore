@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     },
     accountType: {
         type: String,
-        enum: ["User", "Officier"],
+        enum: ["User", "Officer"],
         required: true,
     },
     additionDetails: {

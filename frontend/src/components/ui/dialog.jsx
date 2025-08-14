@@ -54,7 +54,7 @@ function DialogContent({
       <DialogPrimitive.Content
         className={cn(
           "fixed top-[50%] left-[50%] z-50 grid translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200",
-          "w-[600px] max-w-none h-[400px]",  // default width & height
+          "w-[600px] max-w-none h-[200px]",  // default width & height
           className // override possible here
         )}
         {...props}

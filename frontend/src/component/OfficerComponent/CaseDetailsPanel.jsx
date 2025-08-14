@@ -26,7 +26,8 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAssignedCases } from '@/ReduxSlice/stats/statsSlice';
 
-export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNotes }) => {
+export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNotes, onStartInvestigation,
+    onMarkResolved}) => {
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
@@ -39,11 +40,38 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     const [isContactOpen, setIsContactOpen] = useState(false);
 
     // Sample complainant details (you can replace with dynamic data from props/state)
-    const complainant = {
-        name: "Rahul Sharma",
-        email: "rahul@example.com",
-        phone: "+91 9876543210"
-    };
+    // const complainant = {
+    //     name: "Rahul Sharma",
+    //     email: "rahul@example.com",
+    //     phone: "+91 9876543210"
+    // };
+    // console.log(complaint);
+    const [complainant, setComplainant] = useState({
+        name: 'Loading...',
+        email: 'Loading...',
+        phone: 'Loading...'
+    });
+
+    useEffect(() => {
+        const fetchComplainantDetails = async () => {
+            try {
+                console.log("Fetching complainant details for user ID:", complaint.userId);
+                // Fetch user details using the userId from the complaint
+                const response = await axios.get(`http://localhost:4000/api/v1/auth/getUser/${complaint.userId}`);
+                const userData = response.data.data; // Assuming the API returns an array
+                // console.log("Complainant Data:", userData);
+                // Set complainant details
+                setComplainant({
+                    name: userData.userName || 'Not provided', // Handle case where name might not be available
+                    email: userData.email,
+                    phone: userData.number || 'Not provided' // Handle case where phone might not be available
+                });
+            } catch (error) {
+                console.error("Failed to fetch complainant details", error);
+            }
+        };
+        fetchComplainantDetails();
+    }, [currentUser.email]);
 
 
     const fetchNotes = async () => {
@@ -52,7 +80,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 params: { complaintId: complaint.id }
             });
             setCaseNotes(res.data.data);
-            console.log("Fetched Notes:", res.data.data);
+            // console.log("Fetched Notes:", res.data.data);
         } catch (error) {
             console.error("Failed to fetch notes", error);
         }
@@ -103,22 +131,22 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                 return 'text-gray-600 bg-gray-100';
         }
     };
-    const handleStatusUpdate = async () => {
-        try {
-            const res = await axios.post(`http://localhost:4000/api/v1/investigator/updateComplaintStatus`, {
-                complaintId: complaint.id,
-                newStatus: "AssignInvestigator",
-                remark: "Investigation started by officer"
-            })
-            const result = res.data;
-            dispatch(fetchAssignedCases(investigatorId));
-            console.log('Status Update Response:', result);
-        }
-        catch (error) {
-            console.error("Failed to update status", error);
-        }
+    // const handleStatusUpdate = async () => {
+    //     try {
+    //         const res = await axios.post(`http://localhost:4000/api/v1/investigator/updateComplaintStatus`, {
+    //             complaintId: complaint.id,
+    //             newStatus: "AssignInvestigator",
+    //             remark: "Investigation started by officer"
+    //         })
+    //         const result = res.data;
+    //         dispatch(fetchAssignedCases(investigatorId));
+    //         console.log('Status Update Response:', result);
+    //     }
+    //     catch (error) {
+    //         console.error("Failed to update status", error);
+    //     }
 
-    };
+    // };
 
     const handleContactComplainant = () => {
         setIsContactOpen(true);
@@ -139,7 +167,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     };
 
     const handleDownloadEvidence = (evidenceName) => {
-        console.log(evidenceName);
+        // console.log(evidenceName);
     };
 
 
@@ -274,9 +302,28 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                                 </Button>
                                             </>
                                         )}
-                                        <Button variant="outline" onClick={handleStatusUpdate}>
-                                            Update Status
-                                        </Button>
+                                        <div className="relative inline-block">
+                                            <select
+                                                onChange={(e) => {
+                                                    if (e.target.value === "investigation") {
+                                                        onStartInvestigation(complaint.id);
+                                                        console.log("Investigation started for case:", complaint.id);
+                                                    } else if (e.target.value === "resolved") {
+                                                        onMarkResolved(complaint.id);
+                                                    }
+                                                    onClose();
+                                                }}
+                                                defaultValue=""
+                                                className="border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                <option value="" disabled>
+                                                    Update Status
+                                                </option>
+                                                <option value="investigation">Start Investigation</option>
+                                                <option value="resolved">Mark Resolved</option>
+                                            </select>
+                                        </div>
+
                                         <Button variant="outline">Request Additional Info</Button>
                                         <Button variant="outline">Generate Report</Button>
                                     </div>
@@ -353,17 +400,29 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
 
             {/* Contact Dialog */}
             <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Complainant Contact Details</DialogTitle>
+                <DialogContent className="w-[420px] max-w-md rounded-2xl shadow-lg border border-gray-200 bg-white">
+                    <DialogHeader className=" border-b border-gray-100">
+                        <DialogTitle className="text-lg font-semibold text-blue-600">
+                            Complainant Contact Details
+                        </DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-2">
-                        <p><strong>Name:</strong> {complainant.name}</p>
-                        <p><strong>Email:</strong> {complainant.email}</p>
-                        <p><strong>Phone:</strong> {complainant.phone}</p>
+                    <div className="space-y-3 pt-3">
+                        <div className="flex items-center">
+                            <span className="w-20 font-medium text-gray-700">Name:</span>
+                            <span className="text-gray-900">{complainant.name}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="w-20 font-medium text-gray-700">Email:</span>
+                            <span className="text-gray-900">{complainant.email}</span>
+                        </div>
+                        <div className="flex items-center">
+                            <span className="w-20 font-medium text-gray-700">Phone:</span>
+                            <span className="text-gray-900">{complainant.phone}</span>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
+
         </>
     );
 };
