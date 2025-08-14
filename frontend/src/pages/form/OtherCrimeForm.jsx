@@ -28,7 +28,7 @@ function OtherCrimeForm({ onNext }) {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.size <= 5 * 1024 * 1024) {
+    if (file && file.size <= 20* 1024 * 1024) {
       const updated = { ...formData, files: file };
       dispatch(setOtherCrime(updated));
     } else {

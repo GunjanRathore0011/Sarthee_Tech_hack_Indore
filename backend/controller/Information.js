@@ -5,10 +5,10 @@ const VictimDetails = require("../models/Victim");
 const UploadToCloudinary = require("../utils/UploadToCloudinary");
 const Complaint = require("../models/Complaint");
 require('dotenv').config();
-const { io } = require("../index.js"); 
+const { io } = require("../index.js");
 const fs = require('fs');
 // const checkAndCreateAlerts = require("../utils/pattern.js");
-const {checkAndCreateAlerts} = require("../utils/pattern.js");
+const { checkAndCreateAlerts } = require("../utils/pattern.js");
 
 // import Jimp from "jimp";
 // import QrCode from "qrcode-reader";
@@ -18,55 +18,55 @@ const Tesseract = require('tesseract.js');
 
 
 async function detectAadhaarFromBuffer(fileBuffer) {
-    // ===== 1️⃣ Load Image from Buffer =====
-    console.log("Buffer length:", fileBuffer.length);
-console.log("First 20 bytes:", fileBuffer.toString("hex", 0, 20));
+  // ===== 1️⃣ Load Image from Buffer =====
+  console.log("Buffer length:", fileBuffer.length);
+  console.log("First 20 bytes:", fileBuffer.toString("hex", 0, 20));
 
-    let image;
-    try {
-        image = await Jimp.read(fileBuffer);
-    } catch (err) {
-       console.error("Jimp failed to read buffer:", err);
-        throw new Error("Invalid image type or corrupted file"); 
-    }
+  let image;
+  try {
+    image = await Jimp.read(fileBuffer);
+  } catch (err) {
+    console.error("Jimp failed to read buffer:", err);
+    throw new Error("Invalid image type or corrupted file");
+  }
 
-    // ===== 2️⃣ OCR Detection (Hindi + English) =====
-    console.log("🔍 Running OCR...");
-    const { data: { text } } = await Tesseract.recognize(fileBuffer, "hin+eng");
+  // ===== 2️⃣ OCR Detection (Hindi + English) =====
+  console.log("🔍 Running OCR...");
+  const { data: { text } } = await Tesseract.recognize(fileBuffer, "hin+eng");
 
-    console.log("\n🔍 OCR Extracted Text:\n", text);
+  console.log("\n🔍 OCR Extracted Text:\n", text);
 
-    const aadhaarKeywords = [
-        "government of india",
-        "भारत सरकार",
-        "मेरी आधार मेरी पहचान",
-        "dob",
-        "आधार",
-        "aadhaar"
-    ];
+  const aadhaarKeywords = [
+    "government of india",
+    "भारत सरकार",
+    "मेरी आधार मेरी पहचान",
+    "dob",
+    "आधार",
+    "aadhaar"
+  ];
 
-    const textLower = text.toLowerCase();
-    const textMatch = aadhaarKeywords.some(keyword =>
-        textLower.includes(keyword.toLowerCase())
-    );
+  const textLower = text.toLowerCase();
+  const textMatch = aadhaarKeywords.some(keyword =>
+    textLower.includes(keyword.toLowerCase())
+  );
 
-    // ===== 3️⃣ QR Code Presence Check =====
-    console.log("📷 Checking QR Code...");
-    let qrFound = false;
-    await new Promise((resolve) => {
-        const qr = new QrCode();
-        qr.callback = (err, value) => {
-            if (value) qrFound = true; // Found QR
-            resolve();
-        };
-        qr.decode(image.bitmap);
-    });
+  // ===== 3️⃣ QR Code Presence Check =====
+  console.log("📷 Checking QR Code...");
+  let qrFound = false;
+  await new Promise((resolve) => {
+    const qr = new QrCode();
+    qr.callback = (err, value) => {
+      if (value) qrFound = true; // Found QR
+      resolve();
+    };
+    qr.decode(image.bitmap);
+  });
 
-    // ===== 4️⃣ Final Decision =====
-    console.log(`OCR Keyword Match: ${textMatch}`);
-    console.log(`QR Code Found: ${qrFound}`);
+  // ===== 4️⃣ Final Decision =====
+  console.log(`OCR Keyword Match: ${textMatch}`);
+  console.log(`QR Code Found: ${qrFound}`);
 
-    return textMatch && qrFound;
+  return textMatch && qrFound;
 }
 
 
@@ -76,26 +76,26 @@ exports.additionalDetails = async (req, res) => {
     const { fullName, dob, gender, house = "", street, colony = "", state, district = "", policeStation, pincode } = req.body;
     console.log("Received additional details:", req.body);
 
-    if (!fullName || !dob || !house || !street || !colony ||  !district || !policeStation || !pincode) {
+    if (!fullName || !dob || !house || !street || !colony || !district || !policeStation || !pincode) {
       return res.status(400).json({
         message: "All information is required",
         success: false,
       });
     }
-     console.log("Received additional details:", );
+    console.log("Received additional details:",);
     // 👇 Declare uploaded in outer scope
     let uploaded = null;
     if (req.files && req.files.file) {
       const fileData = req.files.file;
 
-    
-// const fileBuffer = fs.readFileSync(fileData.tempFilePath);
-// console.log("File buffer length:", fileBuffer);
 
-//         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
-//         if (!isAadhaar) {
-//             return res.status(400).json({ error: "Not a valid Aadhaar card" });
-//         }
+      // const fileBuffer = fs.readFileSync(fileData.tempFilePath);
+      // console.log("File buffer length:", fileBuffer);
+
+      //         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
+      //         if (!isAadhaar) {
+      //             return res.status(400).json({ error: "Not a valid Aadhaar card" });
+      //         }
 
 
       uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
@@ -392,12 +392,38 @@ exports.complaintInformation = async (req, res) => {
     console.log("Received file:", req.files);
 
     if (req.files?.file) {
-      const filesArray = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
+      const filesArray = Array.isArray(req.files.file)
+        ? req.files.file
+        : [req.files.file];
+
       for (let file of filesArray) {
-        const uploaded = await UploadToCloudinary(file.tempFilePath, "evidence");
-        imageUrls.push(uploaded.secure_url);
+
+        // ✅ 1. Skip files that were truncated (too big for backend limit)
+        if (file.truncated) {
+          console.warn(`⛔ Skipping ${file.name} - File size exceeds limit`);
+          continue;
+        }
+
+        try {
+          // ✅ 2. Upload file (auto-detects image/video)
+          const uploaded = await UploadToCloudinary(file, "evidence");
+
+          // ✅ 3. Only push to array if Cloudinary returned a valid URL
+          if (uploaded?.secure_url) {
+            imageUrls.push(uploaded.secure_url);
+            console.log(`✅ Uploaded: ${file.name}`);
+          } else {
+            console.error(`❌ Upload failed: ${file.name}`);
+          }
+
+        } catch (err) {
+          console.error(`❌ Error uploading ${file.name}:`, err.message);
+        }
       }
     }
+
+    console.log("Final uploaded URLs:", imageUrls);
+
     let prior = "Medium";
     if ("Harassment" == category) {
     } else {
@@ -480,16 +506,25 @@ exports.complaintInformation = async (req, res) => {
       }
     }
 
-     io.emit("receive_notification", {
+    io.emit("receive_notification", {
       message: "New complaint submitted",
       complaintId: complaintInfo._id
     });
- 
+   
+  const Datasend = {
+      _id: complaintInfo._id,
+      category: complaintInfo.category,
+      subCategory: complaintInfo.subCategory,
+      statusHistory: complaintInfo.statusHistory,
+      priority: complaintInfo.priority,
+      incident_datetime: complaintInfo.incident_datetime,
+      createdAt: complaintInfo.createdAt,
+    };
 
     return res.status(201).json({
       message: "✅ Complaint submitted successfully",
       success: true,
-      data: complaintInfo,
+      data: Datasend,
     });
 
   } catch (error) {

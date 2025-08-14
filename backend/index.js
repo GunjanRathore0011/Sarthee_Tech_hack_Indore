@@ -28,7 +28,8 @@ const io = new Server(server, {
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp/",
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
+  // abortOnLimit: true,
 }));
 // ✅ Export io so controllers can use it
 module.exports.io = io;
