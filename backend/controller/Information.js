@@ -209,12 +209,38 @@ exports.complaintInformation = async (req, res) => {
     console.log("Received file:", req.files);
 
     if (req.files?.file) {
-      const filesArray = Array.isArray(req.files.file) ? req.files.file : [req.files.file];
+      const filesArray = Array.isArray(req.files.file)
+        ? req.files.file
+        : [req.files.file];
+
       for (let file of filesArray) {
-        const uploaded = await UploadToCloudinary(file.tempFilePath, "evidence");
-        imageUrls.push(uploaded.secure_url);
+
+        // ✅ 1. Skip files that were truncated (too big for backend limit)
+        if (file.truncated) {
+          console.warn(`⛔ Skipping ${file.name} - File size exceeds limit`);
+          continue;
+        }
+
+        try {
+          // ✅ 2. Upload file (auto-detects image/video)
+          const uploaded = await UploadToCloudinary(file, "evidence");
+
+          // ✅ 3. Only push to array if Cloudinary returned a valid URL
+          if (uploaded?.secure_url) {
+            imageUrls.push(uploaded.secure_url);
+            console.log(`✅ Uploaded: ${file.name}`);
+          } else {
+            console.error(`❌ Upload failed: ${file.name}`);
+          }
+
+        } catch (err) {
+          console.error(`❌ Error uploading ${file.name}:`, err.message);
+        }
       }
     }
+
+    console.log("Final uploaded URLs:", imageUrls);
+
     let prior = "Medium";
     if ("Harassment" == category) {
     } else {
@@ -374,12 +400,21 @@ exports.complaintInformation = async (req, res) => {
       message: "New complaint submitted",
       complaintId: complaintInfo._id
     });
-
+   
+  const Datasend = {
+      _id: complaintInfo._id,
+      category: complaintInfo.category,
+      subCategory: complaintInfo.subCategory,
+      statusHistory: complaintInfo.statusHistory,
+      priority: complaintInfo.priority,
+      incident_datetime: complaintInfo.incident_datetime,
+      createdAt: complaintInfo.createdAt,
+    };
 
     return res.status(201).json({
       message: "✅ Complaint submitted successfully",
       success: true,
-      data: complaintInfo,
+      data: Datasend,
     });
 
   } catch (error) {
