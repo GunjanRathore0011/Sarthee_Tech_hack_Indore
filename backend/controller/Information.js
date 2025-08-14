@@ -7,6 +7,8 @@ const Complaint = require("../models/Complaint");
 require('dotenv').config();
 const { io } = require("../index.js"); 
 const fs = require('fs');
+// const checkAndCreateAlerts = require("../utils/pattern.js");
+const {checkAndCreateAlerts} = require("../utils/pattern.js");
 
 // import Jimp from "jimp";
 // import QrCode from "qrcode-reader";
@@ -87,13 +89,13 @@ exports.additionalDetails = async (req, res) => {
       const fileData = req.files.file;
 
     
-const fileBuffer = fs.readFileSync(fileData.tempFilePath);
-console.log("File buffer length:", fileBuffer);
+// const fileBuffer = fs.readFileSync(fileData.tempFilePath);
+// console.log("File buffer length:", fileBuffer);
 
-        const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
-        if (!isAadhaar) {
-            return res.status(400).json({ error: "Not a valid Aadhaar card" });
-        }
+//         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
+//         if (!isAadhaar) {
+//             return res.status(400).json({ error: "Not a valid Aadhaar card" });
+//         }
 
 
       uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
@@ -467,7 +469,7 @@ exports.complaintInformation = async (req, res) => {
           }
         }
 
-        await SuspectSchema.create({
+        const suspect = await SuspectSchema.create({
           complainId: complaintInfo._id,
           suspectedName,
           suspectedCard,

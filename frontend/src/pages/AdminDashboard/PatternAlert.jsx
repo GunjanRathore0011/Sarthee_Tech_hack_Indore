@@ -34,8 +34,8 @@ function PatternAlert() {
 
   useEffect(() => {
     fetchAlerts();
-    const id = setInterval(fetchAlerts, 150000);
-    return () => clearInterval(id);
+    // const id = setInterval(fetchAlerts, 150000);
+    // return () => clearInterval(id);
   }, []);
 
   // Sort data

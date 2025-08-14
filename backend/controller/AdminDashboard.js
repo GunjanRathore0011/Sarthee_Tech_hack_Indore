@@ -438,21 +438,29 @@ exports.suggestInvestigator = async (req, res) => {
 // visualize for subcategory cases(like financial fraud, cyber crime, etc.)
 exports.subCategoryStats = async (req, res) => {
   try {
+    const { month } = req.query; // e.g. '2025-08' format (YYYY-MM)
+
+    const matchStage = {};
+    if (month) {
+      const [year, monthNum] = month.split('-').map(Number);
+      matchStage.createdAt = {
+        $gte: new Date(year, monthNum - 1, 1),
+        $lt: new Date(year, monthNum, 1)
+      };
+    }
+
     const data = await Complaint.aggregate([
+      { $match: matchStage }, // filter only if month is given
       {
         $group: {
           _id: "$subCategory",
           total: { $sum: 1 },
           resolved: {
-            $sum: {
-              $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0]
-            }
+            $sum: { $cond: [{ $eq: ["$status", "Resolved"] }, 1, 0] }
           }
         }
       },
-      {
-        $sort: { total: -1 }
-      },
+      { $sort: { total: -1 } },
       {
         $project: {
           _id: 0,
@@ -460,20 +468,17 @@ exports.subCategoryStats = async (req, res) => {
           total: 1,
           resolved: 1,
           performance: {
-            $multiply: [
-              { $divide: ["$resolved", "$total"] },
-              100
-            ]
+            $multiply: [{ $divide: ["$resolved", "$total"] }, 100]
           }
         }
       }
     ]);
+
     res.status(200).json({ success: true, data });
   } catch (err) {
     console.error("❌ Error in subCategoryStats:", err);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-
 };
 
 
