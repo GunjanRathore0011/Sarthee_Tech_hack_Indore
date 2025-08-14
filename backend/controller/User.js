@@ -64,6 +64,7 @@ exports.generateComplaintPDF = async (req, res) => {
     }
 
     const complaint = await Complaint.findById(complaintId);
+    
     const additionalDetails = await AdditionDetails.findOne({ complainIds: complaint._id });
     if (!complaint || !additionalDetails) {
       return res.status(404).json({ success: false, message: "Complaint or details not found." });
