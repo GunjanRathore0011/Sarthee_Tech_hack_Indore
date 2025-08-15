@@ -54,6 +54,10 @@ const platformRequestSchema = new mongoose.Schema(
       type: String,
       enum: ["Pending", "Acknowledged", "Completed"],
       default: "Pending"
+    },
+    emailDraft: {
+      type: String,
+      default: "", // can be empty if LLM fails
     }
   },
   { timestamps: true }

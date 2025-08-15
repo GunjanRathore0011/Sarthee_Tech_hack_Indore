@@ -18,7 +18,7 @@ const AdminNavbar = () => {
 
   // Utility to check active route
   const isActive = (path) => location.pathname === path;
-
+ 
   return (
     <>
       <div>
