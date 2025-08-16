@@ -3,10 +3,10 @@ const AdditionDetails = require("../models/AdditionDetails");
 const SuspectSchema = require("../models/SuspectSchema");
 const VictimDetails = require("../models/Victim");
 const Complaint = require("../models/Complaint");
-const InvestigatorSchema =require("../models/InvestigatorSchema")
+const InvestigatorSchema = require("../models/InvestigatorSchema")
 const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
-const { io } = require("../index.js"); 
+const { io } = require("../index.js");
 
 
 
@@ -14,7 +14,7 @@ const { io } = require("../index.js");
 //admin dashboard
 // exports.dashboard = async (req, res) => {
 //   try {
-    
+
 //   const additionalDetails = await AdditionDetails.find()
 //       .select('userId complainIds street ')
 //       .populate({
@@ -154,9 +154,9 @@ const { io } = require("../index.js");
 
 exports.dashboard = async (req, res) => {
   try {
-    const { subCategory, status, priority, month  } = req.query;
-const startIndex = parseInt(req.query.startIndex) || 0
-      const limit = parseInt(req.query.limit) || 6
+    const { subCategory, status, priority, month } = req.query;
+    const startIndex = parseInt(req.query.startIndex) || 0
+    const limit = parseInt(req.query.limit) || 6
     // Build filter dynamically for Complaint
     const complaintFilter = {};
 
@@ -166,13 +166,13 @@ const startIndex = parseInt(req.query.startIndex) || 0
     // if (assignedTo) complaintFilter.assignedTo = assignedTo;
 
     // Month filter (by createdAt)
-   if (month) {
-    const monthInt = parseInt(month, 10);
-    const year = new Date().getFullYear();
-    const startDate = new Date(year, monthInt - 1, 1);
-    const endDate = new Date(year, monthInt, 0, 23, 59, 59);
-    complaintFilter.createdAt = { $gte: startDate, $lte: endDate };
-}
+    if (month) {
+      const monthInt = parseInt(month, 10);
+      const year = new Date().getFullYear();
+      const startDate = new Date(year, monthInt - 1, 1);
+      const endDate = new Date(year, monthInt, 0, 23, 59, 59);
+      complaintFilter.createdAt = { $gte: startDate, $lte: endDate };
+    }
     // Fetch additional details + complaints with filters
     const additionalDetails = await AdditionDetails.find()
       .select('userId complainIds street district state')
@@ -215,15 +215,15 @@ const startIndex = parseInt(req.query.startIndex) || 0
     });
 
     let formattedComplaints;
-    
+
     // Sort newest first
-    if(formattedComplaint.length<startIndex){
-   formattedComplaints =formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(-10)
+    if (formattedComplaint.length < startIndex) {
+      formattedComplaints = formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(-10)
     }
-    else{
-   formattedComplaints=  formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(startIndex,startIndex+10)
+    else {
+      formattedComplaints = formattedComplaint.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(startIndex, startIndex + 10)
     }
 
     // Dashboard metrics
@@ -293,14 +293,14 @@ exports.getUserDetails = async (req, res) => {
 //assign investigator to complaint
 exports.assignInvestigator = async (req, res) => {
   try {
-    const { complaintId, investigatorId ,remark=''} = req.body;
+    const { complaintId, investigatorId, remark = '' } = req.body;
     if (!complaintId || !investigatorId) {
       return res.status(400).json({
         success: false,
         message: "Complaint ID and Investigator ID are required."
       });
     }
-    const complain= await Complaint.findById(complaintId);
+    const complain = await Complaint.findById(complaintId);
     if (!complain) {
       return res.status(404).json({
         success: false,
@@ -321,37 +321,37 @@ exports.assignInvestigator = async (req, res) => {
     const investigator = await InvestigatorSchema.findById(investigatorId)
     if (investigator) {
       investigator.assignedCases.push({
-      caseId: complaintId,
-      assignedAt: new Date(),
-      remarks: remark || ''
+        caseId: complaintId,
+        assignedAt: new Date(),
+        remarks: remark || ''
       });
       await investigator.save();
     }
-   
+
     await complain.save();
-   
-     io.emit("complaint_assigned", {
-    investigatorId,
-    complaintId,
-    message: `New complaint assign : ${complaintId}`
-  });
+
+    io.emit("complaint_assigned", {
+      investigatorId,
+      complaintId,
+      message: `New complaint assign : ${complaintId}`
+    });
 
     res.status(200).json({
-        success: true,
-        message: "Investigator assigned successfully.",
-        data: {
-            complaintId: complain._id,
-            assignedTo: investigatorId
-        }
+      success: true,
+      message: "Investigator assigned successfully.",
+      data: {
+        complaintId: complain._id,
+        assignedTo: investigatorId
+      }
     });
   } catch (error) {
     console.error("❌ Error in assignInvestigator:", error);
     res.status(500).json({
       success: false,
-        message: `Internal Server Error ${error.message}`
+      message: `Internal Server Error ${error.message}`
     });
   }
-};    
+};
 
 
 // Get Monthly Complaint Stats
@@ -404,30 +404,31 @@ exports.suggestInvestigator = async (req, res) => {
   try {
     const investigators = await Investigator.find();
     //filter if investigator is not active
-    const activeInvestigators = investigators.filter(inv => inv.isActive);
+    // const activeInvestigators = investigators.filter(inv => inv.isActive);
 
-    const data2 = activeInvestigators.map((investigator, index) => ({
+    const data2 = investigators.map((investigator, index) => ({
       id: investigator._id,
       name: investigator.name,
       email: investigator.email,
       activeCases: investigator.assignedCases.length,
       solvedCases: investigator.solvedCases.length,
-      performance: (investigator.assignedCases.length)/((investigator.assignedCases.length) + (investigator.solvedCases.length)) * 100, // Calculate performance as a percentage
+      performance: (investigator.solvedCases.length) / ((investigator.assignedCases.length) + (investigator.solvedCases.length)) * 100, // Calculate performance as a percentage
       specializations: investigator.specialistIn,
-      status: (investigator.assignedCases.length) == 0 ? "Free" : (investigator.assignedCases.length < 3 ? "Available" : "Busy")
+      status: (investigator.assignedCases.length) == 0 ? "Free" : (investigator.assignedCases.length < 5 ? "Available" : "Busy"),
+      isActive: investigator.isActive
     }));
-   
+
     if (data2.length === 0) {
       return res.status(404).json({ success: false, message: "No active investigators found" });
     }
-    
-       let data = data2;
-    
-    if(data2.length>5){
-     data = data2
-    .sort((a, b) => b.performance - a.performance) // highest performance first
+
+    let data = data2;
+
+    if (data2.length > 5) {
+      data = data2
+        .sort((a, b) => b.performance - a.performance) // highest performance first
     }
-    
+
     res.status(200).json({ success: true, data });
   } catch (error) {
     console.error("❌ Error fetching investigator stats:", error);
@@ -482,23 +483,23 @@ exports.subCategoryStats = async (req, res) => {
 };
 
 
-exports.mapVisualize= async (req, res) => {
+exports.mapVisualize = async (req, res) => {
   try {
     // Aggregate complaints by pincode using AdditionDetails and Complaint
     const pinStats = await AdditionDetails.aggregate([
       {
-      $lookup: {
-        from: "complaints",
-        localField: "complainIds",
-        foreignField: "_id",
-        as: "complaints"
-      }
+        $lookup: {
+          from: "complaints",
+          localField: "complainIds",
+          foreignField: "_id",
+          as: "complaints"
+        }
       },
       {
-      $group: {
-        _id: "$pincode",
-        cases: { $sum: { $size: "$complaints" } }
-      }
+        $group: {
+          _id: "$pincode",
+          cases: { $sum: { $size: "$complaints" } }
+        }
       }
     ]);
 
@@ -513,9 +514,9 @@ exports.mapVisualize= async (req, res) => {
     const pinData = pinStats
       .filter(stat => stat._id) // Remove entries with no pincode
       .map(stat => ({
-      pin: stat._id,
-      severity: getSeverity(stat.cases),
-      cases: stat.cases
+        pin: stat._id,
+        severity: getSeverity(stat.cases),
+        cases: stat.cases
       }));
 
     res.status(200).json({ success: true, data: pinData });
@@ -527,4 +528,128 @@ exports.mapVisualize= async (req, res) => {
   }
 };
 
+/**
+ * Helper function to find the investigator with the least assigned cases.
+ * @param {Array} investigators - Array of investigator documents.
+ * @returns {Object} - Investigator with the least assigned cases.
+ */
+function getLeastLoadedInvestigator(investigators) {
+  return investigators.reduce((minInv, currInv) => {
+    return (currInv.assignedCases.length < minInv.assignedCases.length) ? currInv : minInv;
+  }, investigators[0]);
+}
+exports.autoAssignInvestigator = async (req, res) => {
+  try {
+    const complaints = await Complaint.find({ status: 'Pending' })
+      .populate('assignedTo', 'name specialistIn');
+
+    if (!complaints.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No pending complaints found"
+      });
+    }
+
+    // Get all active investigators
+    const investigators = await Investigator.find({ isActive: true });
+
+    if (!investigators.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No active investigators found"
+      });
+    }
+
+
+    // Assign each complaint to the next available investigator in a round-robin fashion
+    for (let i = 0; i < complaints.length; i++) {
+      // Get the investigator with the least assigned cases
+      const leastLoadedInvestigator = getLeastLoadedInvestigator(investigators);
+      // Assign the complaint to this investigator
+      complaints[i].assignedTo = leastLoadedInvestigator._id;
+      complaints[i].status = 'AssignInvestigator';
+      complaints[i].statusHistory.push({
+        status: 'AssignInvestigator',
+        remark: `Auto-assigned to investigator ${leastLoadedInvestigator.name}`,
+        updatedAt: new Date()
+      });
+      await complaints[i].save();
+    console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
+      const investigator = await Investigator.findById(leastLoadedInvestigator._id);
+      if (!investigator) {
+        console.error(`Investigator ${leastLoadedInvestigator._id} not found`);
+        continue; // Skip this complaint if investigator not found
+      }
+      investigator.assignedCases.push({
+        caseId: complaints[i]._id,
+        assignedAt: new Date(),
+        remarks: 'Auto-assigned by admin'
+      });
+      await investigator.save();
+      // Emit event for real-time updates
+      io.emit("complaint_assigned", {
+        investigatorId: investigator._id,
+        complaintId: complaints[i]._id,
+        message: `Complaint ${complaints[i]._id} auto-assigned to ${investigator.name}`
+      });
+
+       break; // Only assign one complaint per investigator in this round
+    }
+    res.status(200).json({
+      success: true,
+      message
+        : "Complaints auto-assigned successfully",
+      data: complaints.map(c => ({
+        _id: c._id,
+        assignedTo: c.assignedTo,
+        status: c.status
+      }))
+    });
+  }
+  catch (error) {
+    console.error("❌ Error in autoAssignInvestigator:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
+
+exports.updateOfficer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    // Find the officer by ID
+    const officer = await Investigator.findById(id);
+    if (!officer) {
+      return res.status(404).json({
+        success: false,
+        message: "Investigator not found"
+      });
+    }
+
+    // Update the officer's isActive status
+    officer.isActive = isActive;
+    await officer.save();
+    res.status(200).json({
+      success: true,
+      message: "Investigator status updated successfully",
+      data: {
+        id: officer._id,
+        name: officer.name,
+        isActive: officer.isActive
+      }
+    });
+  }
+  catch (error) {
+    console.error("❌ Error updating officer status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}
 

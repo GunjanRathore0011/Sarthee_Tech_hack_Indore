@@ -57,6 +57,7 @@ const ComplaintManagement = () => {
 
       if (Array.isArray(response.data.data)) {
         setOfficers(response.data.data);
+        console.log("Officers data set:", response.data.data);
       } else {
         console.error("Invalid officer data format:", response.data.data);
         setOfficers([]);
@@ -68,6 +69,24 @@ const ComplaintManagement = () => {
       setLoading(false); // stop loader
     }
   };
+
+  // auto assign investigators
+  const autoassign = async () => {
+    try { 
+      const response = await axios.post('http://localhost:4000/api/v1/admin/autoAssignInvestigator');
+      if (response.data.success) {
+        toast.success("Investigators auto-assigned successfully");
+        fetchComplaints(false); // refresh complaints
+      } else {
+
+        toast.error("Failed to auto-assign investigators");
+      }
+    } catch (error) {
+      console.error("Auto-assign error:", error);
+      toast.error("Error auto-assigning investigators");
+    }
+  };
+
 
 
   // Fetch complaints with pagination & filters
@@ -255,6 +274,12 @@ const ComplaintManagement = () => {
           {/* Buttons */}
           <div className="flex items-end gap-2">
             <Button
+              onClick={autoassign}
+              className="bg-blue-700 hover:bg-blue-900 text-white px-4 py-2 rounded-lg shadow-sm"
+            >
+              Auto assign 
+            </Button>
+             <Button
               onClick={applyFilters}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm"
             >
@@ -384,7 +409,8 @@ const ComplaintManagement = () => {
               {officers.length > 0 ? (
                 officers
                   // .filter(inv => inv.status === "Free")  // only free investigators
-                  .filter(inv => inv.status === "Free" || inv.status === "Available")
+                  // .filter(inv => inv.isActive && inv.status === "Free" || inv.status === "Available" ) // filter based on status
+                  .filter(inv => inv.isActive && (inv.status === "Free" || inv.status === "Available"))
                   .map((inv) => {
                     const borderColor = "border-green-500";
                     const statusBg = "bg-green-100 text-green-700";
