@@ -24,6 +24,7 @@ import OfficerNotifications from './component/OfficerComponent/OfficerNotificati
 import ScamDetector from './component/ScamDetector';
 import PatternAlert from './pages/AdminDashboard/PatternAlert';
 import PlatformCoordination from './pages/AdminDashboard/PlatformCoordination';
+import TrackingDashboard from './pages/TrackingDashboard';
 
 const App = () => {
   const location = useLocation();
@@ -37,10 +38,12 @@ const App = () => {
     '/crime-map',
     '/pattern-alert',
     '/admin-profile',
-    '/admin/platform-coordination',
+    
   ];
   const officerRoutes = [
-    '/officer-complaint-management'
+    '/officer-complaint-management',
+    '/platform-coordination',
+    "/suspect-tracker",
   ];
   const isOfficerRoute = officerRoutes.includes(location.pathname);
   const isAdminRoute = adminRoutes.includes(location.pathname);
@@ -68,7 +71,6 @@ const App = () => {
         <Route path="/submitedcomplaint" element={<AfterComplaint/>} />
         <Route path="/scan" element={<ScamDetector />} />
 
-
         {/* Admin Dashboard */}
         <Route path="/admin-dashboard" element={<ComplaintManagement />} />
         <Route path="/complaint-management" element={<ComplaintManagement />} />
@@ -77,11 +79,12 @@ const App = () => {
         <Route path="/crime-map" element={<CrimeMap />} />
         <Route path='/pattern-alert' element={<PatternAlert/>} />
         <Route path="/admin-profile" element={<AdminHome />} />
-        <Route path='/admin/platform-coordination' element={<PlatformCoordination />} />
 
         {/* Officer Dashboard */}
         <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />
         <Route path="/officer-notifications" element={<OfficerNotifications />} />
+        <Route path='/platform-coordination' element={<PlatformCoordination />} />
+        <Route path="/suspect-tracker" element={<TrackingDashboard />} />
 
       </Routes>
     </>

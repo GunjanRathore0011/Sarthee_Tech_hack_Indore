@@ -106,7 +106,7 @@ const AdminNavbar = () => {
             <span>Pattern</span>
           </Link>
 
-          <Link
+          {/* <Link
             to="/admin/platform-coordination"
             className={`flex items-center space-x-2 transition ${
               isActive('/admin/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
@@ -114,7 +114,7 @@ const AdminNavbar = () => {
           >
             <MdOutlineHandshake className="text-lg" />
             <span>Platform Coordination</span>
-          </Link>
+          </Link> */}
         </div>
       </div>
 

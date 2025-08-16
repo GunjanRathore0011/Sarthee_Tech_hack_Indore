@@ -14,6 +14,7 @@ const OfficerNavbar = () => {
     // Logout logic
     navigate('/login');
   };
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div>
@@ -55,6 +56,39 @@ const OfficerNavbar = () => {
           </button>
         </div>
       </nav>
+
+      {/* Bottom Navigation Menu */}
+              <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
+                
+      
+                <Link
+                  to="/officer-complaint-management"
+                  className={`flex items-center space-x-2 transition ${
+                    isActive('/officer-complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+                  }`}
+                >
+                  <span>Cases</span>
+                </Link>
+      
+                <Link
+                  to='/platform-coordination'
+                  className={`flex items-center space-x-2 transition ${
+                    isActive('/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+                  }`}
+                >
+                  <span>Platform Coordination</span>
+                </Link>
+      
+                <Link
+                  to="/suspect-tracker"
+                  className={`flex items-center space-x-2 transition ${
+                    isActive('/suspect-tracker') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+                  }`}
+                >
+                  <span>Suspect Tracker</span>
+                </Link>
+      
+              </div>
 
       <OfficerDashboardStats />
 

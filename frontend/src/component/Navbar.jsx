@@ -58,6 +58,11 @@ const Navbar = () => {
         </Link>
       </div>
 
+
+{/* ---------------------------- */}
+    <Link to="/suspect-tracker" >Track</Link>
+
+{/* -------------------------------- */}
       <div className="font-medium">
         {isAuthenticated ? (
           <div className="flex items-center space-x-4">
