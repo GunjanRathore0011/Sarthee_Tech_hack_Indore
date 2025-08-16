@@ -26,7 +26,7 @@ const OfficerNavbar = () => {
             src={shieldIcon}
             alt="Logo"
             className="h-10 w-10 cursor-pointer" 
-            onClick={() => navigate('/officer-dashboard')}
+            onClick={() => navigate('officer-complaint-management')}
           />
           <div className="flex flex-col">
             <span className="text-xl font-extrabold tracking-wide text-blue=600">
