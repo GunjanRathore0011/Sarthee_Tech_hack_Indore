@@ -25,8 +25,8 @@ const OfficerManagement = () => {
 
       // ✅ Ensure data is array before setting
       if (Array.isArray(response.data.data)) {
-          setOfficers(response.data.data);
-        }
+        setOfficers(response.data.data);
+      }
 
       else {
         console.error("Invalid officer data format:", response.data.data);
@@ -36,6 +36,31 @@ const OfficerManagement = () => {
       console.error("Error fetching officer data:", error);
     }
   };
+
+  const handleToggleActive = async (id) => {
+    try {
+      const officer = officers.find((o) => o.id === id);
+      if (!officer) return;
+
+      const updatedOfficer = {
+        ...officer,
+        isActive: !officer.isActive,
+      };
+
+      // Update state optimistically
+      setOfficers((prev) =>
+        prev.map((o) => (o.id === id ? updatedOfficer : o))
+      );
+
+      // Send update to backend
+      await axios.put(`http://localhost:4000/api/v1/admin/updateOfficer/${id}`, {
+        isActive: updatedOfficer.isActive,
+      });
+
+    } catch (error) {
+      console.error("Error toggling officer status:", error);
+    }
+  }
 
 
   useEffect(() => {
@@ -58,8 +83,8 @@ const OfficerManagement = () => {
 
   const totalOfficers = officers.length;
   const available = officers.filter(
-  (o) => o.status === "Free" || o.status === "Available"
-).length;
+    (o) => o.status === "Free" || o.status === "Available"
+  ).length;
 
   const totalActiveCases = officers.reduce((sum, o) => sum + o.activeCases, 0);
   const avgPerformance =
@@ -134,20 +159,37 @@ const OfficerManagement = () => {
           {officers.map((officer) => (
             <Card key={officer.id} className="shadow-md border border-blue-100">
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center space-x-2">
-                  <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                    {officer.name ? officer.name.split(" ").map(n => n[0]).join("").slice(0,3).toUpperCase() : ""}
-
-                  </div>
-                  <div>
-                    <div>{officer.name}</div>
-                    <div className="text-sm text-gray-600 flex items-center">
-                      <Mail className="w-4 h-4 mr-1" />
-                      {officer.email}
+                <CardTitle className="text-lg flex items-center justify-between">
+                  {/* LEFT SIDE */}
+                  <div className="flex items-center space-x-2">
+                    <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                      {officer.name
+                        ? officer.name.split(" ").map(n => n[0]).join("").slice(0, 3).toUpperCase()
+                        : ""}
                     </div>
+                    <div>
+                      <div>{officer.name}</div>
+                      <div className="text-sm text-gray-600 flex items-center">
+                        <Mail className="w-4 h-4 mr-1" />
+                        {officer.email}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RIGHT SIDE: Toggle Switch */}
+                  <div
+                    onClick={() => handleToggleActive(officer.id)}
+                    className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer transition-all
+        ${officer.isActive ? "bg-blue-600" : "bg-gray-400"}`}
+                  >
+                    <div
+                      className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300
+          ${officer.isActive ? "translate-x-7" : "translate-x-0"}`}
+                    ></div>
                   </div>
                 </CardTitle>
               </CardHeader>
+
 
               <CardContent className="space-y-3">
                 <div className="flex justify-between text-sm">
@@ -167,13 +209,15 @@ const OfficerManagement = () => {
                   <div className="flex justify-between text-sm">
                     <span>Performance Score</span>
                     <span className="text-blue-600 font-medium">
-                      {officer.performance}%{" "}
+                      {officer.performance.toFixed(2)}%{" "}
                       <span className="text-xs text-gray-500">
-                        ({officer.performance >= 90 ? "Excellent" : "Good"})
+                        ({officer.performance >= 70 ? "Excellent" : "Good"})
                       </span>
                     </span>
                   </div>
                   <Progress value={officer.performance} className="h-2 mt-1" />
+
+
                 </div>
 
                 <div className="text-sm">

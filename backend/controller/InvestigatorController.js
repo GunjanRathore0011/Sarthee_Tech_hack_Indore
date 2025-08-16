@@ -150,16 +150,18 @@ exports.allAssignedCases = async (req, res) => {
         }
 
         // 1. Investigator ke assigned case IDs
-        const investigator = await Investigator.findById(investigatorId).select("assignedCases.caseId assignedCases.assignedAt");
+        const investigator = await Investigator.findById(investigatorId).select("assignedCases.caseId assignedCases.assignedAt solvedCases");
         if (!investigator) {
             return res.status(404).json({ success: false, message: "Investigator not found" });
         }
         // console.log("Investigator:", investigator);
+        console.log("investigator ",investigator);
         const assignedCaseIds = investigator.assignedCases.map(c => c.caseId);
-
+        const solvedCaseIds = investigator.solvedCases?.map(c => c.caseId);
+        // console.log("solvedCaseIds:", solvedCaseIds);
         // console.log("Assigned Case IDs:", assignedCaseIds);
 
-        if (!assignedCaseIds.length) {
+        if (!assignedCaseIds.length && !solvedCaseIds.length) {
             return res.status(200).json({
                 success: true,
                 message: "No cases assigned",
@@ -171,6 +173,13 @@ exports.allAssignedCases = async (req, res) => {
         // 2. Complaint schema se data
         const complaints = await Complaint.find({ _id: { $in: assignedCaseIds } })
             .select('userId category subCategory status priority description createdAt screenShots complain_report');
+
+        const solvedComplaints = await Complaint.find({ _id: { $in: solvedCaseIds } })
+            .select('userId category subCategory status priority description createdAt screenShots complain_report');
+
+
+        // console.log("Complaints:", complaints);
+        // console.log("Solved Complaints:", solvedComplaints);
 
         // const complaint = await Complaint.find({ _id: { $in: assignedCaseIds } })
         //            console.log("Complaints:", complaint)
@@ -215,6 +224,44 @@ exports.allAssignedCases = async (req, res) => {
             }
         }
 
+         for (const c of solvedComplaints) {
+            const userDetails = await AdditionDetails.findOne({ userId: c.userId })
+                .select('fullName street district state pincode');
+
+            // Find assignedAt for this case
+            const assignedCase = investigator.solvedCases.find(ac => ac.caseId.toString() === c._id.toString());
+            const assignedAt = assignedCase ? assignedCase.solvedAt : null;
+
+            const caseData = {
+                id: c._id,
+                userId: c.userId,
+                caseId: `CASE-${c.createdAt.getFullYear()}-${String(c._id).slice(-3)}`,
+                priority: c.priority,
+                status: c.status,
+                crimeType: c.subCategory,
+                location: userDetails ? `${userDetails.street || ''}, ${userDetails.district || ''}, ${userDetails.state || ''}`.trim() : "N/A",
+                pinCode: userDetails?.pincode || "N/A",
+                userName: userDetails?.fullName || "N/A",
+                description: c.description,
+                dateReceived: assignedAt || c.createdAt,  // Use assignedAt if found, else fallback to complaint creation date
+                evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
+                complaint_report: c.complain_report || 'N/A'
+            };
+            if(c.status==="AssignInvestigator") pendingActions++;
+            if(c.status==="In_review") investigatingCases++;
+
+            // Separate into active and resolved cases
+            if (c.status?.toLowerCase() === "resolved") {
+                resolvedCases.push(caseData);
+            } else {
+                activeCases.push(caseData);
+            }
+        }
+
+        
+
+
+
 
         return res.status(200).json({
             success: true,
@@ -254,6 +301,19 @@ exports.updateComplaintStatus = async (req, res) => {
             },
             { new: true }
         );
+      
+    const investigatorId = updatedComplaint.assignedTo;
+    if (investigatorId) {
+        const investigator = await Investigator.findById(investigatorId);
+        if (investigator) {
+            // Update the assignedCases array in Investigator
+            investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
+            if (newStatus === "Resolved" || newStatus === "Rejected") {
+                investigator.solvedCases.push({ caseId: complaintId, solvedAt: new Date() });
+            }
+            await investigator.save();
+        }
+    }
 
         if (!updatedComplaint) {
             return res.status(404).json({ message: "Complaint not found" });

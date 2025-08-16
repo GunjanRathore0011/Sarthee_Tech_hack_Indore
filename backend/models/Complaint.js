@@ -17,7 +17,7 @@ const complaintSchema = new mongoose.Schema({
   subCategory: {
     type: String,
     required: true // e.g., 'Email Scam', 'Social Media Scam'
-    },
+  },
   lost_money: {
     type: Number,
     default: 0 // amount of money lost in the incident
@@ -30,8 +30,8 @@ const complaintSchema = new mongoose.Schema({
   reason_of_delay: {
     type: String,
     // required: true // number of days delay in reporting the incident    
-    },
-     
+  },
+
   description: {
     type: String,
     maxlength: 1500,// max 1500 characters allowed
@@ -39,34 +39,34 @@ const complaintSchema = new mongoose.Schema({
   },
   incident_datetime: {
     type: Date,
-    required :true// stores both date and time of incident
+    required: true// stores both date and time of incident
   },
-status: {
-  type: String,
-  enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
-  default: 'Pending'
-},
+  status: {
+    type: String,
+    enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
+    default: 'Pending'
+  },
 
-statusHistory: [
-  {
-    status: {
-      type: String,
-      enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
-      default: 'Pending',
-    },
-    remark: {
-      type: String,
-      default: ''
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    },
-    
-  }
-],
+  statusHistory: [
+    {
+      status: {
+        type: String,
+        enum: ['Pending', 'AssignInvestigator', 'In_review', 'Resolved', 'Rejected'],
+        default: 'Pending',
+      },
+      remark: {
+        type: String,
+        default: ''
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now
+      },
 
-  assignedTo: {  
+    }
+  ],
+
+  assignedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Investigator', // reference to the User who is assigned to handle the complaint
     default: null // initially no user is assigned
@@ -79,13 +79,13 @@ statusHistory: [
   screenShots: {
     type: [String], // Array of image/file URLs
     default: [] // default to an empty array if no screenshots are provided
-    },
-    complain_report:{
-      type : String,
-      default:''
-    }
+  },
+  complain_report: {
+    type: String,
+    default: ''
+  }
 
-  
+
 }, {
   timestamps: true, // adds createdAt and updatedAt
   strict: false     // allows dynamic fields from frontend

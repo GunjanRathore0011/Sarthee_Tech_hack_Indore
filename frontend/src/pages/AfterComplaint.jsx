@@ -102,7 +102,7 @@ function AfterComplaint() {
                         </p>
                     </div>
 
-                    {/* Status History */}
+                    {/* Status History
                     <div className="mt-6">
                         <h3 className="font-semibold mb-3 text-gray-800">Status History</h3>
                         <div className="space-y-4">
@@ -118,7 +118,7 @@ function AfterComplaint() {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* View PDF */}
                     {complaint.reportpdf && (

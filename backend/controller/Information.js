@@ -21,6 +21,9 @@ const Jimp = require('jimp');
 const QrCode = require('qrcode-reader');
 const Tesseract = require('tesseract.js');
 
+//import virusTotal functions
+const { scanBufferWithVT  } = require("../utils/virusTotal.js");
+
 
 async function detectAadhaarFromBuffer(fileBuffer) {
   // ===== 1️⃣ Load Image from Buffer =====
@@ -90,18 +93,27 @@ exports.additionalDetails = async (req, res) => {
     console.log("Received additional details:",);
     // 👇 Declare uploaded in outer scope
     let uploaded = null;
+    let scan = null;
     if (req.files && req.files.file) {
       const fileData = req.files.file;
 
+      // ✅ File buffer banao (express-fileupload me "data" hota hai)
+      const fileBuffer = fileData.data;
+      const originalName = fileData.name;
 
-      // const fileBuffer = fs.readFileSync(fileData.tempFilePath);
-      // console.log("File buffer length:", fileBuffer);
+      // STEP 1: VirusTotal scan
+      scan = await scanBufferWithVT(fileBuffer, originalName);
+      console.log("VirusTotal Scan Result:", scan);
 
-      //         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
-      //         if (!isAadhaar) {
-      //             return res.status(400).json({ error: "Not a valid Aadhaar card" });
-      //         }
-
+      // STEP 2: Decision (block if high-risk)
+      if (scan.verdict === "high-risk") {
+        return res.status(400).json({
+          success: false,
+          message: "File blocked: malicious content detected",
+          vtLink: scan.vtLink,
+          stats: scan.stats
+        });
+      }
 
       uploaded = await UploadToCloudinary(fileData, "governmentId");
 
@@ -137,6 +149,10 @@ exports.additionalDetails = async (req, res) => {
       district,
       policeStation,
       pincode,
+      // ✅ VirusTotal metadata (add fields in schema)
+      vtSha256: scan?.sha256 || null,
+      vtVerdict: scan?.verdict || null,
+      vtLink: scan?.vtLink || null
     });
 
     res.status(201).json({
@@ -154,8 +170,6 @@ exports.additionalDetails = async (req, res) => {
     });
   }
 };
-
-
 
 // ✅ SINGLE API: COMPLAINT INFORMATION
 exports.complaintInformation = async (req, res) => {
@@ -203,9 +217,10 @@ exports.complaintInformation = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found", success: false });
     }
+    // ✅ Upload evidence images with VirusTotal check
+    let imageUrls = [];   // safe files (Cloudinary URLs)
+    let riskFiles = [];   // risky files (VirusTotal flagged)
 
-    // ✅ Upload evidence images (FormData key: 'file')
-    let imageUrls = [];
     console.log("Received file:", req.files);
 
     if (req.files?.file) {
@@ -214,32 +229,49 @@ exports.complaintInformation = async (req, res) => {
         : [req.files.file];
 
       for (let file of filesArray) {
-
-        // ✅ 1. Skip files that were truncated (too big for backend limit)
+        // ✅ 1. Skip truncated (too big) files
         if (file.truncated) {
           console.warn(`⛔ Skipping ${file.name} - File size exceeds limit`);
           continue;
         }
 
         try {
-          // ✅ 2. Upload file (auto-detects image/video)
-          const uploaded = await UploadToCloudinary(file, "evidence");
+          // ✅ 2. First scan file with VirusTotal
+          const riskLevel = await scanBufferWithVT(file.data, file.name);
+          // 👉 scanWithVirusTotal = helper fn that returns "safe" | "high-risk"
+            const uploaded = await UploadToCloudinary(file, "evidence");
 
-          // ✅ 3. Only push to array if Cloudinary returned a valid URL
-          if (uploaded?.secure_url) {
-            imageUrls.push(uploaded.secure_url);
-            console.log(`✅ Uploaded: ${file.name}`);
+       console.log(`File ${file.name} scanned with VT:`, riskLevel);
+          if (riskLevel.verdict !== "high-risk") {
+            // ✅ 3. Safe → upload to Cloudinary
+            // const uploaded = await UploadToCloudinary(file, "evidence");
+            if (uploaded?.secure_url) {
+              imageUrls.push(uploaded.secure_url);
+              console.log(`✅ Uploaded SAFE file: ${file.name}`);
+            } else {
+              console.error(`❌ Upload failed: ${file.name}`);
+            }
           } else {
-            console.error(`❌ Upload failed: ${file.name}`);
+            // 🚨 Risky → don't upload to Cloudinary
+            riskFiles.push({
+              Url : uploaded?.secure_url || null,
+              note: "⚠️ Marked as HIGH-RISK by VirusTotal. Do not open directly."
+            });
+            console.warn(`🚨 File flagged as risky: ${file.name}`);
           }
 
         } catch (err) {
-          console.error(`❌ Error uploading ${file.name}:`, err.message);
+          console.error(`❌ Error processing ${file.name}:`, err.message);
         }
       }
     }
 
-    console.log("Final uploaded URLs:", imageUrls);
+    console.log("Final SAFE uploaded URLs:", imageUrls);
+    console.log("Final RISKY files:", riskFiles);
+
+    // Later you can save both in DB
+    // Complaint.create({ safeFiles: imageUrls, riskFiles });
+
 
     let prior = "Medium";
     if ("Harassment" == category) {
@@ -264,6 +296,7 @@ exports.complaintInformation = async (req, res) => {
       priority: prior,
       screenShots: imageUrls,
       incident_datetime,
+      riskFiles:riskFiles,
     });
 
     // ✅ Link complaint to user
@@ -400,8 +433,8 @@ exports.complaintInformation = async (req, res) => {
       message: "New complaint submitted",
       complaintId: complaintInfo._id
     });
-   
-  const Datasend = {
+
+    const Datasend = {
       _id: complaintInfo._id,
       category: complaintInfo.category,
       subCategory: complaintInfo.subCategory,
