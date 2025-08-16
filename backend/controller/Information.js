@@ -16,11 +16,9 @@ const cloudinary = require('cloudinary').v2;
 
 
 // import Jimp from "jimp";
-// import QrCode from "qrcode-reader";
 const Jimp = require('jimp');
-const QrCode = require('qrcode-reader');
 const Tesseract = require('tesseract.js');
-
+const jsQR = require("jsqr");
 
 async function detectAadhaarFromBuffer(fileBuffer) {
   // ===== 1️⃣ Load Image from Buffer =====
@@ -47,7 +45,10 @@ async function detectAadhaarFromBuffer(fileBuffer) {
     "मेरी आधार मेरी पहचान",
     "dob",
     "आधार",
-    "aadhaar"
+    "aadhaar",
+    "sex",
+    "xxxx",
+    "name" // Example pattern for Aadhaar number, adjust as needed
   ];
 
   const textLower = text.toLowerCase();
@@ -58,19 +59,28 @@ async function detectAadhaarFromBuffer(fileBuffer) {
   // ===== 3️⃣ QR Code Presence Check =====
   console.log("📷 Checking QR Code...");
   let qrFound = false;
-  await new Promise((resolve) => {
-    const qr = new QrCode();
-    qr.callback = (err, value) => {
-      if (value) qrFound = true; // Found QR
-      resolve();
+
+  try {
+    const imageData = {
+      data: new Uint8ClampedArray(image.bitmap.data),
+      width: image.bitmap.width,
+      height: image.bitmap.height,
     };
-    qr.decode(image.bitmap);
-  });
+
+    // jsQR will return an object if a QR code pattern is found
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    
+    // We only need to check if the 'code' object exists
+    if (code) {
+      qrFound = true;
+    }
+  } catch (err) {
+    console.error("jsQR failed to detect QR code:", err);
+  }
 
   // ===== 4️⃣ Final Decision =====
   console.log(`OCR Keyword Match: ${textMatch}`);
   console.log(`QR Code Found: ${qrFound}`);
-
   return textMatch && qrFound;
 }
 
@@ -94,13 +104,13 @@ exports.additionalDetails = async (req, res) => {
       const fileData = req.files.file;
 
 
-      // const fileBuffer = fs.readFileSync(fileData.tempFilePath);
-      // console.log("File buffer length:", fileBuffer);
+      const fileBuffer = fs.readFileSync(fileData.tempFilePath);
+      console.log("File buffer length:", fileBuffer);
 
-      //         const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
-      //         if (!isAadhaar) {
-      //             return res.status(400).json({ error: "Not a valid Aadhaar card" });
-      //         }
+              const isAadhaar = await detectAadhaarFromBuffer(fileBuffer);
+              if (!isAadhaar) {
+                  return res.status(400).json({ error: "Upload clear Image, this image is Blur " });
+              }
 
 
       uploaded = await UploadToCloudinary(fileData.tempFilePath, "governmentId");
