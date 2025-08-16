@@ -221,7 +221,7 @@ exports.complaintInformation = async (req, res) => {
     let imageUrls = [];   // safe files (Cloudinary URLs)
     let riskFiles = [];   // risky files (VirusTotal flagged)
 
-    console.log("Received file:", req.files);
+    // console.log("Received file:", req.files);
 
     if (req.files?.file) {
       const filesArray = Array.isArray(req.files.file)
@@ -234,17 +234,19 @@ exports.complaintInformation = async (req, res) => {
           console.warn(`⛔ Skipping ${file.name} - File size exceeds limit`);
           continue;
         }
-
+    //  console.log("pdf file :",file); 
         try {
           // ✅ 2. First scan file with VirusTotal
           const riskLevel = await scanBufferWithVT(file.data, file.name);
           // 👉 scanWithVirusTotal = helper fn that returns "safe" | "high-risk"
             const uploaded = await UploadToCloudinary(file, "evidence");
+            console.log("file url", uploaded.secure_url);
 
-       console.log(`File ${file.name} scanned with VT:`, riskLevel);
+      //  console.log(`File ${file.name} scanned with VT:`, riskLevel);
           if (riskLevel.verdict !== "high-risk") {
             // ✅ 3. Safe → upload to Cloudinary
             // const uploaded = await UploadToCloudinary(file, "evidence");
+            console.log(`✅ Uploading SAFE file: ${uploaded.secure_url}`);
             if (uploaded?.secure_url) {
               imageUrls.push(uploaded.secure_url);
               console.log(`✅ Uploaded SAFE file: ${file.name}`);
@@ -299,6 +301,8 @@ exports.complaintInformation = async (req, res) => {
       riskFiles:riskFiles,
     });
 
+
+    console.log("Complaint created:", complaintInfo);
     // ✅ Link complaint to user
     await AdditionDetails.updateOne(
       { userId },
@@ -365,12 +369,12 @@ exports.complaintInformation = async (req, res) => {
         }
       );
     });
-    console.log("PDF uploaded to Cloudinary:", result.secure_url);
+    // console.log("PDF uploaded to Cloudinary:", result.secure_url);
     // Save result.secure_url in complain_report and persist to DB
     complaintInfo.complain_report = result.secure_url;
     await complaintInfo.save();
 
-    console.log("Complaint report URL saved:", complaintInfo.complain_report);
+    // console.log("Complaint report URL saved:", complaintInfo.complain_report);
 
 
 
