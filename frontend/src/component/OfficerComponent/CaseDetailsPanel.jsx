@@ -176,7 +176,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
 
             <div className='w-full h-full flex items-center justify-center'>
                 <Dialog open={true} onOpenChange={onClose}>
-                    <DialogContent className="w-[1000px] h-[800px] max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="w-[1500px] h-[96vh]  max-h-[96vh] overflow-y-auto">
 
                         <DialogHeader>
                             <DialogTitle className="flex items-center justify-between">
