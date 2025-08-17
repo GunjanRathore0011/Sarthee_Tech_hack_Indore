@@ -14,6 +14,8 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT;
 
+
+
 // ✅ Socket.IO setup
 const io = new Server(server, {
   cors: {
@@ -66,6 +68,13 @@ app.use(
 // ✅ Static PDF serving
 app.use("/pdfs", express.static(path.join(__dirname, "pdfs")));
 
+
+//telegram config
+const { initTelegram } = require("./config/telegram");
+const telegramRoutes = require("./router/telegramRoutes");
+app.use("/telegram", telegramRoutes);
+
+
 // ✅ Routes
 const userRouter = require("./router/User");
 const adminRouter = require("./router/Admin");
@@ -101,8 +110,9 @@ io.on("connection", (socket) => {
 });
 
 // ✅ Start server with Socket.IO
-server.listen(PORT, () => {
+server.listen(PORT,async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  await initTelegram();
 });
 
 // ✅ Connect DB & Cloudinary

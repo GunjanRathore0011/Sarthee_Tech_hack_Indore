@@ -36,6 +36,13 @@ router.post('/giveFeedback',isAuthenticatedUser, saveFeedback);
 
 // get user details by user ID
 router.get('/getUser/:id', getUser);
+router.post('/verify',(req, res) => {
+    const {link} = req.body;
+    res.send({message: "Verification link come-- ", link});
+
+
+
+});
 
 //check status of the user
 module.exports = router;
