@@ -1,7 +1,7 @@
 
 export default function ScrollingSlider() {
   return (
-    <div className="relative w-full overflow-hidden bg-gradient-to-r from-[#0473fb] to-[#042c70] py-5 text-md">
+    <div className="relative w-full overflow-hidden bg-gradient-to-r from-[#0473fb] to-[#042c70] py-5 text-base">
       <div className="animate-marquee whitespace-nowrap flex items-center">
         <span className="text-white text-lg font-semibold mx-6">
           Report Cybercrime Instantly
