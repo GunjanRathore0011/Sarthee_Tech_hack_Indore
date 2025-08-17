@@ -17,6 +17,10 @@ const trackingVisitSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+},
+{
+  timestamps: true, // adds createdAt and updatedAt
+  strict: false     // allows dynamic fields from frontend
 });
 
 const TrackingVisit = mongoose.model('TrackingVisit', trackingVisitSchema);

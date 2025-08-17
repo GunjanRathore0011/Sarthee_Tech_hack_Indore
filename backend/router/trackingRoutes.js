@@ -1,5 +1,5 @@
 const express = require('express');
-const { handleRedirect, getCaseTrackingLogs, generateTrackingLink ,getInvestigatorTrackingLogs} = require('../controller/trackingController');
+const { handleRedirect, getCaseTrackingLogs, generateTrackingLink ,checkIP ,getInvestigatorTrackingLogs} = require('../controller/trackingController');
 const { isAuthenticatedUser } = require('../middleware/auth');
 
 const router = express.Router();
@@ -14,4 +14,6 @@ router.get('/t/:shortCode', handleRedirect);
 router.get('/logs/:caseId', getCaseTrackingLogs);
 
 router.get('/allinvestigator', isAuthenticatedUser,getInvestigatorTrackingLogs);
+
+router.get('/checkIP', checkIP);
 module.exports = router;

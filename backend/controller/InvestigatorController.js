@@ -154,12 +154,9 @@ exports.allAssignedCases = async (req, res) => {
         if (!investigator) {
             return res.status(404).json({ success: false, message: "Investigator not found" });
         }
-        // console.log("Investigator:", investigator);
-        console.log("investigator ",investigator);
+     
         const assignedCaseIds = investigator.assignedCases.map(c => c.caseId);
         const solvedCaseIds = investigator.solvedCases?.map(c => c.caseId);
-        // console.log("solvedCaseIds:", solvedCaseIds);
-        // console.log("Assigned Case IDs:", assignedCaseIds);
 
         if (!assignedCaseIds.length && !solvedCaseIds.length) {
             return res.status(200).json({
@@ -178,13 +175,6 @@ exports.allAssignedCases = async (req, res) => {
             .select('userId category subCategory status priority description createdAt screenShots complain_report');
 
 
-        // console.log("Complaints:", complaints);
-        // console.log("Solved Complaints:", solvedComplaints);
-
-        // const complaint = await Complaint.find({ _id: { $in: assignedCaseIds } })
-        //            console.log("Complaints:", complaint)
-
-        // console.log("Assigned Cases:", complaints);
         const activeCases = [];
         const resolvedCases = [];
         let pendingActions=0;
