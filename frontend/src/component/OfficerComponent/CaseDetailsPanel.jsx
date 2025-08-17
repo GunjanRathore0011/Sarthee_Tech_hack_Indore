@@ -26,12 +26,15 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAssignedCases } from '@/ReduxSlice/stats/statsSlice';
 
-export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNotes, onStartInvestigation,
-    onMarkResolved}) => {
+export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes, onStartInvestigation,
+    onMarkResolved }) => {
+
+
+    const [complaint, setComplaint] = useState({});
     const [newNote, setNewNote] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(complaint.status);
     const [caseNotes, setCaseNotes] = useState(notes);
-    const dispatch = useDispatch();
+    const dispatch = useDispatch()
 
     const currentUser = useSelector((state) => state.user);
     const investigatorId = currentUser.user.additionDetails;
@@ -39,45 +42,32 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     // console.log("Complaint Data:", complaint.id);
     const [isContactOpen, setIsContactOpen] = useState(false);
 
-    // Sample complainant details (you can replace with dynamic data from props/state)
-    // const complainant = {
-    //     name: "Rahul Sharma",
-    //     email: "rahul@example.com",
-    //     phone: "+91 9876543210"
-    // };
-    // console.log(complaint);
-    const [complainant, setComplainant] = useState({
-        name: 'Loading...',
-        email: 'Loading...',
-        phone: 'Loading...'
-    });
 
     useEffect(() => {
-        const fetchComplainantDetails = async () => {
+        const fetchComplaintDetails = async () => {
             try {
-                console.log("Fetching complainant details for user ID:", complaint.userId);
-                // Fetch user details using the userId from the complaint
-                const response = await axios.get(`http://localhost:4000/api/v1/auth/getUser/${complaint.userId}`);
-                const userData = response.data.data; // Assuming the API returns an array
-                // console.log("Complainant Data:", userData);
-                // Set complainant details
-                setComplainant({
-                    name: userData.userName || 'Not provided', // Handle case where name might not be available
-                    email: userData.email,
-                    phone: userData.number || 'Not provided' // Handle case where phone might not be available
-                });
+                const response = await axios.post(
+                    "http://localhost:4000/api/v1/admin/complaint-details",
+                    { id: caseId }
+                );
+                const data = response.data.data;
+                console.log("Complaint Data:", data);
+                setComplaint(data);
+                setSelectedStatus(data.status);
             } catch (error) {
-                console.error("Failed to fetch complainant details", error);
+                console.error("Failed to fetch complaint details", error);
             }
         };
-        fetchComplainantDetails();
-    }, [currentUser.email]);
+        fetchComplaintDetails();
+
+    }, [caseId]);
+
 
 
     const fetchNotes = async () => {
         try {
             const res = await axios.get('http://localhost:4000/api/v1/investigator/getCaseNotes', {
-                params: { complaintId: complaint.id }
+                params: { complaintId: caseId }
             });
             setCaseNotes(res.data.data);
             // console.log("Fetched Notes:", res.data.data);
@@ -93,7 +83,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
     const handleAddNote = async () => {
         try {
             await axios.post('http://localhost:4000/api/v1/investigator/addCaseNote', {
-                complaintId: complaint.id,
+                complaintId: caseId,
                 investigatorId,
                 note: newNote,
             });
@@ -170,39 +160,36 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
         // console.log(evidenceName);
     };
 
-
     return (
         <>
-
             <div className='w-full h-full flex items-center justify-center'>
                 <Dialog open={true} onOpenChange={onClose}>
-                    <DialogContent className="w-[1500px] h-[96vh]  max-h-[96vh] overflow-y-auto">
+                    <DialogContent className="w-[1500px] h-[96vh]  max-h-[96vh] overflow-y-auto " >
 
                         <DialogHeader>
                             <DialogTitle className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
-                                    <span className="text-blue-700 font-semibold">{complaint.caseId}</span>
+                                    <span className="text-blue-700 font-semibold">{caseId}</span>
                                     <Badge className={`${getPriorityColor(complaint.priority)} border`}>
                                         {complaint.priority === 'High' && <AlertTriangle className="h-3 w-3 mr-1" />}
                                         {complaint.priority} Priority
                                     </Badge>
                                 </div>
-                                <Button variant="ghost" size="icon" onClick={onClose}>
-                                    <X className="h-5 w-5 text-blue-700" />
-                                </Button>
+                                
                             </DialogTitle>
                         </DialogHeader>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Left Side – Main Details */}
                             <div className="lg:col-span-2 space-y-6">
-                                {/* Overview */}
+
+                                {/* Case Overview */}
                                 <Card className="p-6 bg-blue-50">
                                     <h3 className="text-lg font-semibold text-blue-800 mb-4">Case Overview</h3>
                                     <div className="grid grid-cols-2 gap-4 mb-4">
                                         <div>
                                             <p className="text-sm text-blue-500">Crime Type</p>
-                                            <p className="font-medium">{complaint.crimeType}</p>
+                                            <p className="font-medium">{complaint.category}</p>
                                         </div>
                                         <div>
                                             <p className="text-sm text-blue-500">Status</p>
@@ -220,8 +207,9 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                             <User className="h-4 w-4 text-blue-400 mt-1" />
                                             <div>
                                                 <p className="text-sm text-blue-500">Complainant</p>
-                                                <p className="font-medium">{complaint.userName}</p>
-                                                <p className="text-xs text-muted-foreground">{complaint.userEmail}</p>
+                                                <p className="font-medium">{complaint.comName}</p>
+                                                {/* <p className="text-xs text-muted-foreground">{complaint.comEmail}</p>
+                                                <p className="text-xs text-muted-foreground">{complaint.comPhone}</p> */}
                                             </div>
                                         </div>
                                         <div className="flex items-start space-x-2">
@@ -236,7 +224,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                     <div className="flex items-center space-x-2 mb-4">
                                         <Calendar className="h-4 w-4 text-blue-400" />
                                         <p className="text-sm text-muted-foreground">
-                                            Received: {new Date(complaint.dateReceived).toLocaleString()}
+                                            Received: {new Date(complaint.incident_datetime).toLocaleString()}
                                         </p>
                                     </div>
                                     <div>
@@ -245,11 +233,108 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                     </div>
                                 </Card>
 
+                                {/* Incident Details */}
+                                <Card className="p-6 bg-white border border-blue-100">
+                                    <h3 className="text-lg font-semibold mb-4">Incident Details</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-sm text-blue-500">Incident Time</p>
+                                            <p className="font-medium">
+                                                {complaint.incident_datetime ? new Date(complaint.incident_datetime).toLocaleString() : "N/A"}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-blue-500">Lost Money</p>
+                                            <p className="font-medium">{complaint.lost_money ? `₹${complaint.lost_money}` : "Not Reported"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-blue-500">Delay in Report</p>
+                                            <p className="font-medium">{complaint.delay_in_report ? "Yes" : "No"}</p>
+                                            {complaint.delay_in_report && (
+                                                <p className="text-xs text-red-600 mt-1">{complaint.reason_of_delay || "Reason not provided"}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Card>
+
+                                {/* Victim Details */}
+                                {complaint.victimDetails && (
+                                    <Card className="p-6 bg-blue-50">
+                                        <h3 className="text-lg font-semibold text-blue-800 mb-4">Victim Details</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-blue-500">Victim ID</p>
+                                                <p className="font-medium">{complaint.victimDetails._id}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Bank Name</p>
+                                                <p className="font-medium">{complaint.victimDetails.bankName}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Account Number</p>
+                                                <p className="font-medium">{complaint.victimDetails.accountNumber}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">IFSC Code</p>
+                                                <p className="font-medium">{complaint.victimDetails.ifscCode}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Transaction ID</p>
+                                                <p className="font-medium">{complaint.victimDetails.transactionId}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Transaction Date</p>
+                                                <p className="font-medium">{new Date(complaint.victimDetails.transactionDate).toLocaleDateString()}</p>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                )}
+
+                                {/* Suspect Details */}
+                                {complaint.suspectDetails && (
+                                    <Card className="p-6 bg-white border border-blue-100">
+                                        <h3 className="text-lg font-semibold mb-4">Suspect Details</h3>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-blue-500">Suspect ID</p>
+                                                <p className="font-medium">{complaint.suspectDetails._id}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Name</p>
+                                                <p className="font-medium">{complaint.suspectDetails.suspectedName}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Platform/Card</p>
+                                                <p className="font-medium">{complaint.suspectDetails.suspectedCard}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-blue-500">Card/Number</p>
+                                                <p className="font-medium">{complaint.suspectDetails.suspectedCardNumber}</p>
+                                            </div>
+                                        </div>
+                                        {complaint.suspectDetails.suspectedImages?.length > 0 && (
+                                            <div className="mt-4">
+                                                <p className="text-sm text-blue-500 mb-2">Suspect Images</p>
+                                                <div className="flex gap-3 flex-wrap">
+                                                    {complaint.suspectDetails.suspectedImages.map((img, idx) => (
+                                                        <img
+                                                            key={idx}
+                                                            src={img}
+                                                            alt="Suspect"
+                                                            className="h-24 w-24 object-cover rounded-lg border border-blue-200"
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </Card>
+                                )}
+
                                 {/* Evidence */}
                                 <Card className="p-6 bg-white border border-blue-100">
-                                    <h3 className="text-lg font-semibold mb-4">Evidence ({complaint.evidence.length})</h3>
+                                    <h3 className="text-lg font-semibold mb-4">Evidence ({complaint.screenShots})</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {complaint.evidence.map((evidence) => (
+                                        {complaint.screenShots?.map((evidence) => (
                                             <div
                                                 key={evidence.id}
                                                 className="p-4 border border-blue-200 rounded-lg bg-blue-50"
@@ -267,20 +352,18 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            onClick={() => handleDownloadEvidence(evidence)}
+                                                            onClick={() => handleDownloadEvidence(screenShots)}
                                                         >
                                                             <Download className="h-4 w-4 text-blue-600" />
                                                         </Button>
                                                     </a>
-
                                                 </div>
-
                                             </div>
                                         ))}
                                     </div>
                                 </Card>
 
-                                {/* Investigation Actions */}
+                                {/* Investigation Actions (same as before) */}
                                 <Card className="p-6 bg-blue-50">
                                     <h3 className="text-lg font-semibold text-blue-800 mb-4">Investigation Actions</h3>
                                     <div className="flex flex-wrap gap-3">
@@ -332,6 +415,22 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
 
                             {/* Right Side – Notes & Quick Actions */}
                             <div className="space-y-6">
+
+                                {/* Assigned Investigator */}
+                                {complaint.assignedTo && (
+                                    <Card className="p-6 bg-white border border-blue-100">
+                                        <h3 className="text-lg font-semibold mb-4">Assigned Investigator</h3>
+                                        <p className="font-medium">{complaint.assignedTo.name}</p>
+                                        <p className="text-sm text-gray-500 mb-2">ID: {complaint.assignedTo.id}</p>
+                                        {/* <p className="text-sm text-blue-600">Specialist In:</p>
+                                        <ul className="list-disc ml-5 text-sm text-gray-700">
+                                            {complaint.assignedTo.specialistIn.map((skill, idx) => (
+                                                <li key={idx}>{skill}</li>
+                                            ))}
+                                        </ul> */}
+                                    </Card>
+                                )}
+
                                 {/* Notes */}
                                 <Card className="p-6 bg-white border border-blue-100">
                                     <h3 className="text-lg font-semibold mb-4">Case Notes</h3>
@@ -339,17 +438,11 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                                         {caseNotes.map((note) => (
                                             <div key={note._id} className="p-3 bg-blue-50 rounded-lg">
                                                 <div className="flex items-start justify-between mb-2">
-                                                    {/* <span className="font-medium text-sm">
-                                                        {note.investigatorId?.name || "Unknown"}
-                                                    </span> */}
                                                     <span className="text-xs text-blue-400">
                                                         {new Date(note.createdAt).toLocaleString()}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm text-blue-700">{note.noteText}</p>
-                                                {/* <Badge variant="outline" className="text-xs mt-2">
-                                                    Note
-                                                </Badge> */}
                                             </div>
                                         ))}
                                     </div>
@@ -394,9 +487,7 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                         </div>
                     </DialogContent>
                 </Dialog>
-
             </div>
-
 
             {/* Contact Dialog */}
             <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
@@ -409,20 +500,20 @@ export const CaseDetailsPanel = ({ case: complaint, notes, onClose, onUpdateNote
                     <div className="space-y-3 pt-3">
                         <div className="flex items-center">
                             <span className="w-20 font-medium text-gray-700">Name:</span>
-                            <span className="text-gray-900">{complainant.name}</span>
+                            <span className="text-gray-900">{complaint.comName}</span>
                         </div>
                         <div className="flex items-center">
                             <span className="w-20 font-medium text-gray-700">Email:</span>
-                            <span className="text-gray-900">{complainant.email}</span>
+                            <span className="text-gray-900">{complaint.comEmail}</span>
                         </div>
                         <div className="flex items-center">
                             <span className="w-20 font-medium text-gray-700">Phone:</span>
-                            <span className="text-gray-900">{complainant.phone}</span>
+                            <span className="text-gray-900">{complaint.comPhone}</span>
                         </div>
                     </div>
                 </DialogContent>
             </Dialog>
-
         </>
+
     );
 };

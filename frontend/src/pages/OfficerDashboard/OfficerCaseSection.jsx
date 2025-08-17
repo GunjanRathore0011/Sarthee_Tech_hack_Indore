@@ -101,7 +101,7 @@ const OfficerCaseSection = () => {
 
             const res = await fetch(`http://localhost:4000/api/v1/investigator/allAssignedCases/${investigatorId}`);
             const result = await res.json();
-            // console.log('Assigned Cases Response:', result.activeCases);
+            console.log('Assigned Cases Response:', result.activeCases);
 
             if (result.success) {
                 setActiveCases(result.activeCases);
@@ -251,7 +251,7 @@ const OfficerCaseSection = () => {
                                     <div className="flex flex-col space-y-2 ml-6">
                                         <Button
                                             variant="default"
-                                            onClick={() => setSelectedCase(complaint)}
+                                            onClick={() => setSelectedCase(complaint.id)}
                                             className="cyber-glow-secondary"
                                         >
                                             <Eye className="h-4 w-4 mr-2" />
@@ -288,7 +288,7 @@ const OfficerCaseSection = () => {
                 {/* Case Details Modal */}
                 {selectedCase && (
                     <CaseDetailsPanel
-                        case={selectedCase}
+                        caseId={selectedCase}
                         onStartInvestigation={handleStartInvestigation}
                         onMarkResolved={handleMarkResolved}
                         notes={mockCaseNotes.filter(note => note.caseId === selectedCase.caseId)}
