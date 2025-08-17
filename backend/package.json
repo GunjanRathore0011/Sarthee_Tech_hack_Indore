@@ -33,10 +33,12 @@
     "nodemon": "^3.1.10",
     "otp-generator": "^4.0.1",
     "path": "^0.12.7",
+    "prompt-sync": "^4.2.0",
     "puppeteer": "^24.16.0",
     "qrcode-reader": "^1.0.4",
     "socket.io": "^4.8.1",
     "streamifier": "^0.1.1",
+    "telegram": "^2.26.22",
     "tesseract.js": "^6.0.1"
   }
 }

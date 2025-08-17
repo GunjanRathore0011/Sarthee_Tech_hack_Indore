@@ -9,7 +9,7 @@ const { io } = require("../index.js");
 const fs = require('fs');
 // const checkAndCreateAlerts = require("../utils/pattern.js");
 const { checkAndCreateAlerts } = require("../utils/pattern.js");
-
+const axios = require('axios');
 const path = require('path');
 const puppeteer = require('puppeteer');
 const cloudinary = require('cloudinary').v2;
@@ -332,13 +332,20 @@ exports.complaintInformation = async (req, res) => {
       });
     }
 
+    // Limit description to ~2 lines (e.g., 150 chars) and add "..." if longer
+    const maxDescLength = 100;
+    let shortDescription = complaintInfo.description;
+    if (shortDescription.length > maxDescLength) {
+      shortDescription = shortDescription.slice(0, maxDescLength).trim() + "...";
+    }
+
     const dataset = {
       fullName: additionalDetails.fullName,
       address: `${additionalDetails.colony}, ${additionalDetails.street}`,
       district: additionalDetails.district,
       state: additionalDetails.state,
       pincode: additionalDetails.pincode,
-      complaintSummary: complaintInfo.description,
+      complaintSummary: shortDescription,
       category: complaintInfo.category,
       crn: complaintInfo._id,
       generatedAt: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })
@@ -460,11 +467,31 @@ exports.complaintInformation = async (req, res) => {
       createdAt: complaintInfo.createdAt,
     };
 
-    return res.status(201).json({
+    res.status(201).json({
       message: "✅ Complaint submitted successfully",
       success: true,
       data: Datasend,
     });
+
+  // verify the evidence files
+  try {
+  const evidences_link = complaintInfo.screenShots || [];
+  const flaskResponse = await axios.post(
+    "http://127.0.0.1:5000/verifyDocuments",
+    { Evidences_link: evidences_link } // send as JSON object
+  );
+
+    // Example: assuming Flask returns { isValid: 0 } or { isValid: 1 }
+    const isValid = flaskResponse.data.response;
+    console.log("Flask verification result:", isValid);
+    complaintInfo.isScreenshotTampered= isValid;
+    await complaintInfo.save();
+  } catch (flaskError) {
+    console.error("Flask verification error:", flaskError.message);
+    // You can choose to handle this differently, e.g. log it but don't fail the main request
+    complaintInfo.isScreenshotTampered = Array(complaintInfo.screenShots.length).fill(0); // default to false if error
+    await complaintInfo.save();
+  }
 
   } catch (error) {
     console.error("❌ complaintInformation Error:", error);

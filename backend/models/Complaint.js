@@ -83,7 +83,11 @@ const complaintSchema = new mongoose.Schema({
   complain_report: {
     type: String,
     default: ''
-  }
+  },
+  isScreenshotTampered:{
+     type: [Boolean],
+     default: [] // Array to store tampering status for each screenshot
+  },
 
 
 }, {
