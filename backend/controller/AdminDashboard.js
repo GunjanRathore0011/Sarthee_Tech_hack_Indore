@@ -658,15 +658,25 @@ exports.getComplaintDetails = async (req, res) => {
   try {
     const { id } = req.body; // Get complaint ID from request parameters
     const complaint = await Complaint.findById(id)
-      .populate('assignedTo', 'name specialistIn')
+      .populate('userId assignedTo','name specialistIn')
 
-    console.log("Complaint details:", complaint);
+    // console.log("Complaint details:", complaint);
 
     const victimDetails = await VictimDetails.findOne({ complainId: id })
     const suspectDetails = await SuspectSchema.findOne({ complainId: id })
+    const cId=complaint.userId._id;
+    console.log(cId);
+    // ✅ sahi
+const user = await User.findOne(cId);
+
+    // console.log("User details:", user);
+
 
     payload = {
       _id: complaint._id,
+      comName: user.userName,
+      comEmail: user.email,
+      comPhone: user.number,
       category: complaint.category,
       subCategory: complaint.subCategory,
       description: complaint.description,
@@ -695,6 +705,8 @@ exports.getComplaintDetails = async (req, res) => {
         message: "Complaint not found"
       });
     }
+
+    console.log("Complaint details payload:", payload);
 
     res.status(200).json({
       success: true,
