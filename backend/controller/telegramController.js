@@ -14,6 +14,7 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 async function askBot(req, res) {
   try {
     const { query } = req.body;
+    console.log("Received query:", query);
 
    const botA = "@UniversalSearch_Ro_bot"; // replace with actual Bot A username
     const botB = "@TrueCaller1Bot"; // replace with actual Bot B username

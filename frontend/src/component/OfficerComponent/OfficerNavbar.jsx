@@ -87,7 +87,22 @@ const OfficerNavbar = () => {
                 >
                   <span>Suspect Tracker</span>
                 </Link>
-      
+                  <Link
+                  to="/findUsingIP"
+                  className={`flex items-center space-x-2 transition ${
+                    isActive('/suspect-tracker') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+                  }`}
+                >
+                  <span>FindUsingIP</span>
+                </Link>
+                 <Link
+                  to="/findUsingNo"
+                  className={`flex items-center space-x-2 transition ${
+                    isActive('/suspect-tracker') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+                  }`}
+                >
+                  <span>FindUsingNo</span>
+                </Link>
               </div>
 
       <OfficerDashboardStats />

@@ -174,7 +174,8 @@ const checkIPAddress = async (ip) => {
 
 exports.checkIP = async (req, res) => {
   try {
-    const { ip } = req.query;  // frontend se IP milegi (example: /check-ip?ip=8.8.8.8)
+    const { ip } = req.query; 
+    console.log("ip address", ip) 
     if (!process.env.IPQS_KEY) {
       return res.status(500).json({ success: false, message: "IPQS API key not configured" });
     }
@@ -184,6 +185,8 @@ exports.checkIP = async (req, res) => {
     }
 
     const data = await checkIPAddress(ip);
+
+    console.log("IP data:", data);
 
     return res.json({
       success: true,

@@ -27,6 +27,8 @@ import PlatformCoordination from './pages/AdminDashboard/PlatformCoordination';
 import TrackingDashboard from './pages/TrackingDashboard';
 import PrivateRoute from './pages/PrivateRoute';
 import RoleBasedRoute from './pages/RoleBasedRoute';
+import FindUsingIP from './pages/OfficerDashboard/FindUsingIP';
+import FindUsingNo from './pages/OfficerDashboard/FindUsingNo';
 
 const App = () => {
   const location = useLocation();
@@ -46,6 +48,8 @@ const App = () => {
     '/officer-complaint-management',
     '/platform-coordination',
     "/suspect-tracker",
+    '/findUsingIP',
+    '/findUsingNo',
   ];
   const isOfficerRoute = officerRoutes.includes(location.pathname);
   const isAdminRoute = adminRoutes.includes(location.pathname);
@@ -102,6 +106,8 @@ const App = () => {
             element={<PlatformCoordination />}
           />
           <Route path="/suspect-tracker" element={<TrackingDashboard />} />
+          <Route path="/findUsingIP" element={<FindUsingIP />} />
+          <Route path="/findUsingNo" element={<FindUsingNo/>}/>
         </Route>
       </Routes>
     </>
