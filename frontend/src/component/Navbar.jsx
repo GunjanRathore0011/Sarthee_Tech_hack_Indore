@@ -60,8 +60,6 @@ const Navbar = () => {
 
 
 {/* ---------------------------- */}
-    <Link to="/suspect-tracker" >Track</Link>
-
 {/* -------------------------------- */}
       <div className="font-medium">
         {isAuthenticated ? (

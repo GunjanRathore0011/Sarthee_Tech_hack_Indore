@@ -64,8 +64,6 @@ const Home = () => {
       <FaqSection></FaqSection>
       <HelpBanner></HelpBanner>
     
-      <PatternAlertsCard></PatternAlertsCard>
-    
     </>
   );
 };

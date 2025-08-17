@@ -26,7 +26,7 @@ exports.generateTrackingLink = async (req, res) => {
       generatedBy: investigatorId,
     });
 
-    const trackingUrl = `${process.env.BASE_URL}/t/${shortCode}`;
+    const trackingUrl = `http://localhost:${process.env.PORT}/t/${shortCode}`;
 
     res.status(200).json({
       success: true,
