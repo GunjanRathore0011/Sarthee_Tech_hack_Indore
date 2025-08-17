@@ -11,15 +11,19 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-toastify';
+import ViewComplaint from './ViewComplaint';
 
 const ComplaintManagement = () => {
   const [complaints, setComplaints] = useState([]);
   const [selectedComplaint, setSelectedComplaint] = useState(null);
+  const [viewcomplaintID, setViewComplaintID] = useState(null);
   const [investigatorId, setInvestigatorId] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [officers, setOfficers] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [viewopen, setviewOpen] = useState(false);
 
   // New States for Pagination & Filters
   const [hasMore, setHasMore] = useState(true);
@@ -72,7 +76,7 @@ const ComplaintManagement = () => {
 
   // auto assign investigators
   const autoassign = async () => {
-    try { 
+    try {
       const response = await axios.post('http://localhost:4000/api/v1/admin/autoAssignInvestigator');
       if (response.data.success) {
         toast.success("Investigators auto-assigned successfully");
@@ -200,8 +204,48 @@ const ComplaintManagement = () => {
     }
   };
 
+  const [viewComplaintDetails, setviewComplaintDetails] = useState(null);
+  const [viewLoading, setviewLoading] = useState(false);
+
+  const fetchComplaintDetails = async (id) => {
+    if (!id) return;
+    setviewLoading(true); // Start loading state
+    setviewComplaintDetails(null); // Reset before fetching
+    try {
+      const response = await axios.post(
+        "http://localhost:4000/api/v1/admin/complaint-details",
+        { id: id }
+      );
+      console.log("Fetched complaint details:", response.data.data);
+      setviewComplaintDetails(response.data.data);
+    } catch (error) {
+      console.error(error);
+    }
+    setviewLoading(false); // Stop loading state
+  };
+
+  const ReadMore = ({ text }) => {
+    const [isReadMore, setIsReadMore] = useState(true);
+    const toggleReadMore = () => setIsReadMore(!isReadMore);
+
+    return (
+      <span>
+        {isReadMore ? text.slice(0, 200) + "..." : text}
+        <button onClick={toggleReadMore} className="ml-2 text-blue-600 font-semibold hover:underline">
+          {isReadMore ? "Read more" : "Read less"}
+        </button>
+      </span>
+    );
+  };
+
+
   return (
     <div className="p-4 bg-white rounded-xl shadow-md">
+      {/* <ViewComplaint
+        open={open}
+        setOpen={setOpen}
+        complaintId={viewcomplaintID} // Pass the complaint ID to ViewComplaint
+      /> */}
       <h2 className="text-xl font-semibold mb-4">Recent Complaints</h2>
 
       {/* Filter Section */}
@@ -277,9 +321,9 @@ const ComplaintManagement = () => {
               onClick={autoassign}
               className="bg-blue-700 hover:bg-blue-900 text-white px-4 py-2 rounded-lg shadow-sm"
             >
-              Auto assign 
+              Auto assign
             </Button>
-             <Button
+            <Button
               onClick={applyFilters}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm"
             >
@@ -356,9 +400,17 @@ const ComplaintManagement = () => {
 
                 <TableCell>{new Date(complaint.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <Link to={`/complaints/${complaint._id}`} className="text-blue-600 hover:underline">
+                  {/* View Button */}
+                  <button
+                    onClick={async () => {
+                      // setViewComplaintID(complaint._id);
+                      await fetchComplaintDetails(complaint._id);
+                      setviewOpen(true);
+                    }}
+                    className="text-blue-600 hover:underline"
+                  >
                     View
-                  </Link>
+                  </button>
                 </TableCell>
                 <TableCell>
                   <Link to={`/edit-complaint/${complaint._id}`} className="text-green-600 hover:underline">
@@ -470,6 +522,172 @@ const ComplaintManagement = () => {
         </DialogContent>
       </Dialog>
 
+
+
+
+      <Dialog
+        open={viewopen}
+        onOpenChange={(open) => {
+          setviewOpen(open);
+          if (!open) setviewComplaintDetails(null);
+        }}
+      >
+        <DialogContent
+          className="w-[700px] max-w-full h-[800px] max-h-[90vh] overflow-y-auto  p-6 bg-white rounded-xl shadow-lg break-words"
+        >
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-blue-700 mb-2">
+              Complaint Details
+            </DialogTitle>
+          </DialogHeader>
+
+          {viewComplaintDetails ? (
+            <div className="space-y-6">
+
+              {/* Basic Info */}
+              <div className="p-4 bg-blue-50 rounded-lg shadow-sm space-y-2">
+                {viewComplaintDetails._id && (
+                  <p><strong>Complaint ID:</strong>
+                    <span className="text-blue-600 break-all">{viewComplaintDetails._id}</span>
+                  </p>
+                )}
+                {viewComplaintDetails.category && <p><strong>Category:</strong> {viewComplaintDetails.category}</p>}
+                {viewComplaintDetails.subCategory && <p><strong>Sub Category:</strong> {viewComplaintDetails.subCategory}</p>}
+
+                {/* Description */}
+                {viewComplaintDetails.description && (
+                  <p>
+                    <strong>Description:</strong>{" "}
+                    {viewComplaintDetails.description.length > 200 ? (
+                      <ReadMore text={viewComplaintDetails.description} />
+                    ) : viewComplaintDetails.description}
+                  </p>
+                )}
+
+                {/* Incident Date */}
+                {viewComplaintDetails.incident_datetime && (
+                  <p><strong>Incident Date & Time:</strong>
+                    {new Date(viewComplaintDetails.incident_datetime).toLocaleString()}
+                  </p>
+                )}
+
+                {/* Status & Priority Badges */}
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {viewComplaintDetails.status && (
+                    <span className={`px-3 py-1 rounded-full font-semibold text-white ${viewComplaintDetails.status.toLowerCase().includes("pending")
+                        ? "bg-orange-500"
+                        : viewComplaintDetails.status.toLowerCase().includes("assigninvestigator")
+                          ? "bg-yellow-500"
+                          : viewComplaintDetails.status.toLowerCase().includes("resolved")
+                            ? "bg-green-500"
+                            : "bg-gray-400"
+                      }`}>
+                      {viewComplaintDetails.status}
+                    </span>
+                  )}
+                  {viewComplaintDetails.priority && (
+                    <span className={`px-3 py-1 rounded-full font-semibold text-white ${viewComplaintDetails.priority.toLowerCase() === "high"
+                        ? "bg-red-500"
+                        : viewComplaintDetails.priority.toLowerCase() === "medium"
+                          ? "bg-yellow-500"
+                          : viewComplaintDetails.priority.toLowerCase() === "low"
+                            ? "bg-green-500"
+                            : "bg-gray-400"
+                      }`}>
+                      {viewComplaintDetails.priority}
+                    </span>
+                  )}
+                </div>
+
+                {/* Assigned To */}
+                {viewComplaintDetails.assignedTo?.name && (
+                  <p className="mt-2"><strong>Assigned To:</strong> {viewComplaintDetails.assignedTo.name}</p>
+                )}
+              </div>
+
+              {/* Status History */}
+              {viewComplaintDetails.statusHistory?.length > 0 && (
+                <div className="p-4 bg-yellow-50 rounded-lg shadow-sm">
+                  <h3 className="font-semibold text-yellow-700 mb-2">Status History</h3>
+                  <ul className="space-y-2">
+                    {viewComplaintDetails.statusHistory.map((sh) => (
+                      <li key={sh._id} className="border-l-4 border-yellow-500 pl-3">
+                        <p><strong>Status:</strong> {sh.status}</p>
+                        {sh.remark && <p><strong>Remark:</strong> {sh.remark}</p>}
+                        <p className="text-gray-500 text-sm"><strong>Updated At:</strong> {new Date(sh.updatedAt).toLocaleString()}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Victim Details */}
+              {viewComplaintDetails.victimDetails && Object.keys(viewComplaintDetails.victimDetails).length > 0 && (
+                <div className="p-4 bg-green-50 rounded-lg shadow-sm space-y-1">
+                  <h3 className="font-semibold text-green-700 mb-2">Victim Details</h3>
+                  {viewComplaintDetails.victimDetails.bankName && <p><strong>Bank Name:</strong> {viewComplaintDetails.victimDetails.bankName}</p>}
+                  {viewComplaintDetails.victimDetails.accountNumber && <p><strong>Account Number:</strong> <span className="break-all">{viewComplaintDetails.victimDetails.accountNumber}</span></p>}
+                  {viewComplaintDetails.victimDetails.ifscCode && <p><strong>IFSC Code:</strong> {viewComplaintDetails.victimDetails.ifscCode}</p>}
+                  {viewComplaintDetails.victimDetails.transactionId && <p><strong>Transaction ID:</strong> <span className="break-all">{viewComplaintDetails.victimDetails.transactionId}</span></p>}
+                  {viewComplaintDetails.victimDetails.transactionDate && (
+                    <p><strong>Transaction Date:</strong> {new Date(viewComplaintDetails.victimDetails.transactionDate).toLocaleDateString()}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Suspect Details */}
+              {viewComplaintDetails.suspectDetails && Object.keys(viewComplaintDetails.suspectDetails).length > 0 && (
+                <div className="p-4 bg-red-50 rounded-lg shadow-sm space-y-1">
+                  <h3 className="font-semibold text-red-700 mb-2">Suspect Details</h3>
+                  {viewComplaintDetails.suspectDetails.suspectedName && <p><strong>Name:</strong> {viewComplaintDetails.suspectDetails.suspectedName}</p>}
+                  {viewComplaintDetails.suspectDetails.suspectedCard !== "Other" && <p><strong>Card/Platform:</strong> {viewComplaintDetails.suspectDetails.suspectedCard}</p>}
+                  {viewComplaintDetails.suspectDetails.suspectedCardNumber && <p><strong>Card/ID Number:</strong> <span className="break-all">{viewComplaintDetails.suspectDetails.suspectedCardNumber}</span></p>}
+                  {viewComplaintDetails.suspectDetails.suspectedImages?.length > 0 && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                      {viewComplaintDetails.suspectDetails.suspectedImages.map((url, idx) => (
+                        <img key={idx} src={url} alt={`Suspect ${idx + 1}`} className="w-200 h-200 rounded-lg shadow-md" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Screenshots */}
+              {viewComplaintDetails.screenShots?.length > 0 && (
+                <div className="p-4 bg-gray-50 rounded-lg shadow-sm">
+                  <h3 className="font-semibold text-gray-700 mb-2">Evidence</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {viewComplaintDetails.screenShots.map((url, idx) => (
+                      <img key={idx} src={url} alt={`Screenshot ${idx + 1}`} className="max-w-full h-auto rounded-lg shadow-md" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Complaint Report */}
+              {viewComplaintDetails.complain_report && (
+                <div className="p-4 bg-purple-50 rounded-lg shadow-sm">
+                  <h3 className="font-semibold text-purple-700 mb-2">Complaint Report</h3>
+                  <a
+                    href={viewComplaintDetails.complain_report}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-600 hover:underline break-all"
+                  >
+                    View Report
+                  </a>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center">Loading complaint details...</p>
+          )}
+
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setviewOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
 
     </div>

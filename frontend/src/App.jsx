@@ -25,6 +25,7 @@ import ScamDetector from './component/ScamDetector';
 import PatternAlert from './pages/AdminDashboard/PatternAlert';
 import PlatformCoordination from './pages/AdminDashboard/PlatformCoordination';
 import TrackingDashboard from './pages/TrackingDashboard';
+import ViewComplaint from './pages/AdminDashboard/ViewComplaint';
 
 const App = () => {
   const location = useLocation();
@@ -79,6 +80,7 @@ const App = () => {
         <Route path="/crime-map" element={<CrimeMap />} />
         <Route path='/pattern-alert' element={<PatternAlert/>} />
         <Route path="/admin-profile" element={<AdminHome />} />
+        <Route path="/complaints/:id" element={<ViewComplaint/>} />
 
         {/* Officer Dashboard */}
         <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />

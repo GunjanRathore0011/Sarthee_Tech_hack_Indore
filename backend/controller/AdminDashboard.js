@@ -574,7 +574,7 @@ exports.autoAssignInvestigator = async (req, res) => {
         updatedAt: new Date()
       });
       await complaints[i].save();
-    console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
+      console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
       const investigator = await Investigator.findById(leastLoadedInvestigator._id);
       if (!investigator) {
         console.error(`Investigator ${leastLoadedInvestigator._id} not found`);
@@ -593,7 +593,7 @@ exports.autoAssignInvestigator = async (req, res) => {
         message: `Complaint ${complaints[i]._id} auto-assigned to ${investigator.name}`
       });
 
-       break; // Only assign one complaint per investigator in this round
+      break; // Only assign one complaint per investigator in this round
     }
     res.status(200).json({
       success: true,
@@ -653,3 +653,60 @@ exports.updateOfficer = async (req, res) => {
   }
 }
 
+
+exports.getComplaintDetails = async (req, res) => {
+  try {
+    const { id } = req.body; // Get complaint ID from request parameters
+    const complaint = await Complaint.findById(id)
+      .populate('assignedTo', 'name specialistIn')
+
+    console.log("Complaint details:", complaint);
+
+    const victimDetails = await VictimDetails.findOne({ complainId: id })
+    const suspectDetails = await SuspectSchema.findOne({ complainId: id })
+
+    payload = {
+      _id: complaint._id,
+      category: complaint.category,
+      subCategory: complaint.subCategory,
+      description: complaint.description,
+      incident_datetime: complaint.incident_datetime,
+      status: complaint.status,
+      statusHistory: complaint.statusHistory,
+      reason_of_delay: complaint.reason_of_delay,
+      lost_money: complaint.lost_money,
+      delay_in_report: complaint.delay_in_report,
+      createdAt: complaint.createdAt,
+      assignedTo: complaint.assignedTo ? {
+        id: complaint.assignedTo._id,
+        name: complaint.assignedTo.name,
+        specialistIn: complaint.assignedTo.specialistIn
+      } : null,
+      priority: complaint.priority,
+      screenShots: complaint.screenShots,
+      complain_report: complaint.complain_report,
+      victimDetails: victimDetails || null,
+      suspectDetails: suspectDetails || null
+    };
+
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: "Complaint not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Complaint details fetched successfully",
+      data: payload
+    });
+  } catch (error) {
+    console.error("❌ Error fetching complaint details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+}

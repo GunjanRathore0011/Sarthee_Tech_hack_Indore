@@ -2,6 +2,7 @@ const TrackingLink = require('../models/TrackingLink.js');
 const { nanoid } = require('nanoid'); // short unique id ke liye
 const TrackingVisit = require('../models/TrackingVisit.js');
 require('dotenv').config();
+const axios = require('axios'); // IP check ke liye
 
 exports.generateTrackingLink = async (req, res) => {
   try {
@@ -61,11 +62,13 @@ exports.handleRedirect = async (req, res) => {
 
     // get IP and user agent
 
-    const ipAddress =
-
-      req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    const ipAddress = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    console.log('IP Address:', ipAddress);
 
     const userAgent = req.headers['user-agent'];
+
+    const data = await checkIPAddress(ipAddress);
+    console.log('IP data:', data);
 
     // save visit log
     await TrackingVisit.create({
@@ -73,7 +76,22 @@ exports.handleRedirect = async (req, res) => {
       linkId: link._id,
       ipAddress,
       userAgent,
-    });
+      vpn: data.vpn,
+      proxy: data.proxy,
+      tor: data.tor,
+      fraud_score: data.fraud_score,
+      country_code: data.country_code,
+      region: data.region,
+      city: data.city,
+      ISP: data.isp,
+      ASN: data.asn,
+      organization: data.organization,
+      timezone: data.timezone,
+      mobile: data.mobile,
+      host: data.host,
+      longitude: data.longitude,
+      latitude: data.latitude,
+      });
 
     // redirect to original url
     return res.redirect(link.originalUrl);
@@ -143,5 +161,42 @@ exports.getInvestigatorTrackingLogs = async (req, res) => {
   } catch (error) {
     console.error("Error fetching investigator logs:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+const checkIPAddress = async (ip) => {
+  // Simple regex to check if IP is valid
+  const response = await axios.get(`https://ipqualityscore.com/api/json/ip/${process.env.IPQS_KEY}/${ip}`);
+  return response.data;
+}
+
+
+
+exports.checkIP = async (req, res) => {
+  try {
+    const { ip } = req.query;  // frontend se IP milegi (example: /check-ip?ip=8.8.8.8)
+    if (!process.env.IPQS_KEY) {
+      return res.status(500).json({ success: false, message: "IPQS API key not configured" });
+    }
+
+    if (!ip) {
+      return res.status(400).json({ success: false, message: "IP address required" });
+    }
+
+    const data = await checkIPAddress(ip);
+
+    return res.json({
+      success: true,
+      ip: ip,
+      vpn: data.vpn,
+      proxy: data.proxy,
+      tor: data.tor,
+      fraud_score: data.fraud_score,
+      data: data,
+    });
+
+  } catch (error) {
+    console.error("Error checking IP:", error);
+    res.status(500).json({ success: false, message: "Error checking IP" });
   }
 };

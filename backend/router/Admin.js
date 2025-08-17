@@ -8,6 +8,7 @@ const {dashboard,
     assignInvestigator,
     autoAssignInvestigator,
     updateOfficer,    
+    getComplaintDetails,
     } = require('../controller/AdminDashboard');
 
 router.get('/dashboard', dashboard);
@@ -18,6 +19,8 @@ router.get('/mapVisualize', mapVisualize);
 router.post('/assignInvestigator', assignInvestigator);
 router.post('/autoAssignInvestigator', autoAssignInvestigator);
 router.put('/updateOfficer/:id', updateOfficer);
+router.post('/complaint-details', getComplaintDetails);
+
 
 
 module.exports = router;

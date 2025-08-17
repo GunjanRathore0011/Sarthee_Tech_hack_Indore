@@ -85,7 +85,6 @@ const complaintSchema = new mongoose.Schema({
     default: ''
   }
 
-
 }, {
   timestamps: true, // adds createdAt and updatedAt
   strict: false     // allows dynamic fields from frontend
