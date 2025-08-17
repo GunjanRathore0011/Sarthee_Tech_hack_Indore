@@ -13,7 +13,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action) => {
-      state.user = action.payload.user;
+      state.user = action.payload;
     //   state.token = action.payload.token;
       state.isAuthenticated = true;
     },
@@ -26,4 +26,4 @@ const userSlice = createSlice({
 });
 
 export const { loginSuccess, logout } = userSlice.actions;
-export default userSlice.reducer;
+export default userSlice.reducer; 

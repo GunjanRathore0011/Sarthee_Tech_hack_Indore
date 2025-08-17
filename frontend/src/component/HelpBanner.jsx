@@ -11,7 +11,7 @@ const HelpBanner = () => {
   return (
     <section className="bg-white py-10 px-4" data-aos="fade-up">
       <div className="max-w-5xl mx-auto">
-        <div className="bg-blue-600 text-white rounded-xl p-8 flex flex-col items-center text-center gap-4 shadow-md">
+        <div className="bg-gradient-to-r from-[#0473fb] to-[#042c70] text-white rounded-xl p-8 flex flex-col items-center text-center gap-4 shadow-md">
           <h2 className="text-2xl font-semibold">Need Immediate Help?</h2>
           <div className="flex flex-col sm:flex-row gap-4 items-center text-sm">
             <div className="flex items-center gap-2">

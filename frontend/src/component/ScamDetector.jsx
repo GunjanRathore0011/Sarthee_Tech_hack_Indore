@@ -23,6 +23,8 @@ export default function ScamDetector() {
 
   return (
     <div className="min-h-screen bg-white flex justify-center items-center text-gray-900 p-6">
+
+      
       <div className="bg-white border border-gray-300 rounded-xl shadow-lg p-8 w-[650px]">
         <h2 className="text-2xl font-bold mb-4 text-blue-600">
           🛡 AI Scam & Phishing Detector

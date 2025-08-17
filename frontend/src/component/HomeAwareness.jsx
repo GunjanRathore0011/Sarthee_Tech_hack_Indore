@@ -31,7 +31,7 @@ const HomeAwareness = () => {
   ];
 
   return (
-    <section className="bg-gray-100 mt-15 mb-15 py-16 px-4">
+    <section className="bg-gradient-to-r from-[#dbeafe] to-[#f9fafb]  py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-12">
           Awareness & Learning Corner

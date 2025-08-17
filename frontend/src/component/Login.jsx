@@ -63,10 +63,10 @@ const Login = () => {
 
   const handleLogin = async () => {
     const { email, otp, captchaInput } = formData;
-         if(!otpSent){
-          toast.error('Please send OTP first.');
-          return;
-         }
+    if (!otpSent) {
+      toast.error('Please send OTP first.');
+      return;
+    }
 
     if (!email || !otp || !captchaInput) {
       toast.error('Please fill all fields.');
@@ -89,14 +89,20 @@ const Login = () => {
 
       dispatch(resetAllFormData());
       const { user, additionalDetails } = response.data;
-      dispatch(loginSuccess({ user }));
+      dispatch(loginSuccess(user));
 
       if (additionalDetails) {
         dispatch(setAdditionDetail(additionalDetails));
         dispatch(setuserAdditionalDetailsField({ fill: 1 }));
       }
-
-      navigate('/');
+      console.log(user);
+      if (user.accountType === "Admin") {
+        navigate("/admin-dashboard");
+      } else if (user.accountType === "Officer") {
+        navigate("/officer-complaint-management");
+      } else {
+        navigate("/"); // Default User
+      }
     } catch (error) {
       toast.error("Invalid Otp or email")
     }
