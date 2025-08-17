@@ -23,7 +23,7 @@ const handleClick = (categoryKey) => {
 
 
   return (
-    <section className="bg-white py-16 px-4 mt-10 mb-10">
+    <section className="bg-gradient-to-r from-[#f0f7ff] to-white py-32 px-4  ">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 

@@ -98,7 +98,8 @@ const SignUp = () => {
             const res = await axios.post('http://localhost:4000/api/v1/auth/signup', payload, { withCredentials: true });
             toast.success("Registration successful!");
             dispatch(resetAllFormData());
-            dispatch(loginSuccess({ user: res.data.user }));
+            const user= res.data.user;
+            dispatch(loginSuccess(user));
             navigate('/');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Registration failed. Please try again.');

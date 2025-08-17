@@ -1,8 +1,7 @@
 // src/components/Navbar.jsx
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-
-import logoImage from '../assets/images/logo.png';
+import logoImage from "../assets/images/logo.png";
 import { logout } from "@/ReduxSlice/user/userSlice";
 
 const Navbar = () => {
@@ -14,74 +13,73 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
-    <nav className="bg-white text-black py-4 px-8 shadow-md flex justify-around items-center border-b border-gray-200">
-      <div className="text-2xl font-extrabold tracking-wide">
-        <Link to="/">
-          <img src={logoImage} alt="Logo" className="h-10 w-auto mx-auto" />
+    <nav className=" text-black py-4 px-8 shadow-md fixed top-0 left-0 w-full z-50 border-b border-gray-200">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        
+        {/* LOGO + BRAND */}
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logoImage} alt="Logo" className="h-10 w-10 object-contain" />
+          <span className="text-2xl font-bold text-blue-600 tracking-wide">
+            CyberSentinel
+          </span>
         </Link>
-      </div>
 
-      <div className="space-x-6 font-medium">
-        <Link
-          to="/complaints"
-          className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
-        >
-          File Complaint
-        </Link>
-        <Link
-          to="/track-status"
-          className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
-        >
-          Track Status
-        </Link>
-        <Link
-          to="/awareness"
-          className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
-        >
-          Awareness
-        </Link>
-        <Link
-          to="/contact-us"
-          className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
-        >
-          Contact Us
-        </Link>
-        <Link
-          to="/scan"
-          className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
-        >
-          Scan 
-        </Link>
-      </div>
-
-
-{/* ---------------------------- */}
-{/* -------------------------------- */}
-      <div className="font-medium">
-        {isAuthenticated ? (
-          <div className="flex items-center space-x-4">
-            {/* <span className="text-sm text-gray-600">Hi, {user?.name || user?.email}</span> */}
+        {/* NAV LINKS */}
+        <div className="hidden md:flex items-center gap-8 font-medium">
+          <Link
+            to="/complaints"
+            className="hover:text-blue-600 transition-colors text-lg"
+          >
+            File Complaint
+          </Link>
+          <Link
+            to="/track-status"
+            className="hover:text-blue-600 transition-colors text-lg"
+          >
+            Track Status
+          </Link>
+          <Link
+            to="/awareness"
+            className="hover:text-blue-600 transition-colors text-lg"
+          >
+            Awareness
+          </Link>
+          <Link
+            to="/contact-us"
+            className="hover:text-blue-600 transition-colors text-lg"
+          >
+            Contact Us
+          </Link>
+          <Link to="/scan" className="hover:text-blue-600 transition-colors text-lg">
+            Scan
+          </Link>
+          
+          
+{/* AUTH BUTTONS */}
+        <div className="flex items-center">
+          {isAuthenticated ? (
             <button
               onClick={handleLogout}
-              className="text-red-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
+              className="bg-red-500 text-white px-4 py-2 rounded-full text-md font-semibold hover:bg-red-600 transition-all"
             >
               Logout
             </button>
-          </div>
-        ) : (
-          <Link
-            to="/login"
-            className="hover:text-blue-600 hover:underline hover:underline-offset-4 pb-1 transition-all duration-150"
-          >
-            Login
-          </Link>
-        )}
-        <Link to='/admin-dashboard' className="mr-2"> Admin</Link>
-        <Link to='/officer-complaint-management' className="mr-2"> Officer</Link>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-4 py-2 rounded-full text-md font-semibold hover:opacity-90 transition-all"
+            >
+              Login
+            </Link>
+          )}
+        </div>
+        </div>
+
+        
       </div>
     </nav>
   );

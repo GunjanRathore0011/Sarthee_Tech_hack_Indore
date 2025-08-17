@@ -8,7 +8,7 @@ const socket = io("http://localhost:4000", { withCredentials: true });
 const OfficerNotifications = () => {
   const currentUser = useSelector((state) => state.user);
   const investigatorId = currentUser.user.additionDetails;
-  console.log("investigatorId", investigatorId);
+  // console.log("investigatorId", investigatorId);
 
   const [count, setCount] = useState(0);
   const [notifications, setNotifications] = useState([]);

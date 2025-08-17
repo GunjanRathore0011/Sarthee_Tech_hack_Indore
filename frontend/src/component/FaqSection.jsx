@@ -39,7 +39,7 @@ const FaqSection = () => {
   };
 
   return (
-    <section className="bg-gray-50 py-16 px-4" data-aos="fade-up">
+    <section className="bg-gradient-to-r from-[#dbeafe] to-[#f9fafb] py-16 px-4" data-aos="fade-up">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-10">
           Frequently Asked Questions
@@ -86,7 +86,7 @@ const FaqSection = () => {
           </p>
           <Link
             to="/contact-us"
-            className="inline-block bg-blue-900 hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-md transition"
+            className="inline-block bg-gradient-to-r from-[#0473fb] to-[#042c70] hover:bg-blue-700 text-white text-sm font-medium px-5 py-2 rounded-md transition"
           >
             Get in touch
           </Link>

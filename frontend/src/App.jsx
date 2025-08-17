@@ -25,6 +25,8 @@ import ScamDetector from './component/ScamDetector';
 import PatternAlert from './pages/AdminDashboard/PatternAlert';
 import PlatformCoordination from './pages/AdminDashboard/PlatformCoordination';
 import TrackingDashboard from './pages/TrackingDashboard';
+import PrivateRoute from './pages/PrivateRoute';
+import RoleBasedRoute from './pages/RoleBasedRoute';
 
 const App = () => {
   const location = useLocation();
@@ -38,7 +40,7 @@ const App = () => {
     '/crime-map',
     '/pattern-alert',
     '/admin-profile',
-    
+
   ];
   const officerRoutes = [
     '/officer-complaint-management',
@@ -60,32 +62,47 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/complaints" element={<ComplaintForm />} />
         <Route path="/track-status" element={<TrackStatus />} />
         <Route path="/awareness" element={<Awareness />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/financial-fraud" element={<CyberCrimeForm />} />
-        <Route path="/step-form" element={<MultiStepForm />} />
-        <Route path="/submitedcomplaint" element={<AfterComplaint/>} />
-        <Route path="/scan" element={<ScamDetector />} />
+        <Route path="/complaints" element={<ComplaintForm />} />
 
-        {/* Admin Dashboard */}
-        <Route path="/admin-dashboard" element={<ComplaintManagement />} />
-        <Route path="/complaint-management" element={<ComplaintManagement />} />
-        <Route path="/officer-management" element={<OfficerManagement />} />
-        <Route path="/admin-analytics" element={<Analytics />} />
-        <Route path="/crime-map" element={<CrimeMap />} />
-        <Route path='/pattern-alert' element={<PatternAlert/>} />
-        <Route path="/admin-profile" element={<AdminHome />} />
+        {/* -----------------------------------Private Routes--------------------------- */}
+        <Route element={<PrivateRoute></PrivateRoute>} >
 
-        {/* Officer Dashboard */}
-        <Route path="/officer-complaint-management" element={<OfficerCaseSection />} />
-        <Route path="/officer-notifications" element={<OfficerNotifications />} />
-        <Route path='/platform-coordination' element={<PlatformCoordination />} />
-        <Route path="/suspect-tracker" element={<TrackingDashboard />} />
+          <Route path="/financial-fraud" element={<CyberCrimeForm />} />
+          <Route path="/submitedcomplaint" element={<AfterComplaint />} />
+          <Route path="/step-form" element={<MultiStepForm />} />
+          <Route path="/scan" element={<ScamDetector />} />
 
+        </Route>
+
+        {/* Admin Routes */}
+        <Route element={<RoleBasedRoute allowedRoles={["Admin"]} />}>
+          <Route path="/admin-dashboard" element={<ComplaintManagement />} />
+          <Route path="/complaint-management" element={<ComplaintManagement />} />
+          <Route path="/officer-management" element={<OfficerManagement />} />
+          <Route path="/admin-analytics" element={<Analytics />} />
+          <Route path="/crime-map" element={<CrimeMap />} />
+          <Route path="/pattern-alert" element={<PatternAlert />} />
+          <Route path="/admin-profile" element={<AdminHome />} />
+        </Route>
+
+        {/* Officer Routes */}
+        <Route element={<RoleBasedRoute allowedRoles={["Officer"]} />}>
+          <Route
+            path="/officer-complaint-management"
+            element={<OfficerCaseSection />}
+          />
+          <Route path="/officer-notifications" element={<OfficerNotifications />} />
+          <Route
+            path="/platform-coordination"
+            element={<PlatformCoordination />}
+          />
+          <Route path="/suspect-tracker" element={<TrackingDashboard />} />
+        </Route>
       </Routes>
     </>
   );
