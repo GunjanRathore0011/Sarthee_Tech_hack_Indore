@@ -733,3 +733,55 @@ exports.getComplaintDetails = async (req, res) => {
     });
   }
 }
+
+
+
+
+//visvualize the money lost and how much money is recovered(by resolved cases )
+exports.moneyLostRecovered = async (req, res) => {
+  try {
+    const data = await Complaint.aggregate([  
+      {
+        $group: {
+          _id: null,  
+          totalLost: { $sum: { $cond: [{ $ne: ["$lost_money", null] }, "$lost_money", 0] } },
+          totalRecovered: { $sum: { $cond: [{ $eq: ["$status", "Resolved"] }, "$lost_money", 0] } }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalLost: 1,
+          totalRecovered: 1,  
+          recoveryRate: {
+            $cond: [
+              { $eq: ["$totalLost", 0] },
+              0,
+              { $multiply: [{ $divide: ["$totalRecovered", "$totalLost"] }, 100] }
+            ]
+          }
+        }
+      }
+    ]); 
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No data found"
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Money lost and recovered data fetched successfully",
+      data: data[0]  
+    });
+  }
+
+  catch (error) {
+    console.error("❌ Error in moneyLostRecovered:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }       
+};

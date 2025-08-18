@@ -474,24 +474,33 @@ exports.complaintInformation = async (req, res) => {
     });
 
   // verify the evidence files
+  //if any evidence files are present, send them to Flask for verification
+if (complaintInfo.screenShots && complaintInfo.screenShots.length > 0) {
+  console.log("Sending evidence files to Flask for verification...");
   try {
-  const evidences_link = complaintInfo.screenShots || [];
-  const flaskResponse = await axios.post(
-    "http://127.0.0.1:5000/verifyDocuments",
-    { Evidences_link: evidences_link } // send as JSON object
-  );
+    const evidences_link = complaintInfo.screenShots || [];
+    const flaskResponse = await axios.post(
+      "http://127.0.0.1:5000/verifyDocuments",
+      { Evidences_link: evidences_link } // send as JSON object
+    );
 
-    // Example: assuming Flask returns { isValid: 0 } or { isValid: 1 }
+    // Flask should return an array of results, one per screenshot
     const isValid = flaskResponse.data.response;
     console.log("Flask verification result:", isValid);
-    complaintInfo.isScreenshotTampered= isValid;
+
+    // If isValid is not an array, convert it to an array for consistency
+    complaintInfo.isScreenshotTampered = Array.isArray(isValid)
+      ? isValid
+      : Array(complaintInfo.screenShots.length).fill(isValid);
+
     await complaintInfo.save();
   } catch (flaskError) {
     console.error("Flask verification error:", flaskError.message);
-    // You can choose to handle this differently, e.g. log it but don't fail the main request
-    complaintInfo.isScreenshotTampered = Array(complaintInfo.screenShots.length).fill(0); // default to false if error
+    // Default to all 0 (not tampered) if error
+    complaintInfo.isScreenshotTampered = Array(complaintInfo.screenShots.length).fill(0);
     await complaintInfo.save();
   }
+}
 
   } catch (error) {
     console.error("❌ complaintInformation Error:", error);
