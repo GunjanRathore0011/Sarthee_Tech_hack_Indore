@@ -92,14 +92,14 @@ const Awareness = () => {
       </section>
 
       {/* Report Cybercrime */}
-      <section className="bg-blue-50 py-20 px-4" data-aos="fade-up">
+      <section className=" py-20 px-4" data-aos="fade-up">
         <h2 className="text-3xl font-semibold text-center mb-6">How to Report a Cybercrime</h2>
         <div className="text-center mb-4">
           <p className="text-4xl font-bold text-blue-700 mb-2">📞 1930</p>
           <p className="text-gray-700">24x7 helpline for immediate cybercrime reporting</p>
         </div>
 
-        <div className="text-center mb-6">
+        {/* <div className="text-center mb-6">
           <a
             href="https://cybercrime.gov.in"
             target="_blank"
@@ -108,7 +108,7 @@ const Awareness = () => {
           >
             Submit Complaint Online (cybercrime.gov.in)
           </a>
-        </div>
+        </div> */}
 
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto text-gray-800">
           <div className="bg-white p-6 rounded-xl shadow text-center">
