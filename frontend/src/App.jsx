@@ -28,7 +28,10 @@ import TrackingDashboard from './pages/TrackingDashboard';
 import PrivateRoute from './pages/PrivateRoute';
 import RoleBasedRoute from './pages/RoleBasedRoute';
 import FindUsingIP from './pages/OfficerDashboard/FindUsingIP';
+<<<<<<< HEAD
 import FindUsingNo from './pages/OfficerDashboard/FindUsingNo';
+=======
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
 
 const App = () => {
   const location = useLocation();
@@ -49,7 +52,10 @@ const App = () => {
     '/platform-coordination',
     "/suspect-tracker",
     '/findUsingIP',
+<<<<<<< HEAD
     '/findUsingNo',
+=======
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
   ];
   const isOfficerRoute = officerRoutes.includes(location.pathname);
   const isAdminRoute = adminRoutes.includes(location.pathname);
@@ -107,7 +113,10 @@ const App = () => {
           />
           <Route path="/suspect-tracker" element={<TrackingDashboard />} />
           <Route path="/findUsingIP" element={<FindUsingIP />} />
+<<<<<<< HEAD
           <Route path="/findUsingNo" element={<FindUsingNo/>}/>
+=======
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
         </Route>
       </Routes>
     </>

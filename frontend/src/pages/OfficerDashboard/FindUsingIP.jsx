@@ -62,7 +62,11 @@ function FindUsingIP() {
       {error && <p className="text-red-500 mt-2">{error}</p>}
 
       {data && (
+<<<<<<< HEAD
         <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-800 text-white rounded-lg p-4 flex flex-col md:flex-row gap-6">
+=======
+          <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-800 text-white rounded-lg p-4 flex flex-col md:flex-row gap-6">
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
 
 
           {/* Left Side - IP Details */}
@@ -82,15 +86,30 @@ function FindUsingIP() {
             <p><strong>Fraud Score:</strong> {data.fraud_score}</p>
           </div>
 
+<<<<<<< HEAD
           {data.data.latitude && data.data.longitude && (
             <div className="flex-1 h-[350px] rounded overflow-hidden">
+=======
+          {/* Right Side - Map */}
+          {data.data.latitude && data.data.longitude && (
+            <div className="flex-1 h-64 rounded overflow-hidden">
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
               <MapContainer
                 center={[data.data.latitude, data.data.longitude]}
                 zoom={10}
                 scrollWheelZoom={false}
+<<<<<<< HEAD
                 style={{ height: "100%", width: "100%" }}
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+=======
+                style={{ height: "110%", width: "100%" }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  // attribution="&copy; OpenStreetMap contributors"
+                />
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
                 <Marker position={[data.data.latitude, data.data.longitude]}>
                   <Popup>
                     {data.data.city}, {data.data.region}
@@ -98,12 +117,19 @@ function FindUsingIP() {
                 </Marker>
               </MapContainer>
             </div>
+<<<<<<< HEAD
         
         )}
     </div>
   )
 }
     </div >
+=======
+          )}
+        </div>
+      )}
+    </div>
+>>>>>>> 51db64a210adc8a3da57bf290c5b25138f915898
   );
 }
 
