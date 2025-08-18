@@ -110,10 +110,21 @@ io.on("connection", (socket) => {
 });
 
 // ✅ Start server with Socket.IO
-server.listen(PORT,async () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-  await initTelegram();
-});
+(async () => {
+  try {
+    await initTelegram(); // 🔑 try to connect
+    console.log("Tel-G connected ✅");
+  } catch (err) {
+    console.error("⚠️ Telegram init failed:", err.message);
+    console.log("Server will still run without Tel-G.");
+  }
+
+  // Server will always start, whether Telegram worked or not
+  server.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+})();
+
 
 // ✅ Connect DB & Cloudinary
 dbconnect();
