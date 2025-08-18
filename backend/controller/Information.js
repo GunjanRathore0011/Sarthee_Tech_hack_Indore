@@ -435,7 +435,7 @@ exports.complaintInformation = async (req, res) => {
             ? req.files.suspect_file
             : [req.files.suspect_file];
           for (let file of suspectFiles) {
-            const uploaded = await UploadToCloudinary(file.tempFilePath, "suspectedImages");
+            const uploaded = await UploadToCloudinary(file, "suspectedImages");
             suspectImages.push(uploaded.secure_url);
           }
         }
