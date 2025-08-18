@@ -381,7 +381,7 @@ exports.complaintInformation = async (req, res) => {
           public_id: `complaint_${complaintInfo._id}`,
         }, // no resource_type here
         (err, uploadResult) => {
-          fs.unlinkSync(tempPath); // cleanup
+          // fs.unlinkSync(tempPath); // cleanup
           if (err) reject(err);
           else resolve(uploadResult);
         }
