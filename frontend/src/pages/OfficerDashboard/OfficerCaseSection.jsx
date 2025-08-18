@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { fetchAssignedCases } from '@/ReduxSlice/stats/statsSlice';
+import OfficerDashboardStats from '@/component/OfficerComponent/OfficerDashboardStats';
 
 // Utility functions for badge colors
 const getPriorityBadge = (priority) => {
@@ -141,6 +142,8 @@ const OfficerCaseSection = () => {
 
     return (
         <>
+      <OfficerDashboardStats />
+
             <div className="px-6 py-6 min-h-screen">
                 {/* Tabs */}
                 <div className="border-b border-blue-200 mb-6">
