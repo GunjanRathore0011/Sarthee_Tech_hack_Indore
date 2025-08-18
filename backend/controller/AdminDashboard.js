@@ -687,6 +687,10 @@ const user = await User.findOne(cId);
       lost_money: complaint.lost_money,
       delay_in_report: complaint.delay_in_report,
       createdAt: complaint.createdAt,
+
+      screenShotsTamp: complaint.isScreenshotTampered,
+      riskFiles: complaint.riskFiles,
+
       assignedTo: complaint.assignedTo ? {
         id: complaint.assignedTo._id,
         name: complaint.assignedTo.name,

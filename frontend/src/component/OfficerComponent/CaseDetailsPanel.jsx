@@ -156,9 +156,6 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
         });
     };
 
-    const handleDownloadEvidence = (evidenceName) => {
-        // console.log(evidenceName);
-    };
 
     return (
         <>
@@ -175,7 +172,7 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                                         {complaint.priority} Priority
                                     </Badge>
                                 </div>
-                                
+
                             </DialogTitle>
                         </DialogHeader>
 
@@ -329,39 +326,46 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                                         )}
                                     </Card>
                                 )}
+<Card className="p-6 bg-white border border-blue-100">
+  <h3 className="text-lg font-semibold mb-4">Evidence</h3>
+  <div className="flex flex-wrap gap-4">
+    {complaint.screenShots?.map((evidence, index) => {
+      const isTampered = complaint.screenShotsTamp?.[index] === true;
 
-                                {/* Evidence */}
-                                <Card className="p-6 bg-white border border-blue-100">
-                                    <h3 className="text-lg font-semibold mb-4">Evidence ({complaint.screenShots})</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {complaint.screenShots?.map((evidence) => (
-                                            <div
-                                                key={evidence.id}
-                                                className="p-4 border border-blue-200 rounded-lg bg-blue-50"
-                                            >
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center space-x-2">
-                                                        {getEvidenceIcon()}
-                                                        <span className="font-medium text-sm">View Evidence</span>
-                                                    </div>
-                                                    <a
-                                                        href={evidence}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => handleDownloadEvidence(screenShots)}
-                                                        >
-                                                            <Download className="h-4 w-4 text-blue-600" />
-                                                        </Button>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </Card>
+      return (
+        <div
+          key={`${evidence}-${index}`}
+          className={`p-4 flex flex-col items-center w-[15%] rounded-lg bg-blue-50 ${
+            isTampered ? "border-4 border-red-600" : "border border-blue-200"
+          }`}
+        >
+          <a
+            href={evidence}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex justify-center"
+          >
+            <img
+              src={evidence}
+              alt={`Evidence ${index + 1}`}
+              className="h-24 w-24 object-cover rounded-lg border border-gray-200"
+            />
+          </a>
+
+          {/* Caption */}
+          <span
+            className={`mt-2 text-sm font-medium ${
+              isTampered ? "text-red-600" : "text-green-600"
+            }`}
+          >
+            {isTampered ? "Tampered" : "Authentic"}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+</Card>
+
 
                                 {/* Investigation Actions (same as before) */}
                                 <Card className="p-6 bg-blue-50">
