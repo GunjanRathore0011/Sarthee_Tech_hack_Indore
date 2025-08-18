@@ -213,8 +213,8 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                                             <MapPin className="h-4 w-4 text-blue-400 mt-1" />
                                             <div>
                                                 <p className="text-sm text-blue-500">Location</p>
-                                                <p className="font-medium">{complaint.location}</p>
-                                                <p className="text-xs text-muted-foreground">PIN: {complaint.pinCode}</p>
+                                                <p className="font-medium">{complaint.userStreet}, {complaint.userDistrict}, {complaint.userState}</p>
+                                                <p className="text-xs text-muted-foreground">PIN: {complaint.userPincode}</p>
                                             </div>
                                         </div>
                                     </div>

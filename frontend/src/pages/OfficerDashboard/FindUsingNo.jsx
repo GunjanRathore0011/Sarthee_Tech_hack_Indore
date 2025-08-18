@@ -71,9 +71,9 @@ function FindUsingNo() {
             {phoneData.map((person, index) => (
               <div key={index} className="rounded-lg border border-black p-3">
                 <h3 className="text-lg font-semibold mb-2">
-                  {person.fullName || "Unknown Name"}
+                  Father's Name: {person.fullName || "Unknown Name"}
                 </h3>
-                <p><strong>Father's Name:</strong> {person.fatherName || "N/A"}</p>
+                <p><strong> Name:</strong> {person.fatherName || "N/A"}</p>
 
                 {person.documentNumber && (
                   <p>

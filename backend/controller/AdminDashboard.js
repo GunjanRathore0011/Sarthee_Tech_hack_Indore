@@ -665,11 +665,13 @@ exports.getComplaintDetails = async (req, res) => {
     const victimDetails = await VictimDetails.findOne({ complainId: id })
     const suspectDetails = await SuspectSchema.findOne({ complainId: id })
     const cId=complaint.userId._id;
-    console.log(cId);
+    // console.log(cId);
     // ✅ sahi
-const user = await User.findOne(cId);
+    const user = await User.findOne(cId);
 
     // console.log("User details:", user);
+    const userDetails = await AdditionDetails.findOne({ userId: cId })
+                .select('fullName street district state pincode');
 
 
     payload = {
@@ -680,13 +682,18 @@ const user = await User.findOne(cId);
       category: complaint.category,
       subCategory: complaint.subCategory,
       description: complaint.description,
-      incident_datetime: complaint.incident_datetime,
+      incident_datetime: complaint?.incident_datetime || "N/A",
       status: complaint.status,
       statusHistory: complaint.statusHistory,
       reason_of_delay: complaint.reason_of_delay,
       lost_money: complaint.lost_money,
       delay_in_report: complaint.delay_in_report,
       createdAt: complaint.createdAt,
+
+      userState: userDetails?.state || "",
+      userDistrict: userDetails?.district || "",
+      userStreet: userDetails?.street || "",
+      userPincode: userDetails?.pincode || "",
 
       screenShotsTamp: complaint.isScreenshotTampered,
       riskFiles: complaint.riskFiles,

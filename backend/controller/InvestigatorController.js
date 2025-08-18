@@ -169,10 +169,10 @@ exports.allAssignedCases = async (req, res) => {
 
         // 2. Complaint schema se data
         const complaints = await Complaint.find({ _id: { $in: assignedCaseIds } })
-            .select('userId category subCategory status priority description createdAt screenShots complain_report');
+            .select('userId category subCategory status priority description incident_datetime screenShots complain_report');
 
         const solvedComplaints = await Complaint.find({ _id: { $in: solvedCaseIds } })
-            .select('userId category subCategory status priority description createdAt screenShots complain_report');
+            .select('userId category subCategory status priority description incident_datetime screenShots complain_report');
 
 
         const activeCases = [];
@@ -191,7 +191,7 @@ exports.allAssignedCases = async (req, res) => {
             const caseData = {
                 id: c._id,
                 userId: c.userId,
-                caseId: `CASE-${c.createdAt.getFullYear()}-${String(c._id).slice(-3)}`,
+                caseId: `CASE-${c.incident_datetime?.getFullYear()}-${String(c._id).slice(-3)}`,
                 priority: c.priority,
                 status: c.status,
                 crimeType: c.subCategory,
@@ -199,7 +199,7 @@ exports.allAssignedCases = async (req, res) => {
                 pinCode: userDetails?.pincode || "N/A",
                 userName: userDetails?.fullName || "N/A",
                 description: c.description,
-                dateReceived: assignedAt || c.createdAt,  // Use assignedAt if found, else fallback to complaint creation date
+                dateReceived:  c.incident_datetime,  // Use assignedAt if found, else fallback to complaint creation date
                 evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
                 complaint_report: c.complain_report || 'N/A'
             };
@@ -225,7 +225,7 @@ exports.allAssignedCases = async (req, res) => {
             const caseData = {
                 id: c._id,
                 userId: c.userId,
-                caseId: `CASE-${c.createdAt.getFullYear()}-${String(c._id).slice(-3)}`,
+                caseId: `CASE-${c.incident_datetime?.getFullYear()}-${String(c._id).slice(-3)}`,
                 priority: c.priority,
                 status: c.status,
                 crimeType: c.subCategory,
@@ -233,7 +233,7 @@ exports.allAssignedCases = async (req, res) => {
                 pinCode: userDetails?.pincode || "N/A",
                 userName: userDetails?.fullName || "N/A",
                 description: c.description,
-                dateReceived: assignedAt || c.createdAt,  // Use assignedAt if found, else fallback to complaint creation date
+                dateReceived: c.incident_datetime,  // Use assignedAt if found, else fallback to complaint creation date
                 evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
                 complaint_report: c.complain_report || 'N/A'
             };

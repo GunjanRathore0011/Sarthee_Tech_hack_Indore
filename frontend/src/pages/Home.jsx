@@ -29,7 +29,7 @@ const Home = () => {
   return (
     <>
       <div className=" w-full bg-gradient-to-r from-[#dbeafe] to-[#f9fafb]">
-  <div className="h-[90vh]   max-w-7xl mx-auto px-6 py-16 pt-26 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+  <div className="h-[81vh]   max-w-7xl mx-auto px-6 py-16 pt-26 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
     
     {/* LEFT SIDE → Text Content */}
     <div

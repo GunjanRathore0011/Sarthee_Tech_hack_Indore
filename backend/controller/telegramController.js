@@ -73,7 +73,7 @@ async function askBot(req, res) {
 
     replies.push(...botAReplies);
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
      const staticPrompt = `
       I need you to act as a data processing engine. I will provide a block of raw, unstructured data. Your task is to extract, clean, and structure this data into a single JSON array of user objects. Each object in the array should represent a unique individual.

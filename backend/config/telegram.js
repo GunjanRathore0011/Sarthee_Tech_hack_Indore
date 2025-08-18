@@ -10,6 +10,7 @@ const stringSession = new StringSession("1BQANOTEuMTA4LjU2LjEwNQG7sXIVyXlPKvmQiA
 
 const client = new TelegramClient(stringSession, apiId, apiHash, {
   connectionRetries: 5,
+   useWSS: true,
 });
 
 
