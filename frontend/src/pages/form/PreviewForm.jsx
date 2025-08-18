@@ -1,9 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { resetFormDataExceptAdditional } from '@/ReduxSlice/formData/formSlice';
 import { ShieldAlert, UserRound, ScanFace, FileImage } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 // --------------------------------------
 // Helpers
@@ -198,6 +202,7 @@ const CrimeDetailsSwitch = ({ category, harassment, fraud, acc, other }) => {
 export default function PreviewForm({ onBack }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const additionalDetail = useSelector((state) => state.formData.additionDetail);
   const suspectData = useSelector((state) => state.formData.suspectData);
@@ -207,8 +212,23 @@ export default function PreviewForm({ onBack }) {
   const otherCrime = useSelector((state) => state.formData.otherCrime);
   const category = useSelector((state) => state.formData.categoryKey.value);
 
+  const [count, setCount] = useState(0);
+
+  // Counter logic
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      setCount(0); // reset when loading starts
+      interval = setInterval(() => {
+        setCount((prev) => prev + 1);
+      }, 1000); // increase every 1 second
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
+
   const submithandler = async () => {
     try {
+      setLoading(true);
       let payload = {};
       let formData = null;
       let useFormData = false;
@@ -216,10 +236,14 @@ export default function PreviewForm({ onBack }) {
       if (category === 'financial_fraud') {
         const { files, ...restFinancialFraud } = financialFraud || {};
         const { suspectedFile, ...restSuspect } = suspectData || {};
-        payload = {
+        const payload = {
           ...restFinancialFraud,
           ...financialAcc,
           ...restSuspect,
+          lost_money: {
+            fraud: restFinancialFraud.lost_money,
+            acc: financialAcc.lost_money,
+          },
         };
         formData = new FormData();
         formData.append('data', JSON.stringify(payload));
@@ -267,17 +291,19 @@ export default function PreviewForm({ onBack }) {
       if (data.success) {
         // toast or alert
         // eslint-disable-next-line no-alert
-        alert('✅ Form submitted successfully!');
+        toast.success('Form submitted successfully!');
         dispatch(resetFormDataExceptAdditional());
         navigate('/submitedcomplaint', { state: { responseData: data } });
       } else {
         // eslint-disable-next-line no-alert
-        alert('⚠️ Error submitting form: ' + data.message);
+        toast.error('⚠️ Error submitting form: ' + data.message);
       }
     } catch (error) {
-      console.error('❌ Axios submission error:', error);
+      console.error(' Axios submission error:', error);
       // eslint-disable-next-line no-alert
-      alert('❌ Network/server error while submitting form.');
+      toast.error('Network/server error while submitting form.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -299,7 +325,7 @@ export default function PreviewForm({ onBack }) {
       {/* 3 sections */}
       {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
        */}
-       <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
 
         {/* Additional Details */}
         <SectionCard title="Additional Details" icon={UserRound}>
@@ -370,6 +396,32 @@ export default function PreviewForm({ onBack }) {
         >
           Submit
         </button>
+        {/* Blocking Loading Dialog */}
+        <Dialog open={loading} onOpenChange={() => { }}>
+          <DialogContent
+            className="flex items-center justify-center p-0 border-none bg-transparent shadow-none"
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl shadow-lg flex flex-col items-center justify-center w-[600px] h-[320px] space-y-6 p-6">
+
+                {/* Circle Loader with Counter */}
+                <div className="relative flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-32 w-32 border-8 border-blue-500 border-t-transparent"></div>
+                  {/* <span className="absolute text-2xl font-bold text-blue-600">
+                     {count}
+                   </span> */}
+                </div>
+
+                <p className="text-lg font-semibold text-gray-700">
+                  Please wait...
+                </p>
+                <p className="text-sm text-gray-500">Your Complaint is Submiting</p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

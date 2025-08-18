@@ -47,7 +47,8 @@ const App = () => {
     '/officer-complaint-management',
     '/platform-coordination',
     "/suspect-tracker",
-    '/findUsing',
+    '/findUsingIP',
+    '/findUsingNo',
   ];
   const isOfficerRoute = officerRoutes.includes(location.pathname);
   const isAdminRoute = adminRoutes.includes(location.pathname);
@@ -104,7 +105,8 @@ const App = () => {
             element={<PlatformCoordination />}
           />
           <Route path="/suspect-tracker" element={<TrackingDashboard />} />
-          <Route path="/findUsing" element={<FindDetailsPage/>} />
+          <Route path="/findUsingIP" element={<FindUsingIP />} />
+          <Route path="/findUsingNo" element={<FindUsingNo/>}/>
         </Route>
       </Routes>
     </>

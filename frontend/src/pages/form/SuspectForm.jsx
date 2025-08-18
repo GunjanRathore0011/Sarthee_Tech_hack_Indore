@@ -8,7 +8,7 @@ function SuspectForm({ onNext, onBack }) {
 
   const [suspectD, setSuspectD] = useState(suspectData || {
     suspectedName: '',
-    suspectedCard: 'Other',
+    suspectedCard: '',
     suspectedFile: null,
     details: '',
     suspectedCardNumber: '',
@@ -97,7 +97,7 @@ function SuspectForm({ onNext, onBack }) {
       onChange={handleChange}
       className="w-full px-3 py-1.5 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
     >
-      <option value="Other">Other</option>
+      <option value="">Other</option>
       {socialMedia.map((media) => (
         <option key={media} value={media}>{media}</option>
       ))}
@@ -162,7 +162,7 @@ function SuspectForm({ onNext, onBack }) {
       type="button"
       className="px-4 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-md"
     >
-      Next 
+     Save & Next 
     </button>
   </div>
 </div>
