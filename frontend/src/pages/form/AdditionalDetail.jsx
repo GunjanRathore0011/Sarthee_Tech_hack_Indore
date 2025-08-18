@@ -3,10 +3,12 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { resetAllFormData, setAdditionDetail } from '@/ReduxSlice/formData/formSlice';
 import { setuserAdditionalDetailsField } from '@/ReduxSlice/formData/formSlice';
+import { toast } from 'react-toastify';
 
 
 const AdditionalDetail = ({ onNext }) => {
     const savedFormData = useSelector((state) => state.formData.additionDetail);
+    const [loading, setLoading] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -52,7 +54,7 @@ const AdditionalDetail = ({ onNext }) => {
 
     const apiCall = async () => {
         try {
-            console.log('📤 Submitting to API with data:', formData);
+            // console.log('📤 Submitting to API with data:', formData);
 
             const fd = new FormData();
 
@@ -87,20 +89,20 @@ const AdditionalDetail = ({ onNext }) => {
             const data = response.data;
 
             if (data.success) {
-                alert('✅ Additional Details registered successfully!');
+                toast.success('✅ Additional Details registered successfully!');
                 dispatch(setuserAdditionalDetailsField({ fill: 1 }));
                 onNext();
             } else {
-                alert('⚠ Failed to register Additional Details: ' + data.message);
+                toast.error('⚠ Failed to register Additional Details: ' + data.message);
             }
 
         } catch (error) {
             console.error('❌ Error during API call:', error);
-            alert('An error occurred: ' + (error.response?.data?.message || error.message));
+            toast.error('An error occurred: ' + (error.response?.data?.message || error.message));
         }
     };
     const userFilled = useSelector((state) => state.formData.userAdditionalDetailsField.fill);
-    console.log('User Filled Additional Details:', userFilled);
+    // console.log('User Filled Additional Details:', userFilled);
 
     useEffect(() => {
         if (userFilled) {
@@ -110,7 +112,7 @@ const AdditionalDetail = ({ onNext }) => {
     }, []);
 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
 
         // Validation
@@ -120,10 +122,12 @@ const AdditionalDetail = ({ onNext }) => {
                 return;
             }
         }
+        setLoading(true);
 
         // If validation passes, call API
         console.log('Submitting to API...');
-        apiCall();
+         await apiCall();
+        setLoading(false);
     };
 
     return (
@@ -295,10 +299,10 @@ const AdditionalDetail = ({ onNext }) => {
 
             <button
                 type="submit"
-
                 className="w-full bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700"
-            >
-                Save & Next
+            >  {
+                loading ? 'Submitting...' : 'Submit'
+            }
             </button>
         </form>
     );

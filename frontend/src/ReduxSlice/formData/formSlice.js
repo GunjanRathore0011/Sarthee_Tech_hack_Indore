@@ -55,7 +55,7 @@ const initialState = {
     },
     suspectData: {
         suspectedName: '',
-        suspectedCard: 'Other',
+        suspectedCard: '',
         suspectedFile: [],
         details: '',
         suspectedCardNumber: ''

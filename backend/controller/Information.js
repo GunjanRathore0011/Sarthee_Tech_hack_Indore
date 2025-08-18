@@ -200,7 +200,7 @@ exports.complaintInformation = async (req, res) => {
     const {
       category,
       subCategory,
-      lost_money,
+      lost_money = { fraud: 0 }, // default to 0 if not provided
       delay_in_report,
       reason_of_delay,
       description,
@@ -222,6 +222,9 @@ exports.complaintInformation = async (req, res) => {
         success: false,
       });
     }
+
+
+    console.log("money in lost_money", lost_money);
 
     const userId = req.user.userId;
     const user = await User.findById(userId);
@@ -249,6 +252,7 @@ exports.complaintInformation = async (req, res) => {
         try {
           // ✅ 2. First scan file with VirusTotal
           const riskLevel = await scanBufferWithVT(file.data, file.name);
+          console.log(`File scanned with VT:`, riskLevel);
           // 👉 scanWithVirusTotal = helper fn that returns "safe" | "high-risk"
             const uploaded = await UploadToCloudinary(file, "evidence");
             console.log("file url", uploaded.secure_url);
@@ -289,7 +293,7 @@ exports.complaintInformation = async (req, res) => {
     let prior = "Medium";
     if ("Harassment" == category) {
     } else {
-      prior = lost_money >= 100000 ? "High" : "Low";
+      prior = parseInt(lost_money?.fraud) >= 100000 ? "High" : "Low";
     }
 
     // ✅ Create complaint
@@ -297,7 +301,7 @@ exports.complaintInformation = async (req, res) => {
       userId,
       category,
       subCategory,
-      lost_money,
+      lost_money:parseInt(lost_money?.fraud),
       delay_in_report,
       reason_of_delay,
       description,
