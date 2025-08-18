@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 // Fix marker icon issue in Leaflet + React
 import 'leaflet/dist/leaflet.css';
@@ -38,12 +39,12 @@ function FindUsingIP() {
   };
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold mb-6 text-center">
-        Find Details Using IP Address
+        Enter IP Address
       </h1>
 
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-4 w-full max-w-md">
         <input
           type="text"
           value={ip}
@@ -102,6 +103,35 @@ function FindUsingIP() {
     </div>
   )
 }
+
+
+           <Dialog open={loading} onOpenChange={() => { }}>
+          <DialogContent
+            className="flex items-center justify-center p-0 border-none bg-transparent shadow-none"
+            onInteractOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl shadow-lg flex flex-col items-center justify-center w-[600px] h-[320px] space-y-6 p-6">
+
+                {/* Circle Loader with Counter */}
+                <div className="relative flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-32 w-32 border-8 border-blue-500 border-t-transparent"></div>
+                  {/* <span className="absolute text-2xl font-bold text-blue-600">
+                     {count}
+                   </span> */}
+                </div>
+
+                <p className="text-lg font-semibold text-gray-700">
+                  Please wait...
+                </p>
+                <p className="text-sm text-gray-500">Finding details of IP address</p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+
     </div >
   );
 }

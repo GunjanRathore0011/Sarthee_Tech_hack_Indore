@@ -70,14 +70,14 @@ const OfficerNavbar = () => {
                   <span>Cases</span>
                 </Link>
       
-                <Link
+                {/* <Link
                   to='/platform-coordination'
                   className={`flex items-center space-x-2 transition ${
                     isActive('/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
                   }`}
                 >
                   <span>Platform Coordination</span>
-                </Link>
+                </Link> */}
       
                 <Link
                   to="/suspect-tracker"

@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+import 'leaflet/dist/leaflet.css';
 
 function FindUsingNo() {
-    const [countryCode, setCountryCode] = useState("+91");
+  const [countryCode, setCountryCode] = useState("+91");
   const [loading, setLoading] = useState(false);
   const [phoneData, setPhoneData] = useState(null);
   const [phoneNo, setPhoneNo] = useState('');
@@ -15,7 +18,7 @@ function FindUsingNo() {
       setError('Please enter a phone number');
       return;
     }
-    if (phoneNo.length < 10) {
+    if (phoneNo.length < 12) {
       setError('Phone number must be at least 10 digits');
       toast.error('Phone number must be at least 10 digits');
       return;
@@ -39,7 +42,9 @@ function FindUsingNo() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-2xl font-bold mb-6">Find Details Using Phone Number</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">
+
+        Enter Phone Number</h1>
 
       {/* Input Section */}
       <div className="flex items-center gap-3 mb-4 w-full max-w-md">
@@ -67,10 +72,10 @@ function FindUsingNo() {
             <h2 className="text-white font-semibold">Phone Number Details</h2>
           </div>
 
-          <div className="p-4 space-y-6 bg-gradient-to-r from-blue-500 to-blue-800 text-white">
+          <div className="p-4 space-y-6 text-black">
             {phoneData.map((person, index) => (
               <div key={index} className="rounded-lg border border-black p-3">
-                <h3 className="text-lg font-semibold mb-2">
+                <h3 className="text-black font-semibold mb-2">
                   Father's Name: {person.fullName || "Unknown Name"}
                 </h3>
                 <p><strong> Name:</strong> {person.fatherName || "N/A"}</p>
@@ -134,6 +139,31 @@ function FindUsingNo() {
           No phone data found. Please try a different number.
         </div>
       )}
+      <Dialog open={loading} onOpenChange={() => { }}>
+        <DialogContent
+          className="flex items-center justify-center p-0 border-none bg-transparent shadow-none"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-lg flex flex-col items-center justify-center w-[600px] h-[320px] space-y-6 p-6">
+
+              {/* Circle Loader with Counter */}
+              <div className="relative flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-8 border-blue-500 border-t-transparent"></div>
+                {/* <span className="absolute text-2xl font-bold text-blue-600">
+                     {count}
+                   </span> */}
+              </div>
+
+              <p className="text-lg font-semibold text-gray-700">
+                Please wait...
+              </p>
+              <p className="text-sm text-gray-500">Finding details using 10+ resources</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

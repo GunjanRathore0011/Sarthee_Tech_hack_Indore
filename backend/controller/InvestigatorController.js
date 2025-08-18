@@ -247,9 +247,9 @@ exports.allAssignedCases = async (req, res) => {
                 activeCases.push(caseData);
             }
         }
-
+        // console.log("Active Cases:", activeCases);
         
-
+        activeCases.sort((a, b) => new Date(b.dateReceived) - new Date(a.dateReceived));
 
 
 
@@ -297,8 +297,10 @@ exports.updateComplaintStatus = async (req, res) => {
         const investigator = await Investigator.findById(investigatorId);
         if (investigator) {
             // Update the assignedCases array in Investigator
-            investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
+            // investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
             if (newStatus === "Resolved" || newStatus === "Rejected") {
+            investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
+
                 investigator.solvedCases.push({ caseId: complaintId, solvedAt: new Date() });
             }
             await investigator.save();
