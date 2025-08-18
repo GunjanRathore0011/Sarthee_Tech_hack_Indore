@@ -3,6 +3,8 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaCheckCircle } from "react-icons/fa";
 import FeedbackForm from "./form/New";
+import CyberCrimeCards from "@/component/CyberCrimeCards";
+import TrendingCases from "./TrendingCases";
 
 const Awareness = () => {
   useEffect(() => {
@@ -15,23 +17,41 @@ const Awareness = () => {
       {/* <FeedbackForm /> */}
       
       {/* Header Section */}
-      <section className="bg-gradient-to-r from-blue-100 to-blue-200 py-20 px-4 text-center" data-aos="fade-down">
-        <h1 className="text-4xl md:text-5xl font-bold text-blue-700">Cyber Safety Awareness</h1>
-        <p className="mt-2 text-lg text-blue-600">Stay Informed, Stay Secure</p>
-      </section>
+      <section className="bg-gradient-to-r from-[#dbeafe] to-[#f9fafb] py-20 px-4 text-center" data-aos="fade-right">
+  <h1 className="text-4xl md:text-5xl font-bold text-blue-700 drop-shadow-sm">
+    Cyber Safety Awareness
+  </h1>
+  <p className="mt-3 text-lg md:text-xl text-blue-600">
+    Stay Informed, Stay Secure
+  </p>
+</section>
 
-      {/* What is Cybercrime */}
-      <section className="max-w-5xl mx-auto py-16 px-4" data-aos="fade-up">
-        <h2 className="text-3xl font-semibold text-center mb-10">What is Cybercrime?</h2>
-        <ul className="space-y-4 text-lg text-gray-700 list-disc pl-5">
-          <li><strong>Phishing:</strong> Deceptive attempts to acquire sensitive info by masquerading as a trustworthy entity.</li>
-          <li><strong>Online Fraud:</strong> Tricking individuals into parting with money or personal data using false practices.</li>
-          <li><strong>Cyberstalking:</strong> Harassment through electronic means, often repeated and unwanted.</li>
-          <li><strong>Identity Theft:</strong> Fraudulent use of another person's personal data for gain.</li>
-        </ul>
-      </section>
+{/* What is Cybercrime */}
+<section className="max-w-5xl mx-auto py-22 px-6 text-center" data-aos="fade-down">
+  <h2 className="text-3xl md:text-4xl font-semibold mb-6 text-gray-800">
+    What is <span className="text-blue-600">Cybercrime?</span>
+  </h2>
+  <p className="text-lg text-gray-600 leading-relaxed">
+    Cybercrime refers to any criminal activity that involves a computer, 
+    network, or networked device. <br />It’s crucial to understand these 
+    threats to protect yourself and your digital presence.
+  </p>
 
-      {/* How Scammers Trick You */}
+  {/* Highlighted Note */}
+  <div className="mt-8 w-2xl bg-blue-50 border-l-4 mx-auto border-blue-600 p-4 rounded-lg shadow-sm">
+    <p className="text-blue-700 font-medium">
+      💡 Tip: Awareness is your first line of defense against online threats.
+    </p>
+  </div>
+</section>
+
+      {/* Common Types of Cybercrime */}
+      <CyberCrimeCards />
+
+      {/* Trending Cybercrime Cases */}
+      <TrendingCases />
+
+      {/* How Scammers Trick You
       <section className="bg-gray-50 py-16 px-4" data-aos="fade-up">
         <h2 className="text-3xl font-semibold text-center mb-10">How Scammers Trick You</h2>
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
@@ -48,11 +68,12 @@ const Awareness = () => {
             <p>Fake websites or identities tricking you into sharing credentials or financial data.</p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Cyber Safety Tips */}
-      <section className="max-w-6xl mx-auto py-16 px-4" data-aos="fade-up">
-        <h2 className="text-3xl font-semibold text-center mb-10">Cyber Safety Tips</h2>
+      <section className=" mx-auto py-16 px-4 bg-gradient-to-r from-[#dbeafe] to-[#f9fafb] mt-2.5" data-aos="fade-up">
+        <div className="max-w-6xl mx-auto ">
+          <h2 className="text-3xl font-semibold text-center  mb-10">Cyber Safety Tips</h2>
         <div className="grid md:grid-cols-2 gap-8 text-lg text-gray-700">
           {[
             "Use strong, unique passwords for all your accounts and consider using a password manager.",
@@ -67,17 +88,18 @@ const Awareness = () => {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* Report Cybercrime */}
-      <section className="bg-blue-50 py-20 px-4" data-aos="fade-up">
+      <section className=" py-20 px-4" data-aos="fade-up">
         <h2 className="text-3xl font-semibold text-center mb-6">How to Report a Cybercrime</h2>
         <div className="text-center mb-4">
           <p className="text-4xl font-bold text-blue-700 mb-2">📞 1930</p>
           <p className="text-gray-700">24x7 helpline for immediate cybercrime reporting</p>
         </div>
 
-        <div className="text-center mb-6">
+        {/* <div className="text-center mb-6">
           <a
             href="https://cybercrime.gov.in"
             target="_blank"
@@ -86,7 +108,7 @@ const Awareness = () => {
           >
             Submit Complaint Online (cybercrime.gov.in)
           </a>
-        </div>
+        </div> */}
 
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto text-gray-800">
           <div className="bg-white p-6 rounded-xl shadow text-center">

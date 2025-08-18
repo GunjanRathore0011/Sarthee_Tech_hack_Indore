@@ -62,8 +62,7 @@ function FindUsingIP() {
       {error && <p className="text-red-500 mt-2">{error}</p>}
 
       {data && (
-        <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-800 text-white rounded-lg p-4 flex flex-col md:flex-row gap-6">
-
+          <div className="mt-6 bg-gradient-to-r from-blue-500 to-blue-800 text-white rounded-lg p-4 flex flex-col md:flex-row gap-6">
 
           {/* Left Side - IP Details */}
           <div className="flex-1">
