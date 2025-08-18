@@ -13,13 +13,8 @@ import {
   Copy,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
-/**
- * PlatformCoordination (Live, MERN-backed)
- * - Uses REST API instead of localStorage simulation
- * - Polls backend for live status changes (Pending -> Acknowledged -> Completed)
- * - Compatible with the backend provided in the chat (routes under /api/platform-requests)
- */
 
 const API_BASE = "http://localhost:4000"
 
@@ -33,6 +28,7 @@ const PLATFORM_META = [
   { key: "youtube", label: "YouTube", code: "YT", hostHints: ["youtube.com", "youtu.be"] },
   { key: "github", label: "GitHub", code: "GH", hostHints: ["github.com"] },
   { key: "hosting_provider", label: "Website / Hosting", code: "WEB", hostHints: ["."] },
+  { key: "Banking", label: "Banking / Finance", code: "BANK", hostHints: ["bank", "finance"] },
 ];
 
 const REQUEST_TYPES = [
@@ -74,6 +70,11 @@ const ENTITY_TYPES = {
   ],
   hosting_provider: [
     { key: "DOMAIN_OR_URL", label: "Domain / URL" },
+  ],
+  Banking: [
+    { key: "ACCOUNT_NUMBER", label: "Account Number" },
+    { key: "CARD_NUMBER", label: "Card Number" },
+    { key: "TRANSACTION_ID", label: "Transaction ID" },
   ],
 };
 
@@ -133,6 +134,11 @@ const Timeline = ({ status, createdAt, ackAt, doneAt, refId }) => {
 };
 
 export default function PlatformCoordination() {
+  const location = useLocation();
+  const { caseId } = location.state || {};
+  if (caseId) {
+    console.log("Case ID from state:", caseId);}
+
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -160,7 +166,9 @@ export default function PlatformCoordination() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${API_BASE}/api/platform-requests`);
+      const { data } = await axios.post(`${API_BASE}/api/platform-requests`, {
+        complaintId: caseId,
+      });
       setRequests(data);
       if (!selectedId && data?.length) setSelectedId(data[0]._id);
       setError("");
@@ -175,7 +183,7 @@ export default function PlatformCoordination() {
   };
 
   useEffect(() => {
-    fetchRequests();
+    // fetchRequests();
   }, []);
 
   // Auto-detect platform when link changes
@@ -189,31 +197,37 @@ export default function PlatformCoordination() {
             break;
           }
         }
-      } catch {}
+      } catch { }
     }
   }, [form.targetLink]);
 
+
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!form.platform || !form.requestType || !form.entityType || !form.entityValue) return;
+    if (!form.platform || !form.requestType || !form.entityType) return;
 
     try {
       setSubmitting(true);
       // console.log("Submitting request:", form);
       setError("");
-      const res=await axios.post(`${API_BASE}/api/platform-requests`, {
+      const res = await axios.post(`${API_BASE}/api/platform-requests`, {
+        complaintId: caseId,
         platform: form.platform,
         requestType: form.requestType,
-        entityType: form.entityType,
-        entityValue: form.entityValue,
-        targetLink: form.targetLink,
+        // entityType: form.entityType,
+        // entityValue: form.entityValue,
+        targetLink: form.entityType,
         reason: form.reason,
-        evidenceLink: form.evidenceLink,
-        evidenceFileName: form.evidenceFileName,
+        // evidenceLink: form.evidenceLink,
+        // evidenceFileName: form.evidenceFileName,
       });
       if (res.status !== 200) {
         throw new Error("Failed to submit request");
       }
+      setEmail(res.data.email);
+      setSubject(res.data.subject);
       toast.success("Request submitted successfully!");
       setForm({
         platform: "",
@@ -226,12 +240,12 @@ export default function PlatformCoordination() {
         evidenceFileName: "",
       });
       await fetchRequests();
-       setRequests((prev) =>
-    prev.map((r) => (r._id === res._id ? res : r))
-  );
+      setRequests((prev) =>
+        prev.map((r) => (r._id === res._id ? res : r))
+      );
 
-  // Optionally update selectedId to ensure focus stays
-  setSelectedId(res._id);
+      // Optionally update selectedId to ensure focus stays
+      setSelectedId(res._id);
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to submit request");
       console.error("Submit error:", e);
@@ -250,6 +264,13 @@ export default function PlatformCoordination() {
 
   const current = useMemo(() => requests.find((r) => r._id === selectedId) || filtered[0] || null, [requests, selectedId, filtered]);
 
+
+  const sendmail = async () => {
+  }
+
+  const handleChange = (e) => {
+    setEmail(e.target.value);
+  }
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Page header */}
@@ -315,31 +336,7 @@ export default function PlatformCoordination() {
                 </select>
               </div>
 
-              {/* Link (auto-detect platform) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Link (auto-detects platform)</label>
-                <input
-                  type="url"
-                  placeholder="https://play.google.com/... or https://t.me/..."
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={form.targetLink}
-                  onChange={(e) => setForm({ ...form, targetLink: e.target.value })}
-                />
-              </div>
-
-              {/* Entity Value */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Identifier</label>
-                <input
-                  type="text"
-                  placeholder="com.example.app or @channelname or domain.com"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  value={form.entityValue}
-                  onChange={(e) => setForm({ ...form, entityValue: e.target.value })}
-                  required
-                />
-              </div>
-
+            
               {/* Reason */}
               <div>
                 <div className="flex items-center justify-between">
@@ -363,38 +360,7 @@ export default function PlatformCoordination() {
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={form.reason}
                   onChange={(e) => setForm({ ...form, reason: e.target.value })}
-                  required
                 />
-              </div>
-
-              {/* Evidence link + file (label only — upload handled separately if needed) */}
-              <div className="grid grid-cols-1 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Evidence link (optional)</label>
-                  <input
-                    type="url"
-                    placeholder="https://drive.google.com/..."
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={form.evidenceLink}
-                    onChange={(e) => setForm({ ...form, evidenceLink: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Attach evidence (PDF/Images)</label>
-                  <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-gray-300 rounded-lg text-gray-600 cursor-pointer hover:bg-gray-50">
-                    <Upload className="w-4 h-4" />
-                    <span className="text-sm">Click to choose file (UI only)</span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      onChange={(e) => setForm({ ...form, evidenceFileName: e.target.files?.[0]?.name || "" })}
-                      accept=".pdf,.png,.jpg,.jpeg"
-                    />
-                  </label>
-                  {form.evidenceFileName && (
-                    <div className="mt-1 text-xs text-gray-500">Attached: {form.evidenceFileName}</div>
-                  )}
-                </div>
               </div>
 
               {/* Submit */}
@@ -426,74 +392,39 @@ export default function PlatformCoordination() {
         <div className="lg:col-span-2 space-y-6">
           {/* Response Panel */}
           <div className="bg-white rounded-xl shadow-md p-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-semibold text-blue-600">Provider Response</h2>
-              </div>
-              {current?.refId && (
-                <button
-                  className="text-xs flex items-center gap-1 px-2 py-1 border rounded-md hover:bg-gray-50"
-                  onClick={() => navigator.clipboard.writeText(current.refId)}
-                >
-                  <Copy className="w-3 h-3" /> Copy Ref ID
-                </button>
-              )}
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-semibold text-blue-600">AI Powered Email</h2>
             </div>
 
-            {!current ? (
-              <p className="text-gray-500 mt-3">No requests yet. Submit a request to see responses here.</p>) : (
-              <div className="mt-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-gray-500">Platform</div>
-                    <div className="font-medium text-gray-800">{PLATFORM_META.find((p) => p.key === current.platform)?.label || current.platform}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Request</div>
-                    <div className="font-medium text-gray-800">{REQUEST_TYPES.find((t) => t.key === current.requestType)?.label || current.requestType}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Status</div>
-                    <StatusBadge status={current.status} />
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Officer</div>
-                    <div className="font-medium text-gray-800">{current?.officer?.name || "—"} {current?.officer?.id ? `• ID ${current.officer.id}` : ""}</div>
-                  </div>
-                </div>
-
-                <Timeline
-                  status={current.status}
-                  createdAt={current.createdAt}
-                  ackAt={current.ackAt}
-                  doneAt={current.doneAt}
-                  refId={current.referenceId}
-                />
-
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-900">
-                  {current.message || "Awaiting provider acknowledgement..."}
-                </div>
-
-                <div className="mt-3 grid md:grid-cols-3 gap-3 text-sm">
-                  <div className="p-3 rounded-lg bg-gray-50 border">
-                    <div className="text-gray-500">Reference ID</div>
-                    <div className="font-medium">{current.referenceId || "—"}</div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-gray-50 border">
-                    <div className="text-gray-500">Legal Reference</div>
-                    <div className="font-medium">{current.legal || "IT Act / CrPC"}</div>
-                  </div>
-                  <div className="p-3 rounded-lg bg-gray-50 border">
-                    <div className="text-gray-500">Evidence</div>
-                    <div className="font-medium truncate" title={current.evidenceLink || current.evidenceFileName || "—"}>
-                      {current.evidenceLink || current.evidenceFileName || "—"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* Input + Button */}
+          {
+            email.length > 0 ? (
+           <div className="space-y-3">
+              <input
+                type="text"
+                name="subject"
+                value={email}
+                onChange={handleChange}
+                placeholder="Enter Subject"
+                className="w-full border rounded p-2"
+              />
+              <button
+                onClick={sendmail}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Send Mail
+              </button>
+            </div>) : (
+            <div className="flex items-center justify-center h-32 bg-gray-50 rounded
+              text-gray-500">
+              <p className="text-sm">No email generated yet. Submit a request to generate an email.</p>
+            </div>
+            )
+            }
           </div>
+
 
           {/* History / Table */}
           <div className="bg-white rounded-xl shadow-md p-5">
@@ -519,7 +450,7 @@ export default function PlatformCoordination() {
                   onChange={(e) => setFilterStatus(e.target.value)}
                 >
                   <option value="">All Statuses</option>
-                  {['Pending','Acknowledged','Completed','Rejected'].map((s) => (
+                  {['Pending', 'Acknowledged', 'Completed', 'Rejected'].map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
