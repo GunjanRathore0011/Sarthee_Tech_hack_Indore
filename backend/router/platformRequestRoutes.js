@@ -12,8 +12,8 @@ const {
 router.post("/", createRequest);
 
 // Get all requests
-router.get("/", getAllRequests);
+router.post("/get", getAllRequests);
 
 // Update request status
-router.put("/:id", updateRequestStatus);
+// router.put("/:id", updateRequestStatus);
 module.exports = router;
