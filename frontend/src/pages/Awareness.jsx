@@ -99,17 +99,6 @@ const Awareness = () => {
           <p className="text-gray-700">24x7 helpline for immediate cybercrime reporting</p>
         </div>
 
-        {/* <div className="text-center mb-6">
-          <a
-            href="https://cybercrime.gov.in"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-xl shadow hover:bg-blue-700 transition"
-          >
-            Submit Complaint Online (cybercrime.gov.in)
-          </a>
-        </div> */}
-
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto text-gray-800">
           <div className="bg-white p-6 rounded-xl shadow text-center">
             <h3 className="text-lg font-semibold mb-2">Step 1: Keep Proof Ready</h3>

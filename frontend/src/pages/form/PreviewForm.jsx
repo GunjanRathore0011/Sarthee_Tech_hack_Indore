@@ -180,6 +180,14 @@ const OtherCrimeDetails = ({ other }) => (
     <KV label="Date & Time" value={formatDateTime(other?.incident_datetime)} />
     <KV label="Delay in report" value={other?.delay_in_report ? 'Yes' : 'No'} />
     {other?.reson_of_delay && <KV label="Reason for delay" value={other?.reson_of_delay} />}
+
+     <div className="mt-2">
+      <div className="flex items-center gap-2 mb-2 text-black font-medium">
+        <FileImage className="w-4 h-4" /> Uploaded Files
+      </div>
+      <ImageStrip files={other?.files} />
+    </div>
+
   </div>
 );
 
@@ -299,7 +307,7 @@ export default function PreviewForm({ onBack }) {
         toast.error('⚠️ Error submitting form: ' + data.message);
       }
     } catch (error) {
-      console.error(' Axios submission error:', error);
+      // console.error(' Axios submission error:', error);
       // eslint-disable-next-line no-alert
       toast.error('Network/server error while submitting form.');
     } finally {

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiBell, FiLogOut, FiSettings } from 'react-icons/fi';
 import { HiOutlineDocumentText } from 'react-icons/hi';
 import { MdOutlineReport } from 'react-icons/md';
-import shieldIcon from '../../assets/images/logo.png'; 
+import shieldIcon from '../../assets/images/logo.png';
 import OfficerNotifications from './OfficerNotifications';
 import { logout } from '@/ReduxSlice/user/userSlice';
 import { useDispatch } from 'react-redux';
@@ -15,8 +15,8 @@ const OfficerNavbar = () => {
 
   const handleLogout = () => {
     // Logout logic
-        dispatch(logout());
-    
+    dispatch(logout());
+
     navigate('/login');
   };
   const isActive = (path) => location.pathname === path;
@@ -30,7 +30,7 @@ const OfficerNavbar = () => {
           <img
             src={shieldIcon}
             alt="Logo"
-            className="h-10 w-10 cursor-pointer" 
+            className="h-10 w-10 cursor-pointer"
             onClick={() => navigate('officer-complaint-management')}
           />
           <div className="flex flex-col">
@@ -45,12 +45,19 @@ const OfficerNavbar = () => {
 
         {/* Right: Action Icons */}
         <div className="flex items-center space-x-8 text-xl">
-          <Link to="/officer-rule-book" title="Rule Book" className="text-sm flex items-center space-x-1 hover:text-blue-600 transition">
+          <a
+            href="https://res.cloudinary.com/dqamfp6o9/image/upload/v1755624416/evidence/complaint_report_1755624414763.pdf" // <-- your Cloudinary link here
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Rule Book"
+            className="text-sm flex items-center space-x-1 hover:text-blue-600 transition"
+          >
             <HiOutlineDocumentText className="text-lg" />
             <span>Rule Book</span>
-          </Link>
+          </a>
 
-          <OfficerNotifications/>
+
+          <OfficerNotifications />
 
           <Link to="/officer-settings" title="Settings">
             <FiSettings className="hover:text-blue-600 transition duration-150" />
@@ -63,19 +70,18 @@ const OfficerNavbar = () => {
       </nav>
 
       {/* Bottom Navigation Menu */}
-              <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
-                
-      
-                <Link
-                  to="/officer-complaint-management"
-                  className={`flex items-center space-x-2 transition ${
-                    isActive('/officer-complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-                  }`}
-                >
-                  <span>Cases</span>
-                </Link>
-      
-                {/* <Link
+      <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
+
+
+        <Link
+          to="/officer-complaint-management"
+          className={`flex items-center space-x-2 transition ${isActive('/officer-complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+        >
+          <span>Cases</span>
+        </Link>
+
+        {/* <Link
                   to='/platform-coordination'
                   className={`flex items-center space-x-2 transition ${
                     isActive('/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
@@ -83,25 +89,23 @@ const OfficerNavbar = () => {
                 >
                   <span>Platform Coordination</span>
                 </Link> */}
-      
-                <Link
-                  to="/suspect-tracker"
-                  className={`flex items-center space-x-2 transition ${
-                    isActive('/suspect-tracker') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-                  }`}
-                >
-                  <span>Suspect Tracker</span>
-                </Link>
-                  <Link
-                  to="/findUsing"
-                  className={`flex items-center space-x-2 transition ${
-                    isActive('/findUsing') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-                  }`}
-                >
-                  <span>FindUsing</span>
-                </Link>
-                 
-              </div>
+
+        <Link
+          to="/suspect-tracker"
+          className={`flex items-center space-x-2 transition ${isActive('/suspect-tracker') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+        >
+          <span>Suspect Tracker</span>
+        </Link>
+        <Link
+          to="/findUsing"
+          className={`flex items-center space-x-2 transition ${isActive('/findUsing') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            }`}
+        >
+          <span>FindUsing</span>
+        </Link>
+
+      </div>
 
     </div>
   );

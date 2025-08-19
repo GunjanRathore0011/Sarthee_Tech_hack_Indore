@@ -13,19 +13,6 @@ function FindUsingNo() {
   const [phoneNo, setPhoneNo] = useState('');
   const [error, setError] = useState('');
 
-//   const fieldMap = {
-//   fullName: "Full Name",
-//   fatherName: "Father's Name",
-//   telephones: "Phone Numbers",
-//   emails: "Emails",
-//   addresses: "Addresses",
-//   regions: "Regions",
-//   documentNumber: "Document Number",
-//   documentType: "Document Type",
-// };
-
-// setPhoneData(fieldMap);
-
   const handleNumberFind = async () => {
     if (!phoneNo.trim()) {
       setError('Please enter a phone number');

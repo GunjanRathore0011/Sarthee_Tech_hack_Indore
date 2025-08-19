@@ -55,7 +55,7 @@ function OtherCrimeForm({ onNext }) {
       setErrors(newErrors);
       return;
     }
-    console.log('Other Crime Data:', formData);
+    // console.log('Other Crime Data:', formData);
     dispatch(setOtherCrime(formData));
 
     onNext();

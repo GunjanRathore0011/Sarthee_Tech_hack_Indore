@@ -48,18 +48,19 @@ function SuspectForm({ onNext, onBack }) {
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.size <= 5 * 1024 * 1024) {
+    if (file && file.size <= 20 * 1024 * 1024) {
       const updated = { ...suspectD, suspectedFile: file };
       setSuspectD(updated);
       dispatch(setSuspectData(updated));
     } else {
-      alert('File size should be less than 5MB');
+      // alert('File size should be less than 5MB');
+      toast.error("file size should be less than 20MB");
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('🕵️‍♂️ Suspect Data Saved in Redux:', suspectD);
+    // console.log('🕵️‍♂️ Suspect Data Saved in Redux:', suspectD);
     onNext();
   };
 

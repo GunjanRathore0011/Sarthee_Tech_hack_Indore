@@ -1,6 +1,7 @@
 // src/components/admin/NotificationDropdown.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { FiBell } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:4000", { withCredentials: true });
@@ -19,6 +20,7 @@ const AdminNotifications = () => {
         { id: data.complaintId, message: data.message },
         ...prev
       ]);
+      toast.success("New complaint Registered");
     });
 
     return () => {
@@ -55,8 +57,8 @@ const AdminNotifications = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-72 bg-white shadow-lg border rounded-lg z-50">
-          <div className="p-2 font-bold border-b flex justify-between">
+        <div className="absolute right-0 mt-2 w-80 bg-white shadow-lg border rounded-lg z-50">
+          <div className="p-3 font-semibold border-b flex justify-between items-center">
             Notifications
             {count > 0 && (
               <button
@@ -67,19 +69,26 @@ const AdminNotifications = () => {
               </button>
             )}
           </div>
-          {notifications.length === 0 ? (
-            <div className="p-2 text-gray-500">No new notifications</div>
-          ) : (
-            notifications.map((n, index) => (
-              <div
-                key={index}
-                className="p-2 hover:bg-gray-100 cursor-default"
-              >
-                <div className="font-medium">{n.message}</div>
-                <div className="text-sm text-gray-500">Complaint ID: {n.id}</div>
-              </div>
-            ))
-          )}
+          
+          <div className="max-h-80 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-4 text-gray-500 text-sm">No new notifications</div>
+            ) : (
+              notifications.map((n, index) => (
+                <div
+                  key={index}
+                  className="m-2 p-3 bg-gray-50 border rounded-lg shadow-sm hover:shadow-md transition cursor-default"
+                >
+                  <div className="font-semibold text-gray-800 text-sm">
+                    {n.message}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Complaint ID: {n.id}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -1,5 +1,6 @@
 import React from "react";
 import { Edit, Shield, Key, Bell, Sun, Activity } from "lucide-react";
+import logo from "/Users/jeevan/Desktop/New folder/Sarthee_Tech_hack_Indore/frontend/src/assets/images/images.jpeg"
 
 export default function AdminHome() {
   return (
@@ -8,12 +9,12 @@ export default function AdminHome() {
       <div className="bg-white rounded-xl shadow-md p-6 flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <img
-            src="https://via.placeholder.com/100"
+            src={logo}
             alt="Admin Avatar"
             className="w-20 h-20 rounded-full border-4 border-blue-100 shadow-sm"
           />
           <div>
-            <h2 className="text-2xl font-semibold text-gray-800">Rohan Mehta</h2>
+            <h2 className="text-2xl font-semibold text-gray-800">Rajesh Dandotiya</h2>
             <p className="text-gray-500">Super Admin</p>
             <p className="text-sm text-gray-400">Last login: Aug 12, 2025, 2:45 PM</p>
           </div>
@@ -32,7 +33,7 @@ export default function AdminHome() {
             <Shield size={18} /> Personal Information
           </h3>
           <div className="space-y-3 text-gray-700">
-            <p><strong>Name:</strong> Rohan Mehta</p>
+            <p><strong>Name:</strong> Rajesh Dandotiya</p>
             <p><strong>Email:</strong> rohan.mehta@cybersentinel.com</p>
             <p><strong>Phone:</strong> +91 9876543210</p>
             <p><strong>Department:</strong> Cyber Crime Unit</p>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaStar } from "react-icons/fa";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const ComplaintFeedback = () => {
   const [rating, setRating] = useState(0);
@@ -9,19 +10,11 @@ const ComplaintFeedback = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  // useEffect(() => {
-  //   // Check if user has already given feedback
-  //   const alreadySubmitted = localStorage.getItem("complaintFeedbackGiven");
-  //   if (alreadySubmitted) {
-  //     setSubmitted(true);
-  //   }
-  // }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!rating) {
-      alert("Please select a rating before submitting.");
+      toast.error("Please Select a rating");
       return;
     }
 
@@ -38,7 +31,7 @@ const ComplaintFeedback = () => {
       // localStorage.setItem("complaintFeedbackGiven", "true");
       setSubmitted(true);
     } catch (error) {
-      alert(error.response?.data || "Something went wrong.");
+      toast.error(error.response?.data || "Something went wrong.");
     } finally {
       setLoading(false);
     }

@@ -80,7 +80,7 @@ const HarassmentForm = ({ onNext }) => {
       ...formData,
     };
 
-    console.log('Submitted Data:', completeData);
+    // console.log('Submitted Data:', completeData);
     dispatch(setHarassment(completeData));
 
 

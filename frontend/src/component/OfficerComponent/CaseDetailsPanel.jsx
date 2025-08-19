@@ -54,7 +54,7 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                 const data = response.data.data;
                 console.log("Complaint Data:", data);
                 setComplaint(data);
-                console.log("status" , data.status);
+                console.log("status", data.status);
                 setSelectedStatus(data.status);
             } catch (error) {
                 console.error("Failed to fetch complaint details", error);
@@ -367,7 +367,7 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
 
 
                                 {/* Investigation Actions (same as before) */}
-                                
+
                             </div>
 
                             {/* Right Side – Notes & Quick Actions */}
@@ -430,10 +430,21 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                                             <MessageSquare className="h-4 w-4 mr-2" />
                                             Contact Complainant
                                         </Button>
-                                        <Button variant="outline" className="w-full justify-start" onClick={handleViewRuleBook}>
-                                            <FileText className="h-4 w-4 mr-2" />
-                                            View Rule Book
+                                        <Button
+                                            variant="outline"
+                                            className="w-full justify-start"
+                                            asChild
+                                        >
+                                            <a
+                                                href="https://res.cloudinary.com/dqamfp6o9/image/upload/v1755624416/evidence/complaint_report_1755624414763.pdf"  // <-- your Cloudinary link here
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <FileText className="h-4 w-4 mr-2" />
+                                                View Rule Book
+                                            </a>
                                         </Button>
+
                                         <Button variant="outline" className="w-full justify-start" onClick={handleEscalateCase}>
                                             <AlertTriangle className="h-4 w-4 mr-2" />
                                             Escalate Case

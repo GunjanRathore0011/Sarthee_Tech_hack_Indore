@@ -5,6 +5,7 @@ import {
   setFinancialFraudAcc,
   setFinancialFraudForm
 } from '@/ReduxSlice/formData/formSlice';
+import { toast } from 'react-toastify';
 
 function CyberCrimeForm({ onNext }) {
   const dispatch = useDispatch();
@@ -75,13 +76,14 @@ function CyberCrimeForm({ onNext }) {
     }
 
     if (!formData.description || !formData.incident_datetime || (lostMoney && !accData.accountNumber)) {
-      alert("Please fill required fields.");
+      // alert("Please fill required fields.");
+      toast.error("All filled are required");
       return;
     }
     dispatch(setFinancialFraudForm({
       ...formData,
     }));
-    console.log("Form Data:", formData);
+    // console.log("Form Data:", formData);
 
     if (onNext) onNext(); // ✅ move to next step
   };

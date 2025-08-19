@@ -1,5 +1,9 @@
 import React from "react";
+import first from "../assets/images/firstCase.jpg";
+import second from "../assets/images/secondcase.avif";
+import third from "../assets/images/thridcase.avif";
 
+const imagescase = [ first , second ,third];
 const cyberCases = [
   
   {
@@ -44,7 +48,7 @@ const TrendingCases = () => {
           >
             {/* Image Placeholder */}
             <img
-              src=""
+              src={imagescase[index]}
               alt={caseItem.title}
               className="w-full h-40 object-cover bg-gray-200"
             />
