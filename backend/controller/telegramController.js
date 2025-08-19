@@ -1,4 +1,4 @@
-   
+
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { NewMessage } = require("telegram/events");
 const { client } = require("../config/telegram");
@@ -8,122 +8,117 @@ require("dotenv").config();
 if (!process.env.GEMINI_API_KEY) {
   throw new Error("GEMINI_API_KEY is not set in the environment variables");
 }
-const API_KEY = process.env.GEMINI_API_KEY; 
+const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
+// Assume this is at the top of your file
+// const { NewMessage } = require('your-telegram-client-library'); 
 
 async function askBot(req, res) {
   try {
     const { query } = req.body;
     console.log("Received query:", query);
 
-   const botA = "@UniversalSearch_Ro_bot"; // replace with actual Bot A username
-    const botB = "@TrueCaller1Bot"; // replace with actual Bot B username
-    const intervalMs = 5000; // Wait 5 seconds for Bot A's second reply
-    const botBTimeout = 4000; // Wait max 5 sec for Bot B final reply
+    const botA = "@UniversalSearch_Ro_bot";
+    const botB = "@TrueCaller1Bot";
+    const waitTime = 15000; // 10 seconds
 
-    const replies = [];
-
-    // --- Step 1: Send query to Bot B and get actual reply ---
-    const botBReply = await new Promise((resolve) => {
-      let resolved = false;
-
-      const handlerB = (event) => {
-        if (event.message && event.message.senderId) {
-          const msg = event.message.message;
-
-          // Ignore placeholder like "Searching..."
-          if (!msg.toLowerCase().includes("searching") && !resolved) {
-            resolved = true;
-            client.removeEventHandler(handlerB, new NewMessage({ fromUsers: botB }));
-            resolve(msg);
-          }
-        }
-      };
-
-      client.addEventHandler(handlerB, new NewMessage({ fromUsers: botB }));
-      client.sendMessage(botB, { message: query });
-
-      // Safety timeout: if no valid reply in botBTimeout, take last message
-      setTimeout(() => {
-        if (!resolved) {
-          resolved = true;
-          client.removeEventHandler(handlerB, new NewMessage({ fromUsers: botB }));
-          resolve("No final reply received from Bot B"); // fallback
-        }
-      }, botBTimeout);
-    });
-
-    replies.push(botBReply);
-
-    // --- Step 2: Send query to Bot A and collect replies for fixed interval ---
+    // Storage for replies
     const botAReplies = [];
+    const botBReplies = [];
+
+    // Handlers
     const handlerA = (event) => {
       if (event.message && event.message.senderId) {
         botAReplies.push(event.message.message);
       }
     };
 
-    client.addEventHandler(handlerA, new NewMessage({ fromUsers: botA }));
+    const handlerB = (event) => {
+      if (event.message && event.message.senderId) {
+        botBReplies.push(event.message.message);
+      }
+    };
+
+    // Store NewMessage instances for proper removal
+    const newMessageHandlerA = new NewMessage({ fromUsers: botA });
+    const newMessageHandlerB = new NewMessage({ fromUsers: botB });
+
+    // Attach both handlers
+    client.addEventHandler(handlerA, newMessageHandlerA);
+    client.addEventHandler(handlerB, newMessageHandlerB);
+
+    // Send query to both bots
     await client.sendMessage(botA, { message: query });
+    await client.sendMessage(botB, { message: query });
 
-    // Wait fixed interval for possible second reply
-    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    // Wait 10 sec
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
 
-    client.removeEventHandler(handlerA, new NewMessage({ fromUsers: botA }));
+    // Remove handlers
+    client.removeEventHandler(handlerA, newMessageHandlerA);
+    client.removeEventHandler(handlerB, newMessageHandlerB);
 
-    replies.push(...botAReplies);
+    // Combine all replies into a single array
+    const allReplies = [...botAReplies, ...botBReplies];
+    console.log("Collected replies:", allReplies);
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-     const staticPrompt = `
-      I need you to act as a data processing engine. I will provide a block of raw, unstructured data. Your task is to extract, clean, and structure this data into a single JSON array of user objects. Each object in the array should represent a unique individual.
+    // Construct the prompt using the correctly joined replies
+    const staticPrompt = `
+I need you to act as a data processing engine. I will provide a block of raw, unstructured data. Your task is to extract, clean, and structure this data into a single JSON array of user objects. Each object in the array should represent a unique individual.
 
 Follow these strict rules for processing:
 
-1.  **De-duplication:** All records belonging to the same unique user must be consolidated into a single object.
-2.  **Dynamic Key Identification:**
-    * **Primary Key:** Prioritize document numbers (Aadhaar, Passport, etc.) as the unique identifier.
-    * **Fallback Key:** If a document number is not present, use a combination of the "Full name" and "The name of the father" as "Name of Son" as a composite key to identify the user.
-3.  **Symmetric Structure:** The output must be an array of objects, where each object has a consistent set of keys: "fullName", "fatherName", "documentNumber", "documentType", "telephones", "addresses", "regions", "emails",and  "nicknames" or (unkown says).
-4.  **Data Aggregation:** Collect all available information for each user. For multi-value fields like "telephones", "addresses", and "regions", combine all unique values from the raw data into a single JSON array.
-5.  **Handling Missing Data:** If a field has no data, so drop it  for single-value keys (like "documentNumber","email") .
-6.  **Irrelevant Information:** Ignore any text, logs, or metadata that are not directly related to a user's personal profile (e.g., search bot logs, timestamps, or service-related messages, and if say no data found ).
-7.  **If some times the Raw Data is not in the correct format,or say give irrelevant message like :"exceed the search limit or try another time " so  you should return an empty array.**
-7 .  **Output Format:** The final output must be a valid JSON array of user objects, with each object containing the keys (dynamically or mention above).
-**Here is the raw data to process:**
-      Raw Data: "${replies}"
-      
-      Output JSON:
-    `;
+1. De-duplication: Consolidate same user into one object.
+2. Primary Key: Use document numbers. Fallback: "fullName + fatherName".
+3. Symmetric Structure: Keys should be: "fullName","fatherName","documentNumber","documentType","telephones","addresses","regions","emails","nicknames","Age","gender" and any additional information that realted to the number because sometimes its dynamic feature , ensure that no important information drop.
+4. Aggregation: Collect unique values into arrays where applicable.
+5. Missing Data: Drop empty single-value keys.
+6. Ignore irrelevant info (logs, search errors, no data found).
+7. If input is invalid or says "exceed limit / try again" → return empty array.
+8. Output: Only valid JSON array.
 
-      const result = await model.generateContent(staticPrompt);
-    const response = await result.response;
-    const text = response.text();
+Here is the raw data to process:
+Raw Data: """${allReplies.join("\n")}"""
 
-    // Try to extract a JSON array from the model's output
+Output JSON:
+`;
+
     let structuredData = [];
     try {
-      const match = text.match(/\[[\s\S]*\]/);
+      const result = await model.generateContent(staticPrompt);
+      const text = result.response.text();
+
+      // Clean text (remove markdown fencing, whitespace, etc.)
+      const cleanedText = text
+        .replace(/```json/gi, "")
+        .replace(/```/g, "")
+        .trim();
+
+      // Try array first
+      const match = cleanedText.match(/\[[\s\S]*\]/);
       if (match) {
         structuredData = JSON.parse(match[0]);
       } else {
-        // fallback: try to parse as object if array not found
-        const objMatch = text.match(/\{[\s\S]*\}/);
+        // fallback: try object
+        const objMatch = cleanedText.match(/\{[\s\S]*\}/);
         if (objMatch) {
           structuredData = [JSON.parse(objMatch[0])];
+        } else {
+          structuredData = [];
         }
       }
-    } catch (parseErr) {
-      console.error("JSON parse error:", parseErr);
+    } catch (err) {
+      console.error("Processing error:", err);
       structuredData = [];
     }
 
-    // Send the structured data back to the client
+    // ✅ Always send safe JSON
     return res.status(200).json(structuredData);
-
   } catch (error) {
-    console.error("Error in askBots:", error);
-    res.status(500).json({ error: "Something went wrong" });
+    console.error("Error in askBot:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 }
 

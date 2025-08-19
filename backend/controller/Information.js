@@ -337,7 +337,7 @@ exports.complaintInformation = async (req, res) => {
     }
 
     // Limit description to ~2 lines (e.g., 150 chars) and add "..." if longer
-    const maxDescLength = 100;
+    const maxDescLength = 140;
     let shortDescription = complaintInfo.description;
     if (shortDescription.length > maxDescLength) {
       shortDescription = shortDescription.slice(0, maxDescLength).trim() + "...";
