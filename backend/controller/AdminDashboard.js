@@ -563,9 +563,9 @@ exports.autoAssignInvestigator = async (req, res) => {
 
     // Assign each complaint to the next available investigator in a round-robin fashion
     for (let i = 0; i < complaints.length; i++) {
-      // Get the investigator with the least assigned cases
       const leastLoadedInvestigator = getLeastLoadedInvestigator(investigators);
-      // Assign the complaint to this investigator
+    console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
+      // Assign complaint
       complaints[i].assignedTo = leastLoadedInvestigator._id;
       complaints[i].status = 'AssignInvestigator';
       complaints[i].statusHistory.push({
@@ -574,27 +574,28 @@ exports.autoAssignInvestigator = async (req, res) => {
         updatedAt: new Date()
       });
       await complaints[i].save();
-      console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
+
+      // Update investigator in DB
       const investigator = await Investigator.findById(leastLoadedInvestigator._id);
-      if (!investigator) {
-        console.error(`Investigator ${leastLoadedInvestigator._id} not found`);
-        continue; // Skip this complaint if investigator not found
-      }
       investigator.assignedCases.push({
         caseId: complaints[i]._id,
         assignedAt: new Date(),
         remarks: 'Auto-assigned by admin'
       });
       await investigator.save();
-      // Emit event for real-time updates
+
+      // **Update local array so next iteration sees updated case count**
+      const invIndex = investigators.findIndex(inv => inv._id.equals(leastLoadedInvestigator._id));
+      investigators[invIndex].assignedCases.push({ caseId: complaints[i]._id });
+
+      // Emit event
       io.emit("complaint_assigned", {
         investigatorId: investigator._id,
         complaintId: complaints[i]._id,
         message: `Complaint ${complaints[i]._id} auto-assigned to ${investigator.name}`
       });
-
-      break; // Only assign one complaint per investigator in this round
     }
+
     res.status(200).json({
       success: true,
       message
@@ -658,20 +659,20 @@ exports.getComplaintDetails = async (req, res) => {
   try {
     const { id } = req.body; // Get complaint ID from request parameters
     const complaint = await Complaint.findById(id)
-      .populate('userId assignedTo','name specialistIn')
+      .populate('userId assignedTo', 'name specialistIn')
 
     // console.log("Complaint details:", complaint);
 
     const victimDetails = await VictimDetails.findOne({ complainId: id })
     const suspectDetails = await SuspectSchema.findOne({ complainId: id })
-    const cId=complaint.userId._id;
+    const cId = complaint.userId._id;
     // console.log(cId);
     // ✅ sahi
     const user = await User.findOne(cId);
 
     // console.log("User details:", user);
     const userDetails = await AdditionDetails.findOne({ userId: cId })
-                .select('fullName street district state pincode');
+      .select('fullName street district state pincode');
 
 
     payload = {
@@ -740,10 +741,10 @@ exports.getComplaintDetails = async (req, res) => {
 //visvualize the money lost and how much money is recovered(by resolved cases )
 exports.moneyLostRecovered = async (req, res) => {
   try {
-    const data = await Complaint.aggregate([  
+    const data = await Complaint.aggregate([
       {
         $group: {
-          _id: null,  
+          _id: null,
           totalLost: { $sum: { $cond: [{ $ne: ["$lost_money", null] }, "$lost_money", 0] } },
           totalRecovered: { $sum: { $cond: [{ $eq: ["$status", "Resolved"] }, "$lost_money", 0] } }
         }
@@ -752,7 +753,7 @@ exports.moneyLostRecovered = async (req, res) => {
         $project: {
           _id: 0,
           totalLost: 1,
-          totalRecovered: 1,  
+          totalRecovered: 1,
           recoveryRate: {
             $cond: [
               { $eq: ["$totalLost", 0] },
@@ -762,7 +763,7 @@ exports.moneyLostRecovered = async (req, res) => {
           }
         }
       }
-    ]); 
+    ]);
     if (!data || data.length === 0) {
       return res.status(404).json({
         success: false,
@@ -772,7 +773,7 @@ exports.moneyLostRecovered = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Money lost and recovered data fetched successfully",
-      data: data[0]  
+      data: data[0]
     });
   }
 
@@ -783,5 +784,5 @@ exports.moneyLostRecovered = async (req, res) => {
       message: "Internal Server Error",
       error: error.message
     });
-  }       
+  }
 };

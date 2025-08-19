@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState,useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { TrendingUp } from "lucide-react";
 import {
   Bar,
@@ -11,6 +11,10 @@ import {
   LabelList,
   LineChart,
   Line,
+  PieChart,
+  Pie,
+  ResponsiveContainer,
+  Cell,
 } from "recharts";
 
 import {
@@ -27,20 +31,23 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import axios from "axios";
+import { Tooltip } from "react-leaflet";
+import { Legend } from "chart.js";
 
 const Analytics = () => {
   // ✅ Initialize as empty array to prevent "data is not iterable" error
   const [chartData, setChartData] = useState([]);
   const [fraudChartData, setFraudChartData] = useState([]); // Initialize as empty array
   const [selectedYear, setSelectedYear] = useState("All");
-   const years = useMemo(() => {
+  const years = useMemo(() => {
     const allYears = chartData.map(item =>
       new Date(item.date).getFullYear()
     );
     return ["All", ...new Set(allYears)];
   }, [chartData]);
 
-   const filteredData = useMemo(() => {
+  const filteredData = useMemo(() => {
     if (selectedYear === "All") return chartData;
     return chartData.filter(
       item => new Date(item.date).getFullYear() === Number(selectedYear)
@@ -98,16 +105,10 @@ const Analytics = () => {
       console.error("Error fetching chart data:", error);
     }
   };
-// re-fetch whenever month changes
-useEffect(() => {
-  fetchFraudChartData();
-}, [selectedMonth]);
-
+  // re-fetch whenever month changes
   useEffect(() => {
-    fetchChartData();
     fetchFraudChartData();
-    // ✅ Add empty dependency array to run only once on mount
-  }, []);
+  }, [selectedMonth]);
 
   const chartConfig = {
     total: {
@@ -128,94 +129,135 @@ useEffect(() => {
     },
   };
 
+  const [pieChartData, setPieChartData] = useState([]); // Initialize as empty array
+  const fetchPieChartData = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/api/v1/admin/moneyLostRecovered");
+      if (response.status === 200) {
+        // const data = response.data;
+        // console.log("Fetched pie chart data:", data);
+        // console.log("pie totalt data:", data.totalRecovered, data.totalLost, data.recoveryRate);
+        // Ensure data is array before setting
+
+        const { success, data } = response.data;
+        if (success && data) {
+          const transformedData = [
+            { name: "Pending", value: data.totalLost },
+            { name: "Recovered", value: data.totalRecovered }
+          ];
+          console.log("Transformed pie chart data:", transformedData);
+          setPieChartData(transformedData);
+        }
+
+
+      } else {
+        console.error("Failed to fetch pie chart data");
+      }
+
+    } catch (error) {
+      console.error("Error fetching pie chart data:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchChartData();
+    fetchFraudChartData();
+    fetchPieChartData(); // Fetch pie chart data on mount
+    // ✅ Add empty dependency array to run only once on mount
+  }, []);
+  // const COLORS = ["#f87171", "#34d399"]; // red for Lost, green for Recovered
+  const COLORS = ["#ef4444", "#10b981"]; // bright red and green
+
+
+
   return (
     <div className="flex flex-wrap justify-between gap-6 px-10">
-<Card className="w-[650px] rounded-xl shadow-md">
-      <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-          <CardTitle>Complaint Statistics</CardTitle>
-          <CardDescription>
-            Month-wise trend of total complaints
-          </CardDescription>
-        </div>
+      <Card className="w-[650px] rounded-xl shadow-md">
+        <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle>Complaint Statistics</CardTitle>
+            <CardDescription>
+              Month-wise trend of total complaints
+            </CardDescription>
+          </div>
 
-        {/* Year Filter Dropdown */}
-        <select
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
-          className="border rounded-md px-2 py-1 text-sm"
-        >
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
-        </select>
-      </CardHeader>
+          {/* Year Filter Dropdown */}
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="border rounded-md px-2 py-1 text-sm"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </CardHeader>
 
-      <CardContent>
-        <div className="overflow-x-auto">
-          <ChartContainer config={chartConfig}>
-            {filteredData.length > 0 && (
-              <LineChart
-                data={filteredData}
-                width={600}
-                height={300}
-                style={{
-                  background: "linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%)",
-                  borderRadius: "12px",
-                  padding: "10px",
-                }}
-              >
-                {/* Gradient Definitions */}
-                <defs>
-                  <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={chartConfig.total.color} stopOpacity={0.4} />
-                    <stop offset="95%" stopColor={chartConfig.total.color} stopOpacity={0} />
-                  </linearGradient>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <ChartContainer config={chartConfig}>
+              {filteredData.length > 0 && (
+                <LineChart
+                  data={filteredData}
+                  width={600}
+                  height={300}
+                  style={{
+                    background: "linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%)",
+                    borderRadius: "12px",
+                    padding: "10px",
+                  }}
+                >
+                  {/* Gradient Definitions */}
+                  <defs>
+                    <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={chartConfig.total.color} stopOpacity={0.4} />
+                      <stop offset="95%" stopColor={chartConfig.total.color} stopOpacity={0} />
+                    </linearGradient>
 
-                  <pattern
-                    id="gridPattern"
-                    width="50"
-                    height="50"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <rect width="50" height="50" fill="transparent" />
-                    <line x1="0" y1="0" x2="0" y2="50" stroke="#d1d5db" strokeOpacity="0.15" />
-                    <line x1="0" y1="0" x2="50" y2="0" stroke="#d1d5db" strokeOpacity="0.15" />
-                  </pattern>
-                </defs>
+                    <pattern
+                      id="gridPattern"
+                      width="50"
+                      height="50"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <rect width="50" height="50" fill="transparent" />
+                      <line x1="0" y1="0" x2="0" y2="50" stroke="#d1d5db" strokeOpacity="0.15" />
+                      <line x1="0" y1="0" x2="50" y2="0" stroke="#d1d5db" strokeOpacity="0.15" />
+                    </pattern>
+                  </defs>
 
-                <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) =>
-                    new Date(value).toLocaleDateString("en-US", { month: "short" })
-                  }
-                />
-                <YAxis domain={[0, (dataMax) => dataMax + 4]} />
-                <CartesianGrid stroke="url(#gridPattern)" />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  cursor={{ strokeDasharray: "4 4", stroke: chartConfig.total.color }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke={chartConfig.total.color}
-                  strokeWidth={3}
-                  dot={{ r: 4, fill: chartConfig.total.color }}
-                  activeDot={{ r: 7, fill: chartConfig.total.color }}
-                  fill="url(#totalGradient)"
-                />
-              </LineChart>
-            )}
-          </ChartContainer>
-        </div>
-      </CardContent>
-    </Card>
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) =>
+                      new Date(value).toLocaleDateString("en-US", { month: "short" })
+                    }
+                  />
+                  <YAxis domain={[0, (dataMax) => dataMax + 4]} />
+                  <CartesianGrid stroke="url(#gridPattern)" />
+                  <ChartTooltip
+                    content={<ChartTooltipContent />}
+                    cursor={{ strokeDasharray: "4 4", stroke: chartConfig.total.color }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="total"
+                    stroke={chartConfig.total.color}
+                    strokeWidth={3}
+                    dot={{ r: 4, fill: chartConfig.total.color }}
+                    activeDot={{ r: 7, fill: chartConfig.total.color }}
+                    fill="url(#totalGradient)"
+                  />
+                </LineChart>
+              )}
+            </ChartContainer>
+          </div>
+        </CardContent>
+      </Card>
 
 
       <Card className="w-[650px] rounded-xl shadow-md">
@@ -300,7 +342,7 @@ useEffect(() => {
         </CardFooter>
       </Card>
 
-{/* Complaint Statistics */}
+      {/* Complaint Statistics */}
       <Card className="w-[650px] rounded-xl shadow-md">
         <CardHeader>
           <CardTitle>Complaint Statistics</CardTitle>
@@ -347,6 +389,51 @@ useEffect(() => {
               )}
             </ChartContainer>
           </div>
+        </CardContent>
+      </Card>
+
+
+      <Card className="w-[650px] rounded-xl shadow-md">
+        <CardHeader>
+          <CardTitle>Pending vs Recovery Amount</CardTitle>
+          <CardDescription>Financial Impact of Fraud Cases</CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {pieChartData.length > 0 ? (
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={110}
+                    startAngle={90}       // Flip or rotate direction
+                    endAngle={-270}
+                    labelLine={false}  // <-- removes connecting lines
+                    label={({ name, value, percent }) =>
+                      `${name}:  ₹${value} (${(percent * 100).toFixed(1)}%)`
+                    }
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, props) => [
+                      `${((value / pieChartData.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%`,
+                      name
+                    ]}
+                  />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-10">No data available</p>
+          )}
         </CardContent>
       </Card>
 

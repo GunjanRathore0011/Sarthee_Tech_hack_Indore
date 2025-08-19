@@ -241,11 +241,6 @@ const ComplaintManagement = () => {
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-md">
-      {/* <ViewComplaint
-        open={open}
-        setOpen={setOpen}
-        complaintId={viewcomplaintID} // Pass the complaint ID to ViewComplaint
-      /> */}
       <h2 className="text-xl font-semibold mb-4">Recent Complaints</h2>
 
       {/* Filter Section */}
@@ -359,7 +354,6 @@ const ComplaintManagement = () => {
               <TableHead>Assigned To</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>View</TableHead>
-              <TableHead>Edit</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -411,11 +405,6 @@ const ComplaintManagement = () => {
                   >
                     View
                   </button>
-                </TableCell>
-                <TableCell>
-                  <Link to={`/edit-complaint/${complaint._id}`} className="text-green-600 hover:underline">
-                    Edit
-                  </Link>
                 </TableCell>
               </TableRow>
             ))}

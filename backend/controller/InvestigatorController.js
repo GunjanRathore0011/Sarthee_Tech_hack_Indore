@@ -300,7 +300,6 @@ exports.updateComplaintStatus = async (req, res) => {
             // investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
             if (newStatus === "Resolved" || newStatus === "Rejected") {
             investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
-
                 investigator.solvedCases.push({ caseId: complaintId, solvedAt: new Date() });
             }
             await investigator.save();
