@@ -7,13 +7,17 @@ import AdminDashboardStats from './AdminDashboardStats';
 import AdminNotifications from './AdminNotifications';
 import { RiMapPinLine } from 'react-icons/ri';
 import { GiNetworkBars } from 'react-icons/gi';
+import { logout } from '@/ReduxSlice/user/userSlice';
+import { useDispatch } from 'react-redux';
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    navigate('/login');
+    dispatch(logout());
+    navigate('/login'); 
   };
 
   // Utility to check active route

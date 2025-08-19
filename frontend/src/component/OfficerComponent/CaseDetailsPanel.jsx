@@ -374,53 +374,7 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
 
 
                                 {/* Investigation Actions (same as before) */}
-                                <Card className="p-6 bg-blue-50">
-                                    <h3 className="text-lg font-semibold text-blue-800 mb-4">Investigation Actions</h3>
-                                    <div className="flex flex-wrap gap-3">
-                                        {complaint.status === 'Assigned' && (
-                                            <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                                                <Play className="h-4 w-4 mr-2" />
-                                                Start Investigation
-                                            </Button>
-                                        )}
-                                        {complaint.status === 'Investigating' && (
-                                            <>
-                                                <Button variant="outline">
-                                                    <Pause className="h-4 w-4 mr-2" />
-                                                    Pause Investigation
-                                                </Button>
-                                                <Button className="bg-green-600 text-white hover:bg-green-700">
-                                                    <CheckCircle className="h-4 w-4 mr-2" />
-                                                    Mark as Resolved
-                                                </Button>
-                                            </>
-                                        )}
-                                        <div className="relative inline-block">
-                                            <select
-                                                onChange={(e) => {
-                                                    if (e.target.value === "investigation") {
-                                                        onStartInvestigation(complaint.id);
-                                                        console.log("Investigation started for case:", complaint.id);
-                                                    } else if (e.target.value === "resolved") {
-                                                        onMarkResolved(complaint.id);
-                                                    }
-                                                    onClose();
-                                                }}
-                                                defaultValue=""
-                                                className="border border-gray-300 rounded-lg px-3 py-2 bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            >
-                                                <option value="" disabled>
-                                                    Update Status
-                                                </option>
-                                                <option value="investigation">Start Investigation</option>
-                                                <option value="resolved">Mark Resolved</option>
-                                            </select>
-                                        </div>
-
-                                        <Button variant="outline">Request Additional Info</Button>
-                                        <Button variant="outline">Generate Report</Button>
-                                    </div>
-                                </Card>
+                                
                             </div>
 
                             {/* Right Side – Notes & Quick Actions */}
