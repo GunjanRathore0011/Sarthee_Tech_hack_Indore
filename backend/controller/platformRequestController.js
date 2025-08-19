@@ -187,11 +187,41 @@ Make sure to follow the rules and structure above.
 };
 
 // @desc Get all requests
+// @desc Get all requests
 exports.getAllRequests = async (req, res) => {
   try {
-    const requests = await PlatformRequest.find().sort({ createdAt: -1 });
-    res.status(200).json(requests);
-  } catch (error) {
+    const { complainId } = req.body;
+
+    if (!complainId) {
+      return res.status(400).json({ message: "Complaint ID is required" });
+    }
+    // Find all requests for the given complainId
+    // const complainIdObj = mongoose.Types.ObjectId(complainId);
+    const requests = await coordination.find({ complainId: complainId }).sort({ createdAt: -1 });
+    if (!requests || requests.length === 0) {
+      return res.status(404).json({ message: "No requests found for this complaint" });
+    }    
+    const payload = requests.map(request => ({
+      platform: request.requests.platform,
+      requestType: request.requests.requestType,
+      targetLink: request.requests.targetLink,
+      reason: request.requests.reason,
+      referenceId: request.requests.referenceId,
+      ackAt: request.requests.ackAt,
+      createdAt: request.createdAt,
+      doneAt: request.requests.doneAt,
+      status: request.requests.status,  
+    }));
+    // Return the requests in the response
+    console.log("Requests found:", requests.length);
+    console.log("Payload:", payload);
+    // Return the requests in the response
+    res.status(200).json({
+      success: true,
+      requests: payload,
+      message: "Requests retrieved successfully"
+    });
+     } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };

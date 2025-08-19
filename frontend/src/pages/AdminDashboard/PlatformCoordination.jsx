@@ -167,12 +167,13 @@ export default function PlatformCoordination() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.post(`${API_BASE}/api/platform-requestsget`, {
-        complaintId: caseId,
+      const res = await axios.post(`${API_BASE}/api/platform-requests/get`, {
+        complainId: caseId,
       });
-      setRequests(data);
-      if (!selectedId && data?.length) setSelectedId(data[0]._id);
-      setError("");
+      console.log("Fetched requests:", res.data);
+      setRequests(res.data.requests || []);
+      // if (!selectedId && data?.length) setSelectedId(data[0]._id);
+      // setError("");
       // console.log("Fetched requests:", data);
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to load requests");
@@ -184,7 +185,7 @@ export default function PlatformCoordination() {
   };
 
   useEffect(() => {
-    // fetchRequests();
+    fetchRequests();
   }, []);
 
   // Auto-detect platform when link changes
@@ -509,7 +510,7 @@ export default function PlatformCoordination() {
                   <tr className="text-left text-gray-500">
                     <th className="py-2 pr-3">Platform</th>
                     <th className="py-2 pr-3">Type</th>
-                    <th className="py-2 pr-3">Identifier</th>
+                    {/* <th className="py-2 pr-3">Identifier</th> */}
                     <th className="py-2 pr-3">Status</th>
                     <th className="py-2 pr-3">Ref ID</th>
                     <th className="py-2 pr-3">Created</th>
@@ -531,7 +532,7 @@ export default function PlatformCoordination() {
                     <tr key={r._id} className="border-t">
                       <td className="py-2 pr-3">{PLATFORM_META.find((p) => p.key === r.platform)?.label || r.platform}</td>
                       <td className="py-2 pr-3">{REQUEST_TYPES.find((t) => t.key === r.requestType)?.label || r.requestType}</td>
-                      <td className="py-2 pr-3 max-w-[220px] truncate" title={r.entityValue}>{r.entityValue}</td>
+                      {/* <td className="py-2 pr-3 max-w-[220px] truncate" title={r.entityValue}>{r.entityValue}</td> */}
                       <td className="py-2 pr-3"><StatusBadge status={r.status} /></td>
                       <td className="py-2 pr-3 max-w-[180px] truncate" title={r.referenceId || "—"}>{r.referenceId || "—"}</td>
                       <td className="py-2 pr-3 whitespace-nowrap">{r.createdAt ? new Date(r.createdAt).toLocaleString() : "—"}</td>
