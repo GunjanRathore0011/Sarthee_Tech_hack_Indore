@@ -1,17 +1,22 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiBell, FiLogOut, FiSettings } from 'react-icons/fi';
 import { HiOutlineDocumentText } from 'react-icons/hi';
 import { MdOutlineReport } from 'react-icons/md';
-import shieldIcon from '../../assets/images/logo.png'; // Adjust path if needed
-import OfficerDashboardStats from './OfficerDashboardStats';
+import shieldIcon from '../../assets/images/logo.png'; 
 import OfficerNotifications from './OfficerNotifications';
+import { logout } from '@/ReduxSlice/user/userSlice';
+import { useDispatch } from 'react-redux';
 
 const OfficerNavbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
 
   const handleLogout = () => {
     // Logout logic
+        dispatch(logout());
+    
     navigate('/login');
   };
   const isActive = (path) => location.pathname === path;

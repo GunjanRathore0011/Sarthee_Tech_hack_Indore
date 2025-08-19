@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, useLocation } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Home from './pages/Home';
 import Navbar from './component/Navbar';
 import AdminNavbar from './component/AdminComponent/AdminNavbar';
@@ -28,10 +28,23 @@ import TrackingDashboard from './pages/TrackingDashboard';
 import PrivateRoute from './pages/PrivateRoute';
 import RoleBasedRoute from './pages/RoleBasedRoute';
 import FindDetailsPage from './pages/OfficerDashboard/FindDetailsPage';
+import { useSelector } from 'react-redux';
 
 const App = () => {
+
+ const user = useSelector((state) => state.user.user);
+  const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    if (user && location.pathname === "/") {
+      if (user.accountType === "Admin") {
+        navigate("/admin-dashboard");
+      } else if (user.accountType === "Officer") {
+        navigate("/officer-complaint-management");
+      }
+    }
+  }, [user, location, navigate]);
   // All routes that need Admin Navbar
   const adminRoutes = [
     '/admin-dashboard',
