@@ -1,6 +1,6 @@
 import React from "react";
 import { Edit, Shield, Key, Bell, Sun, Activity } from "lucide-react";
-import logo from "/Users/jeevan/Desktop/New folder/Sarthee_Tech_hack_Indore/frontend/src/assets/images/images.jpeg"
+import logo from "../../assets/images/images.jpeg"
 
 export default function AdminHome() {
   return (

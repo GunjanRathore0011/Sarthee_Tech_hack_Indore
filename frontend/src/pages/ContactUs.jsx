@@ -5,7 +5,6 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import AfterComplaint from './AfterComplaint';
 import LocationMap from '@/component/OfficerComponent/IPAdressMap';
-import Loading from './form/Loading';
 
 const ContactPage = () => {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
