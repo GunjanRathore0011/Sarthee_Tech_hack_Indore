@@ -13,6 +13,19 @@ function FindUsingNo() {
   const [phoneNo, setPhoneNo] = useState('');
   const [error, setError] = useState('');
 
+//   const fieldMap = {
+//   fullName: "Full Name",
+//   fatherName: "Father's Name",
+//   telephones: "Phone Numbers",
+//   emails: "Emails",
+//   addresses: "Addresses",
+//   regions: "Regions",
+//   documentNumber: "Document Number",
+//   documentType: "Document Type",
+// };
+
+// setPhoneData(fieldMap);
+
   const handleNumberFind = async () => {
     if (!phoneNo.trim()) {
       setError('Please enter a phone number');
@@ -66,72 +79,37 @@ function FindUsingNo() {
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       {/* Show details only when we have phoneData */}
-      {phoneData && phoneData.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden w-full max-w-3xl mt-6">
-          <div className="bg-gradient-to-r from-blue-400 to-blue-800 px-4 py-2">
-            <h2 className="text-white font-semibold">Phone Number Details</h2>
-          </div>
+     {phoneData && phoneData.length > 0 && (
+  <div className="bg-white rounded-lg shadow-md overflow-hidden w-full max-w-3xl mt-6">
+    <div className="bg-gradient-to-r from-blue-400 to-blue-800 px-4 py-2">
+      <h2 className="text-white font-semibold">Phone Number Details</h2>
+    </div>
 
-          <div className="p-4 space-y-6 text-black">
-            {phoneData.map((person, index) => (
-              <div key={index} className="rounded-lg border border-black p-3">
-                <h3 className="text-black font-semibold mb-2">
-                  Father's Name: {person.fullName || "Unknown Name"}
-                </h3>
-                <p><strong> Name:</strong> {person.fatherName || "N/A"}</p>
-
-                {person.documentNumber && (
-                  <p>
-                    <strong>{person.documentType || "Document"}:</strong>{" "}
-                    {person.documentNumber}
-                  </p>
-                )}
-
-                {/* Telephones */}
-                {person.telephones?.length > 0 && (
-                  <div className="mt-2">
-                    <strong>Telephones:</strong>
-                    <ul className="list-disc ml-5">
-                      {person.telephones.map((tel, i) => (
-                        <li key={i}>{tel}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Addresses */}
-                {person.addresses?.length > 0 && (
-                  <div className="mt-2">
-                    <strong>Addresses:</strong>
-                    <ul className="list-disc ml-5">
-                      {person.addresses.map((addr, i) => (
-                        <li key={i}>{addr}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Regions */}
-                {person.regions?.length > 0 && (
-                  <div className="mt-2">
-                    <strong>Regions:</strong>
-                    <ul className="flex flex-wrap gap-2 mt-1">
-                      {person.regions.map((region, i) => (
-                        <span
-                          key={i}
-                          className="bg-white text-blue-700 px-2 py-1 rounded-full text-sm font-medium"
-                        >
-                          {region}
-                        </span>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+    <div className="p-4 space-y-6 text-black">
+      {phoneData.map((person, index) => (
+        <div key={index} className="rounded-lg border border-black p-3">
+          {Object.entries(person).map(([key, value], i) => (
+            <div key={i} className="mt-2">
+              <strong className="capitalize">{key}:</strong>{" "}
+              
+              {/* Agar value array hai toh list me dikhao */}
+              {Array.isArray(value) ? (
+                <ul className="list-disc ml-5">
+                  {value.map((item, j) => (
+                    <li key={j}>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <span>{value || "N/A"}</span>
+              )}
+            </div>
+          ))}
         </div>
-      )}
+      ))}
+    </div>
+  </div>
+)}
+
 
       {/* Optional: Show "no results" only AFTER searching */}
       {phoneData && phoneData.length === 0 && (

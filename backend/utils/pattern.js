@@ -4,7 +4,7 @@ const PatternAlert = require('../models/PatternAlert');
 async function checkAndCreateAlerts(suspect) {
   // 1) Name-based
   console.log('Checking suspect for patterns:', suspect);
-  if (!suspect.suspectedName) {
+  if (!suspect.suspectedName) {``
     console.warn('Suspect has no name to check for patterns');
     return;
   }

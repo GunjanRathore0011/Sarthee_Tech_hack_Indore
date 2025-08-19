@@ -56,6 +56,7 @@ function OtherCrimeForm({ onNext }) {
       return;
     }
     console.log('Other Crime Data:', formData);
+    dispatch(setOtherCrime(formData));
 
     onNext();
   };

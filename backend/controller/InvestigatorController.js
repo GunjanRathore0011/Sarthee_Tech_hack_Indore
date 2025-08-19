@@ -291,6 +291,7 @@ exports.updateComplaintStatus = async (req, res) => {
             },
             { new: true }
         );
+        console.log("complaint ID" , complaintId)
       
     const investigatorId = updatedComplaint.assignedTo;
     if (investigatorId) {

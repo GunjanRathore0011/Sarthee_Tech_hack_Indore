@@ -209,7 +209,7 @@ const OfficerManagement = () => {
                   <div className="flex justify-between text-sm">
                     <span>Performance Score</span>
                     <span className="text-blue-600 font-medium">
-                      {officer.performance.toFixed(2)}%{" "}
+                      {officer?.performance?.toFixed(2)}%{" "}
                       <span className="text-xs text-gray-500">
                         ({officer.performance >= 70 ? "Excellent" : "Good"})
                       </span>

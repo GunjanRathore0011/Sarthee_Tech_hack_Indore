@@ -172,37 +172,20 @@ export default function PlatformCoordination() {
       });
       console.log("Fetched requests:", res.data);
       setRequests(res.data.requests || []);
-      // if (!selectedId && data?.length) setSelectedId(data[0]._id);
-      // setError("");
-      // console.log("Fetched requests:", data);
+     
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to load requests");
       console.error("Fetch error:", e);
-      toast.error(e?.response?.data?.message || "Failed to load requests");
+      // toast.error(e?.response?.data?.message || "Failed to load requests");
     } finally {
       setLoading(false);
     }
-  };
+  }; 
+  const [plathformData,setplatformData] =useState("");
 
   useEffect(() => {
     fetchRequests();
   }, []);
-
-  // Auto-detect platform when link changes
-  // useEffect(() => {
-  //   if (form.targetLink) {
-  //     try {
-  //       const u = new URL(form.targetLink);
-  //       for (const p of PLATFORM_META) {
-  //         if (p.hostHints.some((h) => (h === "." ? true : u.host.includes(h)))) {
-  //           setForm((f) => ({ ...f, platform: p.key, entityType: (ENTITY_TYPES[p.key]?.[0]?.key) || f.entityType }));
-  //           break;
-  //         }
-  //       }
-  //     } catch { }
-  //   }
-  // }, [form.targetLink]);
-
 
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -213,19 +196,15 @@ export default function PlatformCoordination() {
 
     try {
       setSubmitting(true);
-      // console.log("Submitting request:", form);
       setError("");
       const res = await axios.post(`${API_BASE}/api/platform-requests`, {
         complainId: caseId,
         platform: form.platform,
         requestType: form.requestType,
-        // entityType: form.entityType,
-        // entityValue: form.entityValue,
         targetLink: form.entityType,
         reason: form.reason,
-        // evidenceLink: form.evidenceLink,
-        // evidenceFileName: form.evidenceFileName,
       });
+      setplatformData(form.platform);
       if (res.status !== 200) {
         throw new Error("Failed to submit request");
       }
@@ -269,6 +248,11 @@ export default function PlatformCoordination() {
 
 
   const sendmail = async () => {
+     await fetchRequests();
+      // setRequests((prev) =>
+      //   prev.map((r) => (r._id === res._id ? res : r))
+      // );
+      setEmail("");
   }
 
   const handleChange = (e) => {
@@ -407,7 +391,7 @@ export default function PlatformCoordination() {
                 {/* To */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium text-gray-700 w-24">To</span>
-                  <span className="text-sm text-gray-800">user@example.com</span>
+                  <span className="text-sm text-gray-800">{plathformData}@gmail.com</span>
                 </div>
 
                 {/* Subject */}
@@ -448,9 +432,9 @@ export default function PlatformCoordination() {
 
                 {/* Toolbar */}
                 <div className="flex items-center justify-end gap-3 border-t pt-4">
-                  <button className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50">
+                  {/* <button className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50">
                     Save Draft
-                  </button>
+                  </button> */}
                   <button
                     onClick={sendmail}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-700"
@@ -458,7 +442,7 @@ export default function PlatformCoordination() {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4l16 8-16 8 4-8-4-8z" />
                     </svg>
-                    Send
+                    Save Draft
                   </button>
                 </div>
               </div>
@@ -514,7 +498,7 @@ export default function PlatformCoordination() {
                     <th className="py-2 pr-3">Status</th>
                     <th className="py-2 pr-3">Ref ID</th>
                     <th className="py-2 pr-3">Created</th>
-                    <th className="py-2 pr-3">Action</th>
+                    {/* <th className="py-2 pr-3">Action</th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -537,12 +521,6 @@ export default function PlatformCoordination() {
                       <td className="py-2 pr-3 max-w-[180px] truncate" title={r.referenceId || "—"}>{r.referenceId || "—"}</td>
                       <td className="py-2 pr-3 whitespace-nowrap">{r.createdAt ? new Date(r.createdAt).toLocaleString() : "—"}</td>
                       <td className="py-2 pr-3">
-                        <button
-                          className={`text-blue-600 hover:underline text-xs ${selectedId === r._id ? "font-semibold" : ""}`}
-                          onClick={() => setSelectedId(r._id)}
-                        >
-                          View
-                        </button>
                       </td>
                     </tr>
                   ))}
