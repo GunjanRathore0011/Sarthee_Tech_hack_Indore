@@ -137,7 +137,8 @@ export default function PlatformCoordination() {
   const location = useLocation();
   const { caseId } = location.state || {};
   if (caseId) {
-    console.log("Case ID from state:", caseId);}
+    console.log("Case ID from state:", caseId);
+  }
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -166,7 +167,7 @@ export default function PlatformCoordination() {
   const fetchRequests = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.post(`${API_BASE}/api/platform-requests`, {
+      const { data } = await axios.post(`${API_BASE}/api/platform-requestsget`, {
         complaintId: caseId,
       });
       setRequests(data);
@@ -187,23 +188,24 @@ export default function PlatformCoordination() {
   }, []);
 
   // Auto-detect platform when link changes
-  useEffect(() => {
-    if (form.targetLink) {
-      try {
-        const u = new URL(form.targetLink);
-        for (const p of PLATFORM_META) {
-          if (p.hostHints.some((h) => (h === "." ? true : u.host.includes(h)))) {
-            setForm((f) => ({ ...f, platform: p.key, entityType: (ENTITY_TYPES[p.key]?.[0]?.key) || f.entityType }));
-            break;
-          }
-        }
-      } catch { }
-    }
-  }, [form.targetLink]);
+  // useEffect(() => {
+  //   if (form.targetLink) {
+  //     try {
+  //       const u = new URL(form.targetLink);
+  //       for (const p of PLATFORM_META) {
+  //         if (p.hostHints.some((h) => (h === "." ? true : u.host.includes(h)))) {
+  //           setForm((f) => ({ ...f, platform: p.key, entityType: (ENTITY_TYPES[p.key]?.[0]?.key) || f.entityType }));
+  //           break;
+  //         }
+  //       }
+  //     } catch { }
+  //   }
+  // }, [form.targetLink]);
 
 
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
+
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!form.platform || !form.requestType || !form.entityType) return;
@@ -213,7 +215,7 @@ export default function PlatformCoordination() {
       // console.log("Submitting request:", form);
       setError("");
       const res = await axios.post(`${API_BASE}/api/platform-requests`, {
-        complaintId: caseId,
+        complainId: caseId,
         platform: form.platform,
         requestType: form.requestType,
         // entityType: form.entityType,
@@ -239,13 +241,13 @@ export default function PlatformCoordination() {
         evidenceLink: "",
         evidenceFileName: "",
       });
-      await fetchRequests();
-      setRequests((prev) =>
-        prev.map((r) => (r._id === res._id ? res : r))
-      );
+      // await fetchRequests();
+      // setRequests((prev) =>
+      //   prev.map((r) => (r._id === res._id ? res : r))
+      // );
 
       // Optionally update selectedId to ensure focus stays
-      setSelectedId(res._id);
+      // setSelectedId(res._id);
     } catch (e) {
       setError(e?.response?.data?.message || "Failed to submit request");
       console.error("Submit error:", e);
@@ -336,7 +338,7 @@ export default function PlatformCoordination() {
                 </select>
               </div>
 
-            
+
               {/* Reason */}
               <div>
                 <div className="flex items-center justify-between">
@@ -356,7 +358,7 @@ export default function PlatformCoordination() {
                   </button>
                 </div>
                 <textarea
-                  rows={3}
+                  rows={6}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={form.reason}
                   onChange={(e) => setForm({ ...form, reason: e.target.value })}
@@ -399,31 +401,75 @@ export default function PlatformCoordination() {
             </div>
 
             {/* Input + Button */}
-          {
-            email.length > 0 ? (
-           <div className="space-y-3">
-              <input
-                type="text"
-                name="subject"
-                value={email}
-                onChange={handleChange}
-                placeholder="Enter Subject"
-                className="w-full border rounded p-2"
-              />
-              <button
-                onClick={sendmail}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
-                Send Mail
-              </button>
-            </div>) : (
-            <div className="flex items-center justify-center h-32 bg-gray-50 rounded
-              text-gray-500">
-              <p className="text-sm">No email generated yet. Submit a request to generate an email.</p>
-            </div>
-            )
-            }
+            {email && email.length > 0 ? (
+              <div className="p-5 space-y-5">
+                {/* To */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-700 w-24">To</span>
+                  <span className="text-sm text-gray-800">user@example.com</span>
+                </div>
+
+                {/* Subject */}
+                <div className="flex items-center gap-3">
+                  <label
+                    htmlFor="subject"
+                    className="text-sm font-medium text-gray-700 w-24"
+                  >
+                    Subject
+                  </label>
+                  <input
+                    id="subject"
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Enter Subject"
+                    className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+                  />
+                </div>
+
+                {/* Body */}
+                <div>
+                  <label
+                    htmlFor="body"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Body
+                  </label>
+                  <textarea
+                    id="body"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Write your email here..."
+                    rows={12}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm leading-relaxed"
+                  />
+                </div>
+
+                {/* Toolbar */}
+                <div className="flex items-center justify-end gap-3 border-t pt-4">
+                  <button className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50">
+                    Save Draft
+                  </button>
+                  <button
+                    onClick={sendmail}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 text-sm rounded-md hover:bg-blue-700"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4l16 8-16 8 4-8-4-8z" />
+                    </svg>
+                    Send
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 bg-gray-50 rounded-b-2xl text-gray-500">
+                <p className="text-sm">
+                  No email generated yet. Submit a request to generate an email.
+                </p>
+              </div>
+            )}
           </div>
+
 
 
           {/* History / Table */}
@@ -504,7 +550,7 @@ export default function PlatformCoordination() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
