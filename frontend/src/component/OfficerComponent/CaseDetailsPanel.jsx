@@ -54,6 +54,7 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                 const data = response.data.data;
                 console.log("Complaint Data:", data);
                 setComplaint(data);
+                console.log("status" , data.status);
                 setSelectedStatus(data.status);
             } catch (error) {
                 console.error("Failed to fetch complaint details", error);
@@ -198,15 +199,7 @@ export const CaseDetailsPanel = ({ caseId: caseId, notes, onClose, onUpdateNotes
                                         </div>
                                         <div>
                                             <p className="text-sm text-blue-500">Status</p>
-                                            <select
-                                                value={selectedStatus}
-                                                onChange={(e) => setSelectedStatus(e.target.value)}
-                                                className="px-3 py-1 bg-white border border-blue-300 rounded text-sm"
-                                            >
-                                                <option value="Assigned">Assigned</option>
-                                                <option value="Investigating">Investigating</option>
-                                                <option value="Resolved">Resolved</option>
-                                            </select>
+                                            <p>{complaint.status}</p>
                                         </div>
                                         <div className="flex items-start space-x-2">
                                             <User className="h-4 w-4 text-blue-400 mt-1" />

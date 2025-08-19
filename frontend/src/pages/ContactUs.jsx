@@ -23,7 +23,7 @@ const ContactPage = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen py-12 px-4">
-      <Loading/>
+      {/* <Loading/> */}
       
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold text-blue-700 text-center mb-8" data-aos="fade-down">
