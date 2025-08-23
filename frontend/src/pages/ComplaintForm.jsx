@@ -45,15 +45,15 @@ const ComplaintForm = () => {
       <div className="max-w-4xl mx-auto mt-10 text-gray-700 text-sm text-center" data-aos="fade-up">
         <p className="mb-1">Need Help? Call the 24/7 Cyber Crime Helpline: <strong className="text-blue-700">1930</strong></p>
         <p>
-          Or visit the National Cyber Crime Portal at{' '}
-          <a
+          Or visit the National Cyber Crime Portal at CyberSentinel
+          {/* <a
             href="https://cybercrime.gov.in"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 underline"
           >
             cybercrime.gov.in
-          </a>
+          </a> */}
         </p>
       </div>
     </div>

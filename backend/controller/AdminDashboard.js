@@ -414,7 +414,7 @@ exports.suggestInvestigator = async (req, res) => {
       solvedCases: investigator.solvedCases.length,
       performance: (investigator.solvedCases.length) / ((investigator.assignedCases.length) + (investigator.solvedCases.length)) * 100, // Calculate performance as a percentage
       specializations: investigator.specialistIn,
-      status: (investigator.assignedCases.length) == 0 ? "Free" : (investigator.assignedCases.length < 5 ? "Available" : "Busy"),
+      status: (investigator.assignedCases.length) == 0 ? "Free" : (investigator.assignedCases.length < 15 ? "Available" : "Busy"),
       isActive: investigator.isActive
     }));
 
@@ -505,8 +505,8 @@ exports.mapVisualize = async (req, res) => {
 
     // Determine severity based on number of cases
     const getSeverity = (cases) => {
-      if (cases >= 18) return "High";
-      if (cases >= 10) return "Medium";
+      if (cases >= 6) return "High";
+      if (cases >= 4) return "Medium";
       return "Low";
     };
 

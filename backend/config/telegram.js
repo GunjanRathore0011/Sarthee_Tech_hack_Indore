@@ -6,7 +6,7 @@ const apiId = 22675614; // 👉 Replace with your my.telegram.org API_ID
 const apiHash = "e44d8e72a5696d35e4267e558eabdc14"; // 👉 Replace with your my.telegram.org API_HASH
 
 // 👉 After first login, replace "" with saved session string
-const stringSession = new StringSession("1BQANOTEuMTA4LjU2LjEwNQG7sXIVyXlPKvmQiAK0NxJxY3PjDsvw63+4JkqTSOW+9unWrw3XlVwmK+0TyCrB3IsruQQS4Ju68hMB0ntd4lAHhiXeIt6wIszpnUzBceAxcr5zBqiOzTwMGMRWl6bVuJRtp9kbBLhrREfZ1oHnELvbe63l7/87tu4Uwuf6swzo0dPmScs1ClafxlmOLiMpeTvDz4T2BiKQV2QLcEzZujrdJWCEzs4jQCefQAOBlV3BBg+tf08UVPgefNZVHeLe0ymq65jHYBo4Rfu/HIBUbA/8rh+bxrUwei11jik93I7mCgyBqQaj6F2ADmtBMjvCMOjk8wDN+z8kpGcq3si7FskH/Q==");
+const stringSession = new StringSession("1BQANOTEuMTA4LjU2LjExMQG7cjGfoRjM4qkGBNtO4knXttUNWqRruxT47FVRDQX3zgvKjMZSQxJMbiUUYMF8dzC28a24RlLZEZe38TD6+D4h2xNoSsq60o35SXz+r/zFP9xFFL8Iy6t7Nuzcp/r7RYRpXYQhijTzhD6f74LFUGrPSjwH3vaBSchExN1y9rUyKj7Sns0BQUS/Jpwz3jafx7IglAen1fCIeJe9pxQWALHhKxEVun7N45iWOYdZSjCsRCfV7Y8zzqi5ly6Aoi8mvLsp7KW4WPDW6OtHQN42XFm9cX9WsIGLQz4U6MygqXkw++PZ05ydz0ati4bB2shkW0ZKjR5XijREJjMp16A3CqcqCA==");
 
 const client = new TelegramClient(stringSession, apiId, apiHash, {
   connectionRetries: 5,
@@ -38,7 +38,7 @@ async function initTelegram() {
     onError: (err) => console.log(err),
   });
   console.log(" Tele-g connected!");
-//   console.log("👉 Save this session string:", client.session.save());
+  console.log("👉 Save this session string:", client.session.save());
 }
 
 module.exports = { client, initTelegram };
