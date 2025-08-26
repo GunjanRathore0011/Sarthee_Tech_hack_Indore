@@ -39,6 +39,7 @@
     "socket.io": "^4.8.1",
     "streamifier": "^0.1.1",
     "telegram": "^2.26.22",
-    "tesseract.js": "^6.0.1"
+    "tesseract.js": "^6.0.1",
+    "twilio": "^5.8.0"
   }
 }
