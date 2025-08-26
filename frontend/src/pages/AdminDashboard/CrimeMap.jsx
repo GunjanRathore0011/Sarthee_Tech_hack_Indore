@@ -1,27 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, CircleMarker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.heat";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-// Setup Leaflet default icon
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
-// Severity → Marker color
-const iconColors = {
-  High: "red",
-  Medium: "orange",
-  Low: "green",
-};
-
-// Utility delay function
 const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
 // Get lat/lng from pin using Nominatim
@@ -34,6 +19,7 @@ const getCoordinates = async (pin) => {
       return {
         lat: parseFloat(data[0].lat),
         lng: parseFloat(data[0].lon),
+        displayName: data[0].display_name,
       };
     }
   } catch (err) {
@@ -42,7 +28,7 @@ const getCoordinates = async (pin) => {
   return null;
 };
 
-// 🔁 Call your backend API for data
+// Call your backend API for data
 const fetchPinDataFromAPI = async () => {
   try {
     const res = await fetch("http://localhost:4000/api/v1/admin/mapVisualize", {
@@ -58,37 +44,90 @@ const fetchPinDataFromAPI = async () => {
 
     const response = await res.json();
     console.log("Fetched pin data:", response.data);
-    return response.data || []; // Adjust according to API structure
+    return response.data || [];
   } catch (error) {
     console.error("Error fetching pin data:", error);
     return [];
   }
 };
 
-const CrimeMap = () => {
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(true);
+// Heatmap Layer
+function HeatmapLayer({ points }) {
+  const map = useMap();
 
   useEffect(() => {
-    async function fetchLocations() {
+    if (!map || !points || points.length === 0) return;
+
+    const heatPoints = points.map((p) => [p.lat, p.lng, p.intensity]);
+
+    const heatOptions = {
+      radius: 50,   // larger radius
+      blur: 35,     // smooth blending
+      maxZoom: 12,
+      gradient: {
+        0.0: "blue",
+        0.2: "cyan",
+        0.4: "lime",
+        0.6: "yellow",
+        0.8: "orange",
+        1.0: "red",
+      },
+    };
+
+    const heatLayer = L.heatLayer(heatPoints, heatOptions);
+    heatLayer.addTo(map);
+
+    // Fit map to Madhya Pradesh bounds
+    const bounds = [
+      [21.2, 74.0], // SW
+      [26.9, 82.0], // NE
+    ];
+    map.fitBounds(bounds);
+
+    return () => {
+      map.removeLayer(heatLayer);
+    };
+  }, [map, points]);
+
+  return null;
+}
+
+const CrimeMap = () => {
+  const [mapData, setMapData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const center = [22.7196, 75.8577];
+  const zoom = 7;
+
+  useEffect(() => {
+    async function fetchAndProcessData() {
       setLoading(true);
 
       const pinData = await fetchPinDataFromAPI();
-      const results = [];
+      const processedPoints = [];
+
+      const maxCases = Math.max(1, ...pinData.map((item) => item.cases));
 
       for (const item of pinData) {
         const coords = await getCoordinates(item.pin);
         if (coords) {
-          results.push({ ...item, ...coords });
+          const baseIntensity = item.cases / maxCases;
+          const adjustedIntensity = Math.pow(baseIntensity, 0.7) * 15; // Boosted
+
+          processedPoints.push({
+            ...item,
+            ...coords,
+            intensity: adjustedIntensity,
+          });
         }
-        await delay(1000); // wait 1 second between API calls
+        await delay(100);
       }
 
-      setLocations(results);
+      setMapData(processedPoints);
       setLoading(false);
     }
 
-    fetchLocations();
+    fetchAndProcessData();
   }, []);
 
   return (
@@ -108,36 +147,36 @@ const CrimeMap = () => {
               <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"></div>
             </div>
           )}
-
           <MapContainer
-            center={[23.2599, 78.0000]}
-            zoom={7.3}
+            center={center}
+            zoom={zoom}
             scrollWheelZoom={true}
             className="h-full w-full"
-            maxBounds={[[20.5, 74], [27.5, 82]]}
-            maxBoundsViscosity={1.0}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+              attribution='© <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            {!loading && <HeatmapLayer points={mapData} />}
 
+            {/* Interactive invisible markers for popups */}
             {!loading &&
-              locations.map((loc, idx) => (
-                <Marker
+              mapData.map((point, idx) => (
+                <CircleMarker
                   key={idx}
-                  position={[loc.lat, loc.lng]}
-                  icon={L.icon({
-                    iconUrl: `https://maps.google.com/mapfiles/ms/icons/${iconColors[loc.severity]}-dot.png`,
-                    iconSize: [32, 32],
-                  })}
+                  center={[point.lat, point.lng]}
+                  radius={8}
+                  color="transparent"
+                  fillColor="transparent"
+                  fillOpacity={0}
                 >
                   <Popup>
-                    <strong>PIN:</strong> {loc.pin} <br />
-                    <strong>Severity:</strong> {loc.severity} <br />
-                    <strong>Cases:</strong> {loc.cases}
+                    <div className="text-sm">
+                      <p><b>Pin:</b> {point.pin}</p>
+                      <p><b>Cases:</b> {point.cases}</p>
+                    </div>
                   </Popup>
-                </Marker>
+                </CircleMarker>
               ))}
           </MapContainer>
         </div>

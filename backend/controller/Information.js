@@ -18,7 +18,7 @@ const mailsender = require("../utils/MailSender");
 
 const { sendWhatsAppText, sendWhatsAppMedia } = require("../utils/twilioClient.js");
 function genTrackingId() {
-  return crypto.randomBytes(4).toString("hex").toUpperCase(); 
+  return crypto.randomBytes(4).toString("hex").toUpperCase();
 }
 
 
@@ -412,30 +412,6 @@ exports.complaintInformation = async (req, res) => {
     console.log(user.number)
     console.log(user.email)
 
-    //send mail
-      try{
-        const mailResponse = await mailsender(user.email, "CyberSentinel received your complaint", "Your complaint has been received and logged into the cyber system. We find your complaint very important to us.And try to resolve it as soon as possible. Our team will initiate the review process shortly");
-      }
-        catch(e){
-            console.error("error in send mail :", e.message);
-        }
-    // fetch user phone number
-const phoneE164 = `+91${user.number}`;
-const messageBody =
-`Hi ${user.userName}, ✅ CyberSentinel received your complaint.
-Tracking ID: ${complaintInfo.trackingId}
-Current status: Pending
-Reply here with your ID anytime to get live status.
-Report attached below.`;
-
-// WhatsApp bhejna
-await sendWhatsAppMedia(phoneE164, messageBody, [complaintInfo.complain_report]);
-await sendWhatsAppText("+917987019811", "Hello from Twilio Sandbox ✅");
-
-
-
-
-
 
 
     // ✅ Victim Info (optional)
@@ -509,6 +485,31 @@ await sendWhatsAppText("+917987019811", "Hello from Twilio Sandbox ✅");
       success: true,
       data: Datasend,
     });
+
+    // fetch user phone number
+    const phoneE164 = `+91${user.number}`;
+    const sendmsg = `Hy ${user.userName},
+CyberSentinel को आपकी शिकायत मिल गई है।
+ट्रैकिंग आईडी: "${complaintInfo._id}"
+वर्तमान स्थिति: विचाराधीन
+रिपोर्ट नीचे दी गई है।
+
+Hi ${user.userName}, CyberSentinel received your complaint.
+Tracking ID: "${complaintInfo._id}"
+Current status: Pending
+Report attached below.`
+    // WhatsApp bhejna
+    // await sendWhatsAppText(phoneE164, sendmsg);
+
+    await sendWhatsAppMedia(phoneE164, sendmsg, [complaintInfo.complain_report]);
+    // await sendWhatsAppText("+917987019811", "Hello from Twilio Sandbox ✅");
+    //send mail
+    try {
+      const mailResponse = await mailsender(user.email, "CyberSentinel received your complaint", "Your complaint has been received and logged into the cyber system. We find your complaint very important to us.And try to resolve it as soon as possible. Our team will initiate the review process shortly");
+    }
+    catch (e) {
+      console.error("error in send mail :", e.message);
+    }
 
     // verify the evidence files
     //if any evidence files are present, send them to Flask for verification

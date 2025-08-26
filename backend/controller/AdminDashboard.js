@@ -8,6 +8,7 @@ const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
 const { io } = require("../index.js");
 const Feedback = require("../models/Feedback.js");
+const { sendWhatsAppText, sendWhatsAppMedia } = require("../utils/twilioClient.js");
 
 
 
@@ -337,6 +338,26 @@ exports.assignInvestigator = async (req, res) => {
       message: `New complaint assign : ${complaintId}`
     });
 
+    //send whatsapp msg
+    const finduser = await User.findById(complain.userId);
+    const phonNo = `+91${finduser.number}`;
+    const sendmsg = `नमस्ते,आपकी शिकायत संख्या ${complain._id} को एक इन्वेस्टिगेटर को सौंप दिया गया है। हम आपके साथ हुए धोखाधड़ी के मामले को गंभीरता से ले रहे हैं और हमारी टीम जल्द ही इसकी जांच शुरू कर देगी।`
+    const sendmsgE = `Hello,Your complaint, bearing number ${complain._id}, has been assigned to an investigator. We are taking your fraud case very seriously, and our team will begin its investigation shortly.`
+    
+    const sendmsg1 = `नमस्ते,
+    आपकी शिकायत संख्या "${complain._id}" को  इन्वेस्टिगेटर को सौंप दिया गया है। 
+    हम आपके साथ हुए धोखाधड़ी के मामले को गंभीरता से ले रहे हैं और हमारी टीम जल्द ही इसकी जांच शुरू कर देगी।
+    
+    Hello,
+    Your complaint, bearing number "${complain._id}",
+    has been assigned to an investigator.
+    We are taking your fraud case very seriously, and our team will begin its investigation shortly`
+    
+    // await sendWhatsAppText(phonNo, sendmsg);
+    await sendWhatsAppMedia(phonNo, sendmsgE);
+
+
+
     res.status(200).json({
       success: true,
       message: "Investigator assigned successfully.",
@@ -565,7 +586,7 @@ exports.autoAssignInvestigator = async (req, res) => {
     // Assign each complaint to the next available investigator in a round-robin fashion
     for (let i = 0; i < complaints.length; i++) {
       const leastLoadedInvestigator = getLeastLoadedInvestigator(investigators);
-    console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
+      console.log(`Assigning complaint ${complaints[i]._id} to investigator ${leastLoadedInvestigator.name}`);
       // Assign complaint
       complaints[i].assignedTo = leastLoadedInvestigator._id;
       complaints[i].status = 'AssignInvestigator';
