@@ -20,7 +20,7 @@ async function askBot(req, res) {
 
     const botA = "@UniversalSearch_Ro_bot";
     const botB = "@TrueCaller1Bot";
-    const waitTime = 15000; // 10 seconds
+    const waitTime = 12000; // 10 seconds
 
     // Storage for replies
     const botAReplies = [];

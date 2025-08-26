@@ -62,7 +62,7 @@ exports.createRequest = async (req, res) => {
 
     console.log("Complaint details payload:", payload);
     const refId = `REQ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
+    const lang = "Hindi";
 
     const prompt = `    
 You are a compliance-savvy drafting assistant for cybercrime investigations.  
@@ -95,8 +95,9 @@ Your job is to convert complaint JSON payloads into professional formal emails t
    - ACCOUNT_SUSPENSION/EMERGENCY_SHUTDOWN → freeze/hold account, block transactions, preserve balance.  
    - TAKEDOWN/CONTENT_REMOVAL → remove/disable target, prevent re-upload/cloning.  
    - DATA_REQUEST → provide subscriber info, metadata, login IPs, logs, payment info, linked identifiers; preserve evidence if requested.  
-6. Legal/Authority: use "legal_basis" if provided, else say "under applicable law and your platform policies".  
-7. Urgency/Deadline: mention if given.  
+   - Any other request type → so handle as per your perception of best practice based on request_type.
+6. Legal/Authority: use "legal_basis" if provided, else say "under applicable law and your platform policies".Also Add some Indian Acts for reference. 
+7. Language: If language provide ,so write in that language.Language will be Hindi or English only , and byfeault English 
 8. Attachments: mention if present.  
 9. Closing: professional sign-off with officer/agency details.  
 10. Confidentiality notice if present.  
@@ -109,6 +110,7 @@ Generate a platform request for ${platform} with the following details:
 - Target Link: ${targetLink}
 - Reason: ${reason}
 - Reference ID: ${refId}
+- Language: ${lang}
 
 ### Output:
 Respond with a JSON object containing:

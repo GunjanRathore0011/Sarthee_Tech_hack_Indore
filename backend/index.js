@@ -112,7 +112,7 @@ io.on("connection", (socket) => {
 // ✅ Start server with Socket.IO
 (async () => {
   try {
-    await initTelegram(); // 🔑 try to connect
+    // await initTelegram(); // 🔑 try to connect
     console.log("Tel-G connected ✅");
   } catch (err) {
     console.error("⚠️ Telegram init failed:", err.message);

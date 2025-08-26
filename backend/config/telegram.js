@@ -6,8 +6,8 @@ const apiId = 22675614; // 👉 Replace with your my.telegram.org API_ID
 const apiHash = "e44d8e72a5696d35e4267e558eabdc14"; // 👉 Replace with your my.telegram.org API_HASH
 
 // 👉 After first login, replace "" with saved session string
-const stringSession = new StringSession("1BQANOTEuMTA4LjU2LjExMQG7cjGfoRjM4qkGBNtO4knXttUNWqRruxT47FVRDQX3zgvKjMZSQxJMbiUUYMF8dzC28a24RlLZEZe38TD6+D4h2xNoSsq60o35SXz+r/zFP9xFFL8Iy6t7Nuzcp/r7RYRpXYQhijTzhD6f74LFUGrPSjwH3vaBSchExN1y9rUyKj7Sns0BQUS/Jpwz3jafx7IglAen1fCIeJe9pxQWALHhKxEVun7N45iWOYdZSjCsRCfV7Y8zzqi5ly6Aoi8mvLsp7KW4WPDW6OtHQN42XFm9cX9WsIGLQz4U6MygqXkw++PZ05ydz0ati4bB2shkW0ZKjR5XijREJjMp16A3CqcqCA==");
-
+const stringSession = new StringSession("1BQANOTEuMTA4LjU2LjE5MwG7gUvLJCERsCb26b2T8lUBymLvusgYqCLIYf9xLdg0cviPmDcLtQiLOTZXdx+7RYv5PbsYg7xrIXo4K5vrh+2XO+H9T6ar2Wk3/uvG3fASjC8gnsd8Rhj8IIt47XtHVYFeHhCNi8MUCqvYEjG+ELv9nNKakSO/O7noEKSJZMA4gV6tIhg99703bBbrd2rFM6lr1wnAT3r7Y7dgFfr4lh1kteCZ234uoKIot1KcpjGguEgIKvhYPXod5zetcHnZFKw0810cODaxleeh8UuGZR50srbw1yUTMdPk7pOPNsqt8pddlARnL+HKn1S+iXS62n2ymuKnn248PT07nhBiihXkUw==");
+// const stringSession = new StringSession("");
 const client = new TelegramClient(stringSession, apiId, apiHash, {
   connectionRetries: 5,
    useWSS: true,
@@ -32,7 +32,7 @@ function customPrompt(query) {
 
 async function initTelegram() {
   await client.start({
-    phoneNumber: async () => "+919644421660",
+    phoneNumber: async () => "+919753230663",
     password: async () => customPrompt("Enter your 2FA password (if any): "),
     phoneCode: async () => customPrompt("Enter the code you received: "),
     onError: (err) => console.log(err),
