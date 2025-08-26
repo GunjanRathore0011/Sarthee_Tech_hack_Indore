@@ -414,7 +414,7 @@ exports.complaintInformation = async (req, res) => {
 
     //send mail
       try{
-        const mailResponse = await mailsender(user.email, "CyberSentinel received your complaint", "Your complaint has been received and logged into the system. Our team will initiate the review process shortly");
+        const mailResponse = await mailsender(user.email, "CyberSentinel received your complaint", "Your complaint has been received and logged into the cyber system. We find your complaint very important to us.And try to resolve it as soon as possible. Our team will initiate the review process shortly");
       }
         catch(e){
             console.error("error in send mail :", e.message);
