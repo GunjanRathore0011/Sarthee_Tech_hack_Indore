@@ -41,7 +41,7 @@ function FindUsingNo() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+    <div className=" bg-gray-100 flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold mb-6 text-center">
 
         Enter Phone Number</h1>
@@ -53,7 +53,7 @@ function FindUsingNo() {
           value={phoneNo}
           onChange={(e) => setPhoneNo(e.target.value)}
           placeholder="Enter phone number"
-          className="flex-grow p-2 border rounded text-sm"
+          className="flex-grow p-2 border rounded text-sm bg-white"
         />
         <button
           onClick={handleNumberFind}

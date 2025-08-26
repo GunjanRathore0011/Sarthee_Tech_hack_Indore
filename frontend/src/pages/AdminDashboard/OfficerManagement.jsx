@@ -104,7 +104,7 @@ const OfficerManagement = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bf border">
             <CardContent className="p-4 space-y-2">
-              <div className="flex justify-between items-center text-sm text-gray-800">
+              <div className="flex justify-between items-center text-m text-gray-800">
                 <span>Total Officers</span>
                 <Users className="w-4 h-4" />
               </div>
@@ -114,7 +114,7 @@ const OfficerManagement = () => {
 
           <Card className="bf border">
             <CardContent className="p-4 space-y-2">
-              <div className="flex justify-between items-center text-sm text-gray-400">
+              <div className="flex justify-between items-center text-m text-black">
                 <span>Available</span>
                 <Activity className="w-4 h-4 text-green-400" />
               </div>
@@ -124,17 +124,17 @@ const OfficerManagement = () => {
 
           <Card className="bf border">
             <CardContent className="p-4 space-y-2">
-              <div className="flex justify-between items-center text-sm text-gray-400">
+              <div className="flex justify-between items-center text-m text-black">
                 <span>Active Cases</span>
-                <Briefcase className="w-4 h-4 text-yellow-300" />
+                <Briefcase className="w-4 h-4 text-orange-500" />
               </div>
-              <div className="text-2xl font-semibold text-yellow-300">{totalActiveCases}</div>
+              <div className="text-2xl font-semibold text-orange-500">{totalActiveCases}</div>
             </CardContent>
           </Card>
 
           <Card className="bf border">
             <CardContent className="p-4 space-y-2">
-              <div className="flex justify-between items-center text-sm text-gray-400">
+              <div className="flex justify-between items-center text-m text-black">
                 <span>Avg Performance</span>
                 <Star className="w-4 h-4 text-blue-400" />
               </div>
@@ -148,7 +148,7 @@ const OfficerManagement = () => {
           <h2 className="text-xl font-semibold">Officer Directory</h2>
           <Button
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-black"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
           >
             👤 Add Officer
           </Button>
@@ -195,7 +195,7 @@ const OfficerManagement = () => {
                 <div className="flex justify-between text-sm">
                   <span>
                     Status:{" "}
-                    <Badge className={statusColor[officer.status] || "bg-gray-300"}>
+                    <Badge className={statusColor[officer.status] || "bg-gray-300 text-black"}>
                       {officer.status}
                     </Badge>
                   </span>

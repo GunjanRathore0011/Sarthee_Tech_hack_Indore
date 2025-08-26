@@ -26,6 +26,23 @@ const AdminNavbar = () => {
   return (
     <>
       <div>
+         <div className="w-full bg-blue-900 text-white text-xs">
+                <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-1">
+                    {/* Left: Govt Name */}
+                    <div className="flex items-center gap-2">
+                        <span className="font-semibold">मध्यप्रदेश शासन</span>
+                        <span className="border-l border-white h-4"></span>
+                        <span className="font-semibold">Government of Madhya Pradesh</span>
+                    </div>
+
+                    {/* Right utilities (language / accessibility / login) */}
+                    <div className="flex gap-4 items-center">
+                        <button className="hover:underline">हिन्दी</button>
+                        <button className="hover:underline">English</button>
+
+                    </div>
+                </div>
+            </div>
         {/* Top Admin Header */}
         <nav className="bg-white text-black border-b shadow-md border-gray-200 py-4 px-8 flex justify-between items-center">
           {/* Left: Logo + Title */}
@@ -59,71 +76,74 @@ const AdminNavbar = () => {
         </nav>
 
         {/* Bottom Navigation Menu */}
-        <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
+        <div className="bg-gradient-to-r from-[#0473fb] to-[#0b3f98] shadow-md text-white border-b border-gray-200 px-10 py-5 flex space-x-10">
+
           <Link
             to="/complaint-management"
-            className={`flex items-center  space-x-2 transition ${isActive('/complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            className={`flex items-center space-x-2 transition ${isActive('/complaint-management')
+                ? ' font-semibold '
+                : 'hover: hover:underline'
               }`}
           >
             <MdOutlineReport className="text-lg" />
-            <span>Complaints</span>
+            <span className='font-bold'>Complaints</span>
           </Link>
 
           <Link
             to="/admin-analytics"
-            className={`flex items-center space-x-2 transition ${isActive('/admin-analytics') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            className={`flex items-center space-x-2 transition ${isActive('/admin-analytics')
+                ? ' font-semibold '
+                : 'hover: hover:underline'
               }`}
           >
             <MdOutlineAnalytics className="text-lg" />
-            <span>Analytics</span>
+            <span className='font-bold'>Analytics</span>
           </Link>
 
           <Link
             to="/officer-management"
-            className={`flex items-center space-x-2 transition ${isActive('/officer-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            className={`flex items-center space-x-2 transition ${isActive('/officer-management')
+                ? ' font-semibold '
+                : 'hover: hover:underline'
               }`}
           >
             <MdOutlinePerson className="text-lg" />
-            <span>Officers</span>
+            <span className='font-bold'>Officers</span>
           </Link>
 
           <Link
             to="/crime-map"
-            className={`flex items-center space-x-2 transition ${isActive('/crime-map') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            className={`flex items-center space-x-2 transition ${isActive('/crime-map')
+                ? ' font-semibold '
+                : 'hover: hover:underline'
               }`}
           >
             <RiMapPinLine className="text-lg" />
-            <span>Crime Map</span>
+            <span className='font-bold'> Crime Map</span>
           </Link>
 
           <Link
             to="/pattern-alert"
-            className={`flex items-center space-x-2 transition ${isActive('/pattern-alert') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+            className={`flex items-center space-x-2 transition ${isActive('/pattern-alert')
+                ? ' font-semibold '
+                : 'hover: hover:underline'
               }`}
           >
             <GiNetworkBars className="text-lg" />
-            <span>Pattern</span>
+            <span className='font-bold'>Pattern</span>
           </Link>
+
           <Link
             to="/feedback"
-            className={`flex items-center space-x-2 transition ${isActive('/feedback')
-                ? 'text-blue-600 font-semibold'
-                : 'hover:text-blue-600'
+            className={`flex items-center space-x-2 transition  ${isActive('/feedback')
+                ? ' font-semibold'
+                : 'hover: hover:underline'
               }`}
           >
             <MdFeedback className="text-lg" />
-            <span>Feedback</span>
+            <span className='font-bold'>Feedback</span>
           </Link>
 
-          {/* <Link
-            to="/admin/platform-coordination"
-            className={`flex items-center space-x-2 transition ${
-              isActive('/admin/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-            }`}
-          >
-            <MdOutlineHandshake className="text-lg" />
-            <span>Platform Coordination</span>
-          </Link> */}
         </div>
       </div>
 

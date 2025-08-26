@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import FindUsingIP from "../OfficerDashboard/FindUsingIP";
 import FindUsingNo from "../OfficerDashboard/FindUsingNo";
+import ScamDetector from "@/component/ScamDetector";
+import Scanlink from "./Scanlink";
 
 function FindDetailsPage() {
   const [activeTab, setActiveTab] = useState("phone"); // phone | ip
@@ -34,11 +36,24 @@ function FindDetailsPage() {
         >
           🌐 IP Address
         </button>
+         <button
+          onClick={() => setActiveTab("scan")}
+          className={`px-4 py-2 rounded font-medium ${
+            activeTab === "scan"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-blue-600 border border-blue-600"
+          }`}
+        >
+          🌐Scan link
+           </button>
       </div>
 
       {/* Render Component Based on Tab */}
       <div className="w-full">
-        {activeTab === "phone" ? <FindUsingNo /> : <FindUsingIP />}
+        {activeTab === "phone" && <FindUsingNo /> }
+        {activeTab ==="ip" && <FindUsingIP />}
+        {activeTab==="scan" && <Scanlink/>}
+
       </div>
     </div>
   );

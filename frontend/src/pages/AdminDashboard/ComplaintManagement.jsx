@@ -372,7 +372,8 @@ const ComplaintManagement = () => {
                   <div className={`px-3 py-1 rounded-full text-sm font-medium inline-flex items-center gap-1 ${getStatusStyle(complaint.status)}`}>
                     {complaint.status.toLowerCase() === 'pending' && <span>🕒</span>}
                     {complaint.status.toLowerCase() === 'resolved' && <span>✅</span>}
-                    {complaint.status}
+                    {complaint.status === "AssignInvestigator" && <span>Assigned</span>}
+                    {complaint.status !== "AssignInvestigator" && complaint.status}
                   </div>
                 </TableCell>
 

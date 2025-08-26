@@ -39,7 +39,7 @@ function FindUsingIP() {
   };
 
   return (
-   <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+   <div className="bg-gray-100 flex flex-col items-center p-6">
   <h1 className="text-3xl font-bold mb-8 text-center">
     Enter IP Address
   </h1>
@@ -50,7 +50,7 @@ function FindUsingIP() {
       value={ip}
       onChange={(e) => setIp(e.target.value)}
       placeholder="Enter IP address"
-      className="flex-grow p-3 border rounded text-base"
+      className="flex-grow p-3 border rounded text-base bg-white"
     />
 
     <button

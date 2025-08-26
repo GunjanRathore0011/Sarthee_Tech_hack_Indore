@@ -23,6 +23,24 @@ const OfficerNavbar = () => {
 
   return (
     <div>
+
+       <div className="w-full bg-blue-900 text-white text-xs">
+                <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-1">
+                    {/* Left: Govt Name */}
+                    <div className="flex items-center gap-2">
+                        <span className="font-semibold">मध्यप्रदेश शासन</span>
+                        <span className="border-l border-white h-4"></span>
+                        <span className="font-semibold">Government of Madhya Pradesh</span>
+                    </div>
+
+                    {/* Right utilities (language / accessibility / login) */}
+                    <div className="flex gap-4 items-center">
+                        <button className="hover:underline">हिन्दी</button>
+                        <button className="hover:underline">English</button>
+
+                    </div>
+                </div>
+            </div>
       {/* Top Officer Header */}
       <nav className="bg-white text-black border-b shadow-md border-gray-200 py-4 px-8 flex justify-between items-center">
         {/* Left: Logo + Title */}
@@ -70,42 +88,40 @@ const OfficerNavbar = () => {
       </nav>
 
       {/* Bottom Navigation Menu */}
-      <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
-
+      <div className="bg-gradient-to-r from-[#0473fb] to-[#0b3f98] shadow-md text-white border-b border-gray-200 px-10 py-5 flex space-x-10">
 
         <Link
           to="/officer-complaint-management"
-          className={`flex items-center space-x-2 transition ${isActive('/officer-complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+          className={`flex items-center space-x-2 transition ${isActive('/officer-complaint-management')
+              ? ' font-semibold underline'   // active link style
+              : 'hover:text-yellow-300 hover:underline'     // hover style
             }`}
         >
-          <span>Cases</span>
+          <span className='font-bold'>Cases</span>
         </Link>
-
-        {/* <Link
-                  to='/platform-coordination'
-                  className={`flex items-center space-x-2 transition ${
-                    isActive('/platform-coordination') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-                  }`}
-                >
-                  <span>Platform Coordination</span>
-                </Link> */}
 
         <Link
           to="/suspect-tracker"
-          className={`flex items-center space-x-2 transition ${isActive('/suspect-tracker') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+          className={`flex items-center space-x-2 transition ${isActive('/suspect-tracker')
+              ? ' font-semibold underline'
+              : 'hover:text-yellow-300 hover:underline'
             }`}
         >
-          <span>Suspect Tracker</span>
+          <span className='font-bold'>Suspect Tracker</span>
         </Link>
+
         <Link
           to="/findUsing"
-          className={`flex items-center space-x-2 transition ${isActive('/findUsing') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+          className={`flex items-center space-x-2 transition ${isActive('/findUsing')
+              ? ' font-semibold underline'
+              : 'hover:text-yellow-300 hover:underline'
             }`}
         >
-          <span>FindUsing</span>
+          <span className='font-bold'>FindUsing</span>
         </Link>
 
       </div>
+
 
     </div>
   );
