@@ -29,6 +29,7 @@ const PLATFORM_META = [
   { key: "github", label: "GitHub", code: "GH", hostHints: ["github.com"] },
   { key: "hosting_provider", label: "Website / Hosting", code: "WEB", hostHints: ["."] },
   { key: "Banking", label: "Banking / Finance", code: "BANK", hostHints: ["bank", "finance"] },
+  { key : "Internet_Service_Provider", label: "ISP", code: "ISP", hostHints: ["isp"] },
 ];
 
 const REQUEST_TYPES = [
@@ -76,7 +77,15 @@ const ENTITY_TYPES = {
     { key: "CARD_NUMBER", label: "Card Number" },
     { key: "TRANSACTION_ID", label: "Transaction ID" },
   ],
+  Internet_Service_Provider: [
+    { key: "Phone Number", label: "Phone Number" },   
+  ],
 };
+
+const LANGUAGES = [
+  { key: "English", label: "English" },
+  { key: "Hindi", label: "Hindi" },
+];
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -160,6 +169,7 @@ export default function PlatformCoordination() {
     reason: "",
     evidenceLink: "",
     evidenceFileName: "",
+    language: "English",
   });
 
   const entityOptions = ENTITY_TYPES[form.platform] || [{ key: "GENERIC", label: "Identifier / URL" }];
@@ -203,6 +213,7 @@ export default function PlatformCoordination() {
         requestType: form.requestType,
         targetLink: form.entityType,
         reason: form.reason,
+        language: form.language
       });
       setplatformData(form.platform);
       if (res.status !== 200) {
@@ -323,6 +334,8 @@ export default function PlatformCoordination() {
                 </select>
               </div>
 
+              
+
 
               {/* Reason */}
               <div>
@@ -343,11 +356,29 @@ export default function PlatformCoordination() {
                   </button>
                 </div>
                 <textarea
-                  rows={6}
+                  rows={3}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={form.reason}
                   onChange={(e) => setForm({ ...form, reason: e.target.value })}
                 />
+              </div>
+
+              {/* language */}
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className={`w-1/2 py-2 px-4 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 ${form.language === "English" ? "bg-blue-500" : "bg-gray-400"}`}
+                  onClick={() => setForm({ ...form, language: "English" })}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  className={`w-1/2 py-2 px-4 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 ${form.language === "Hindi" ? "bg-blue-500" : "bg-gray-400"}`}
+                  onClick={() => setForm({ ...form, language: "Hindi" })}
+                >
+                  Hindi
+                </button>
               </div>
 
               {/* Submit */}

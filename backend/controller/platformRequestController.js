@@ -10,7 +10,7 @@ const SuspectSchema = require("../models/SuspectSchema");
 // @desc Create a new platform request
 exports.createRequest = async (req, res) => {
   try {
-    const { complainId, platform, requestType, targetLink, reason } = req.body;
+    const { complainId, platform, requestType, targetLink, reason, language="English" } = req.body;
 
     // 1️⃣ Create the LLM prompt
     if (!complainId) {
@@ -62,7 +62,7 @@ exports.createRequest = async (req, res) => {
 
     console.log("Complaint details payload:", payload);
     const refId = `REQ-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    const lang = "Hindi";
+    const lang = language ;
 
     const prompt = `    
 You are a compliance-savvy drafting assistant for cybercrime investigations.  
