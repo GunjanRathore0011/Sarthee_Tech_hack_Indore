@@ -112,7 +112,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+    <div className="h-[80vh] bg-gray-100 flex items-center justify-center px-4">
       <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md text-center">
         <div className="mb-6">
           <img src={logoImage} alt="Cyber Sentinel Logo" className="h-12 w-auto mx-auto mb-2" />

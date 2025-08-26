@@ -29,10 +29,15 @@ import PrivateRoute from './pages/PrivateRoute';
 import RoleBasedRoute from './pages/RoleBasedRoute';
 import FindDetailsPage from './pages/OfficerDashboard/FindDetailsPage';
 import { useSelector } from 'react-redux';
+import TopBanner from './component/TopBanner';
+import Footer from './component/Footer';
+import FeedbackDashboard from './pages/AdminDashboard/FeedbackDashboard';
+import OfficerFooter from './component/OfficerComponent/OfficerFooter';
+import AdminFooter from './component/AdminComponent/AdminFooter';
 
 const App = () => {
 
- const user = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.user.user);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,6 +59,7 @@ const App = () => {
     '/crime-map',
     '/pattern-alert',
     '/admin-profile',
+    '/feedback'
 
   ];
   const officerRoutes = [
@@ -72,7 +78,10 @@ const App = () => {
       ) : isOfficerRoute ? (
         <OfficerNavbar />
       ) : (
-        <Navbar />
+        <>
+          <TopBanner />
+          <Navbar />
+        </>
       )}
 
       <Routes>
@@ -103,6 +112,8 @@ const App = () => {
           <Route path="/crime-map" element={<CrimeMap />} />
           <Route path="/pattern-alert" element={<PatternAlert />} />
           <Route path="/admin-profile" element={<AdminHome />} />
+          <Route path="/feedback" element={<FeedbackDashboard />} />
+          
         </Route>
 
         {/* Officer Routes */}
@@ -122,6 +133,17 @@ const App = () => {
           <Route path="/findUsing" element={<FindDetailsPage />} />
         </Route>
       </Routes>
+
+{isAdminRoute ? (
+        <AdminFooter></AdminFooter>
+      ) : isOfficerRoute ? (
+        <OfficerFooter></OfficerFooter>
+      ) : (
+        <>
+         <Footer></Footer>
+        </>
+      )}
+      
     </>
   );
 };

@@ -10,6 +10,7 @@ const {dashboard,
     updateOfficer,    
     getComplaintDetails,
     moneyLostRecovered,
+    getFeedback,
     } = require('../controller/AdminDashboard');
 
 router.get('/dashboard', dashboard);
@@ -23,5 +24,6 @@ router.put('/updateOfficer/:id', updateOfficer);
 router.post('/complaint-details', getComplaintDetails);
 router.get('/moneyLostRecovered', moneyLostRecovered);
 
+router.get('/api/feedbacks',getFeedback);
 
 module.exports = router;

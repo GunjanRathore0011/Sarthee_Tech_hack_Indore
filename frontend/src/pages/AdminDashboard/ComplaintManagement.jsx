@@ -12,6 +12,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from 'react-toastify';
 import ViewComplaint from './ViewComplaint';
+import { Listbox } from '@headlessui/react'
 
 const ComplaintManagement = () => {
   const [complaints, setComplaints] = useState([]);
@@ -246,6 +247,26 @@ const ComplaintManagement = () => {
       {/* Filter Section */}
       <div className="bg-gray-100 p-4  mb-4 ">
         <div className="flex flex-wrap items-center gap-4 flex-row justify-between">
+         
+          {/* Sub Category */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium text-gray-600 mb-1.5 ml-1">Sub Category</label>
+            <select
+  name="subCategory"
+  value={filters.subCategory}
+  onChange={handleFilterChange}
+  className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none min-w-[180px]"
+  style={{ position: "relative", overflow: "hidden", direction: "ltr" }}
+>
+  <option value="">All</option>
+  {subCategories.map((subCat, index) => (
+    <option key={index} value={subCat}>
+      {subCat}
+    </option>
+  ))}
+</select>
+
+          </div>
           {/* Status */}
           <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600 mb-1.5 ml-1">Status</label>
@@ -278,23 +299,7 @@ const ComplaintManagement = () => {
             </select>
           </div>
 
-          {/* Sub Category */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1.5 ml-1">Sub Category</label>
-            <select
-              name="subCategory"
-              value={filters.subCategory}
-              onChange={handleFilterChange}
-              className="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none min-w-[180px]"
-            >
-              <option value="">All</option>
-              {subCategories.map((subCat, index) => (
-                <option key={index} value={subCat}>
-                  {subCat}
-                </option>
-              ))}
-            </select>
-          </div>
+         
 
 
           {/* Month */}
@@ -314,7 +319,7 @@ const ComplaintManagement = () => {
           <div className="flex items-end gap-2">
             <Button
               onClick={autoassign}
-              className="bg-blue-700 hover:bg-blue-900 text-white px-4 py-2 rounded-lg shadow-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm"
             >
               Auto assign
             </Button>

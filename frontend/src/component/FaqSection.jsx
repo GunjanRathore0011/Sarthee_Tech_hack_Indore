@@ -39,7 +39,7 @@ const FaqSection = () => {
   };
 
   return (
-    <section className="bg-gradient-to-r from-[#dbeafe] to-[#f9fafb] py-16 px-4" data-aos="fade-up">
+    <section className="bg-gradient-to-r from-[#f0f7ff] to-white py-16 pb-10 px-4" data-aos="fade-up">
       <div className="max-w-5xl mx-auto">
         <h2 className="text-2xl sm:text-3xl font-semibold text-center mb-10">
           Frequently Asked Questions

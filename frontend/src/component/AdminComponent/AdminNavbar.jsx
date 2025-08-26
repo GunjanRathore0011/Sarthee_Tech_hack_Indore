@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiUser, FiLogOut } from 'react-icons/fi';
-import { MdOutlineReport, MdOutlineAnalytics, MdOutlinePerson, MdOutlineMap, MdOutlineHandshake } from 'react-icons/md';
+import { MdOutlineReport, MdOutlineAnalytics, MdOutlinePerson, MdOutlineMap, MdOutlineHandshake, MdFeedback } from 'react-icons/md';
 import shieldIcon from '../../assets/images/logo.png';
 import AdminDashboardStats from './AdminDashboardStats';
 import AdminNotifications from './AdminNotifications';
@@ -17,12 +17,12 @@ const AdminNavbar = () => {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/login'); 
+    navigate('/login');
   };
 
   // Utility to check active route
   const isActive = (path) => location.pathname === path;
- 
+
   return (
     <>
       <div>
@@ -62,9 +62,8 @@ const AdminNavbar = () => {
         <div className="bg-white shadow-md text-black border-b border-gray-200 px-10 py-5 flex space-x-10">
           <Link
             to="/complaint-management"
-            className={`flex items-center  space-x-2 transition ${
-              isActive('/complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-            }`}
+            className={`flex items-center  space-x-2 transition ${isActive('/complaint-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+              }`}
           >
             <MdOutlineReport className="text-lg" />
             <span>Complaints</span>
@@ -72,9 +71,8 @@ const AdminNavbar = () => {
 
           <Link
             to="/admin-analytics"
-            className={`flex items-center space-x-2 transition ${
-              isActive('/admin-analytics') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-            }`}
+            className={`flex items-center space-x-2 transition ${isActive('/admin-analytics') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+              }`}
           >
             <MdOutlineAnalytics className="text-lg" />
             <span>Analytics</span>
@@ -82,9 +80,8 @@ const AdminNavbar = () => {
 
           <Link
             to="/officer-management"
-            className={`flex items-center space-x-2 transition ${
-              isActive('/officer-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-            }`}
+            className={`flex items-center space-x-2 transition ${isActive('/officer-management') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+              }`}
           >
             <MdOutlinePerson className="text-lg" />
             <span>Officers</span>
@@ -92,9 +89,8 @@ const AdminNavbar = () => {
 
           <Link
             to="/crime-map"
-            className={`flex items-center space-x-2 transition ${
-              isActive('/crime-map') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-            }`}
+            className={`flex items-center space-x-2 transition ${isActive('/crime-map') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+              }`}
           >
             <RiMapPinLine className="text-lg" />
             <span>Crime Map</span>
@@ -102,12 +98,21 @@ const AdminNavbar = () => {
 
           <Link
             to="/pattern-alert"
-            className={`flex items-center space-x-2 transition ${
-              isActive('/pattern-alert') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
-            }`}
+            className={`flex items-center space-x-2 transition ${isActive('/pattern-alert') ? 'text-blue-600 font-semibold' : 'hover:text-blue-600'
+              }`}
           >
             <GiNetworkBars className="text-lg" />
             <span>Pattern</span>
+          </Link>
+          <Link
+            to="/feedback"
+            className={`flex items-center space-x-2 transition ${isActive('/feedback')
+                ? 'text-blue-600 font-semibold'
+                : 'hover:text-blue-600'
+              }`}
+          >
+            <MdFeedback className="text-lg" />
+            <span>Feedback</span>
           </Link>
 
           {/* <Link

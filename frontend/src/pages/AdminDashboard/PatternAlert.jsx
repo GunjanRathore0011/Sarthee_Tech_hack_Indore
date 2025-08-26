@@ -49,7 +49,7 @@ function PatternAlert() {
       {
         label: 'Name Count',
         data: nameDataSorted.map(a => a.count),
-        backgroundColor: 'rgba(54, 162, 235, 0.8)',
+        backgroundColor: '#0473fb',
         borderRadius: 10,
         barThickness: 80
       }
@@ -62,7 +62,7 @@ function PatternAlert() {
       {
         label: 'Card Number Count',
         data: cardDataSorted.map(a => a.count),
-        backgroundColor: 'rgba(255, 99, 132, 0.8)',
+        backgroundColor: '#0473fb',
         borderRadius: 10,
         barThickness: 80
       }

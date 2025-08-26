@@ -31,14 +31,17 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+
 import axios from "axios";
 import { Tooltip } from "react-leaflet";
 import { Legend } from "chart.js";
 
+// ✨ Framer Motion import
+import { motion } from "framer-motion";
+
 const Analytics = () => {
-  // ✅ Initialize as empty array to prevent "data is not iterable" error
   const [chartData, setChartData] = useState([]);
-  const [fraudChartData, setFraudChartData] = useState([]); // Initialize as empty array
+  const [fraudChartData, setFraudChartData] = useState([]);
   const [selectedYear, setSelectedYear] = useState("All");
   const years = useMemo(() => {
     const allYears = chartData.map(item =>
@@ -53,6 +56,7 @@ const Analytics = () => {
       item => new Date(item.date).getFullYear() === Number(selectedYear)
     );
   }, [chartData, selectedYear]);
+
   const fetchChartData = async () => {
     try {
       const response = await fetch(
@@ -64,12 +68,10 @@ const Analytics = () => {
       }
 
       const result = await response.json();
-      console.log("Fetched chart data:", result.data);
-      // ✅ Ensure data is array before setting
       if (Array.isArray(result.data)) {
         setChartData(result.data);
       } else {
-        console.error("Invalid chart data format:", data);
+        console.error("Invalid chart data format");
         setChartData([]);
       }
     } catch (error) {
@@ -77,15 +79,13 @@ const Analytics = () => {
     }
   };
 
-
-  // Fetch officer data (can be replaced with API later)
-  const [selectedMonth, setSelectedMonth] = useState(""); // '' = all months
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   const fetchFraudChartData = async () => {
     try {
       let url = "http://localhost:4000/api/v1/admin/subCategoryStats";
       if (selectedMonth) {
-        url += `?month=${selectedMonth}`; // e.g. ?month=2025-08
+        url += `?month=${selectedMonth}`;
       }
 
       const response = await fetch(url);
@@ -105,92 +105,70 @@ const Analytics = () => {
       console.error("Error fetching chart data:", error);
     }
   };
-  // re-fetch whenever month changes
-  useEffect(() => {
-    fetchFraudChartData();
-  }, [selectedMonth]);
 
   const chartConfig = {
-    total: {
-      label: "Total Cases",
-      color: "#f97316", // orange
-    },
-    resolved: {
-      label: "Resolved Cases",
-      color: "#10b981", // green
-    },
+    total: { label: "Total Cases", color: "#0473fb" },
+    resolved: { label: "Resolved Cases", color: "#042c70" },
   };
-
 
   const fraudChartConfig = {
-    cases: {
-      label: "Cases",
-      color: "#3b82f6", // blue
-    },
+    cases: { label: "Cases", color: "#3b82f6" },
   };
 
-  const [pieChartData, setPieChartData] = useState([]); // Initialize as empty array
+  const [pieChartData, setPieChartData] = useState([]);
   const fetchPieChartData = async () => {
     try {
-      const response = await axios.get("http://localhost:4000/api/v1/admin/moneyLostRecovered");
+      const response = await axios.get(
+        "http://localhost:4000/api/v1/admin/moneyLostRecovered"
+      );
       if (response.status === 200) {
-        // const data = response.data;
-        // console.log("Fetched pie chart data:", data);
-        // console.log("pie totalt data:", data.totalRecovered, data.totalLost, data.recoveryRate);
-        // Ensure data is array before setting
-
         const { success, data } = response.data;
         if (success && data) {
           const transformedData = [
             { name: "Pending", value: data.totalLost },
-            { name: "Recovered", value: data.totalRecovered }
+            { name: "Recovered", value: data.totalRecovered },
           ];
-          console.log("Transformed pie chart data:", transformedData);
           setPieChartData(transformedData);
         }
-
-
       } else {
         console.error("Failed to fetch pie chart data");
       }
-
     } catch (error) {
       console.error("Error fetching pie chart data:", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchChartData();
     fetchFraudChartData();
-    fetchPieChartData(); // Fetch pie chart data on mount
-    // ✅ Add empty dependency array to run only once on mount
+    fetchPieChartData();
   }, []);
-  // const COLORS = ["#f87171", "#34d399"]; // red for Lost, green for Recovered
-  const COLORS = ["#ef4444", "#10b981"]; // bright red and green
 
+  useEffect(() => {
+    fetchFraudChartData();
+  }, [selectedMonth]);
+
+  const COLORS = ["#0473fb", "#042c70"];
 
 
   return (
-    <div className="flex flex-wrap justify-between gap-6 px-10">
-      <Card className="w-[650px] rounded-xl shadow-md">
+    <div className="flex flex-wrap justify-between gap-18 px-10 py-16">
+      {/* Line Chart */}
+      <Card className="w-[650px] rounded-xl shadow-md ">
         <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>Complaint Statistics</CardTitle>
-            <CardDescription>
+            <CardTitle className='text-gray-800 font-semibold text-lg'>Complaint Statistics</CardTitle>
+            <CardDescription className='text-gray-500 text-sm'>
               Month-wise trend of total complaints
             </CardDescription>
           </div>
-
-          {/* Year Filter Dropdown */}
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
             className="border rounded-md px-2 py-1 text-sm"
           >
             {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
+              <option key={year} value={year}>{year}</option>
             ))}
           </select>
         </CardHeader>
@@ -199,75 +177,45 @@ const Analytics = () => {
           <div className="overflow-x-auto">
             <ChartContainer config={chartConfig}>
               {filteredData.length > 0 && (
-                <LineChart
-                  data={filteredData}
-                  width={600}
-                  height={300}
-                  style={{
-                    background: "linear-gradient(180deg, #f9fafb 0%, #eef2ff 100%)",
-                    borderRadius: "12px",
-                    padding: "10px",
-                  }}
+                <motion.div
+                  key={filteredData.length}
+                  initial={{ opacity: 0, pathLength: 0 }}
+                  animate={{ opacity: 1, pathLength: 1 }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
                 >
-                  {/* Gradient Definitions */}
-                  <defs>
-                    <linearGradient id="totalGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={chartConfig.total.color} stopOpacity={0.4} />
-                      <stop offset="95%" stopColor={chartConfig.total.color} stopOpacity={0} />
-                    </linearGradient>
-
-                    <pattern
-                      id="gridPattern"
-                      width="50"
-                      height="50"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <rect width="50" height="50" fill="transparent" />
-                      <line x1="0" y1="0" x2="0" y2="50" stroke="#d1d5db" strokeOpacity="0.15" />
-                      <line x1="0" y1="0" x2="50" y2="0" stroke="#d1d5db" strokeOpacity="0.15" />
-                    </pattern>
-                  </defs>
-
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) =>
-                      new Date(value).toLocaleDateString("en-US", { month: "short" })
-                    }
-                  />
-                  <YAxis domain={[0, (dataMax) => dataMax + 4]} />
-                  <CartesianGrid stroke="url(#gridPattern)" />
-                  <ChartTooltip
-                    content={<ChartTooltipContent />}
-                    cursor={{ strokeDasharray: "4 4", stroke: chartConfig.total.color }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="total"
-                    stroke={chartConfig.total.color}
-                    strokeWidth={3}
-                    dot={{ r: 4, fill: chartConfig.total.color }}
-                    activeDot={{ r: 7, fill: chartConfig.total.color }}
-                    fill="url(#totalGradient)"
-                  />
-                </LineChart>
+                  <LineChart data={filteredData} width={600} height={300}>
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(value) =>
+                        new Date(value).toLocaleDateString("en-US", { month: "short" })
+                      }
+                    />
+                    <YAxis />
+                    <CartesianGrid />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line
+                      type="monotone"
+                      dataKey="total"
+                      stroke={'#0473fb'}
+                      strokeWidth={3}
+                      dot={{ r: 4, fill: '#042c70' }}
+                      activeDot={{ r: 7, fill: '#042c70' }}
+                    />
+                  </LineChart>
+                </motion.div>
               )}
             </ChartContainer>
           </div>
         </CardContent>
       </Card>
 
-
+      {/* Fraud Distribution */}
       <Card className="w-[650px] rounded-xl shadow-md">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Fraud Type Distribution</CardTitle>
-            <CardDescription>Category-wise total fraud cases</CardDescription>
+            <CardTitle className='text-gray-800 font-semibold text-lg'>Fraud Type Distribution</CardTitle>
+            <CardDescription className='text-gray-500 text-sm'>Category-wise total fraud cases</CardDescription>
           </div>
-
-          {/* Month-Year Filter */}
           <div className="flex items-center gap-2">
             <select
               value={selectedMonth}
@@ -278,7 +226,6 @@ const Analytics = () => {
               <option value="2025-08">August 2025</option>
               <option value="2025-07">July 2025</option>
               <option value="2025-06">June 2025</option>
-              {/* add more months dynamically if needed */}
             </select>
             {selectedMonth && (
               <button
@@ -294,113 +241,82 @@ const Analytics = () => {
         <CardContent>
           <div className="overflow-x-auto">
             <ChartContainer config={fraudChartConfig}>
-              <BarChart
-                data={fraudChartData}
-                layout="vertical"
-                width={600}
-                height={300}
-                margin={{ top: 30, right: 30, bottom: 30, left: 20 }}
+              <motion.div
+                key={fraudChartData.length}
+                initial={{ scaleY: 0, opacity: 0 }}
+                animate={{ scaleY: 1, opacity: 1 }}
+                transition={{ duration: 1 }}
+                style={{ transformOrigin: "bottom" }}
               >
-                <CartesianGrid horizontal={false} />
-                <XAxis dataKey="cases" type="number" hide />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="line" />}
-                />
-                <Bar
-                  dataKey="cases"
-                  fill={fraudChartConfig.cases.color}
-                  radius={4}
-                >
-                  <LabelList
-                    dataKey="category"
-                    position="insideLeft"
-                    offset={12}
-                    className="fill-white"
-                    fontSize={12}
-                  />
-                  <LabelList
-                    dataKey="cases"
-                    position="right"
-                    offset={8}
-                    className="fill-foreground"
-                    fontSize={12}
-                  />
-                </Bar>
-              </BarChart>
+                <BarChart data={fraudChartData} layout="vertical" width={600} height={300}>
+                  <CartesianGrid horizontal={false} />
+                  <XAxis dataKey="cases" type="number" hide />
+                  <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+                  <Bar dataKey="cases" fill={'#0473fb'} radius={4}>
+                    <LabelList dataKey="category" position="insideLeft" offset={12} className="fill-white" fontSize={12} />
+                    <LabelList dataKey="cases" position="right" offset={8} className="fill-foreground" fontSize={12} />
+                  </Bar>
+                </BarChart>
+              </motion.div>
             </ChartContainer>
           </div>
         </CardContent>
-
-        <CardFooter className="flex-col items-start gap-2 text-sm">
-          <div className="flex gap-2 font-medium leading-none">
-            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-          </div>
-          <div className="text-muted-foreground">
-            Showing fraud category trends with sample data
-          </div>
-        </CardFooter>
+        
       </Card>
 
-      {/* Complaint Statistics */}
+      {/* Complaint Statistics Bar */}
       <Card className="w-[650px] rounded-xl shadow-md">
         <CardHeader>
-          <CardTitle>Complaint Statistics</CardTitle>
-          <CardDescription>
+          <CardTitle className='text-gray-800 font-semibold text-lg'>Complaint Statistics</CardTitle>
+          <CardDescription className='text-gray-500 text-sm'>
             Month-wise comparison of total vs resolved complaints
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <ChartContainer config={chartConfig}>
-              {/* ✅ Only render chart if data is available */}
               {chartData.length > 0 && (
-                <BarChart data={chartData} width={600} height={300}>
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) =>
-                      new Date(value).toLocaleDateString("en-US", {
-                        month: "short",
-                      })
-                    }
-                  />
-                  <YAxis />
-                  <Bar
-                    dataKey="total"
-                    stackId="a"
-                    fill={chartConfig.total.color}
-                    radius={[0, 0, 4, 4]}
-                  />
-                  <Bar
-                    dataKey="resolved"
-                    stackId="a"
-                    fill={chartConfig.resolved.color}
-                    radius={[4, 4, 0, 0]}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent />}
-                    cursor={false}
-                    defaultIndex={0}
-                  />
-                </BarChart>
+                <motion.div
+                  key={chartData.length}
+                  initial={{ scaleY: 0, opacity: 0 }}
+                  animate={{ scaleY: 1, opacity: 1 }}
+                  transition={{ duration: 1.2 }}
+                  style={{ transformOrigin: "bottom" }}
+                >
+                  <BarChart data={chartData} width={600} height={300}>
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(value) =>
+                        new Date(value).toLocaleDateString("en-US", { month: "short" })
+                      }
+                    />
+                    <YAxis />
+                    <Bar dataKey="total" stackId="a" fill={'#0473fb'} />
+                    <Bar dataKey="resolved" stackId="a" fill={'#042c70'} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </BarChart>
+                </motion.div>
               )}
             </ChartContainer>
           </div>
         </CardContent>
       </Card>
 
-
+      {/* Pie Chart */}
       <Card className="w-[650px] rounded-xl shadow-md">
         <CardHeader>
-          <CardTitle>Pending vs Recovery Amount</CardTitle>
-          <CardDescription>Financial Impact of Fraud Cases</CardDescription>
+          <CardTitle className='text-gray-800 font-semibold text-lg'>Pending vs Recovery Amount</CardTitle>
+          <CardDescription className='text-gray-500 text-sm'>Financial Impact of Fraud Cases</CardDescription>
         </CardHeader>
         <CardContent className="pt-6">
           {pieChartData.length > 0 ? (
-            <div className="h-[300px]">
+            <motion.div
+              key={pieChartData.length}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="h-[300px]"
+            >
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -410,34 +326,27 @@ const Analytics = () => {
                     cx="50%"
                     cy="50%"
                     outerRadius={110}
-                    startAngle={90}       // Flip or rotate direction
+                    startAngle={90}
                     endAngle={-270}
-                    labelLine={false}  // <-- removes connecting lines
+                    labelLine={false}
                     label={({ name, value, percent }) =>
-                      `${name}:  ₹${value} (${(percent * 100).toFixed(1)}%)`
+                      `${name}: ₹${value} (${(percent * 100).toFixed(1)}%)`
                     }
                   >
                     {pieChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    formatter={(value, name, props) => [
-                      `${((value / pieChartData.reduce((a, b) => a + b.value, 0)) * 100).toFixed(1)}%`,
-                      name
-                    ]}
-                  />
+                  <Tooltip />
                   <Legend verticalAlign="bottom" height={36} />
                 </PieChart>
               </ResponsiveContainer>
-            </div>
+            </motion.div>
           ) : (
             <p className="text-center text-gray-500 py-10">No data available</p>
           )}
         </CardContent>
       </Card>
-
-
     </div>
   );
 };

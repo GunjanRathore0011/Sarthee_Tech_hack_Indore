@@ -7,6 +7,7 @@ const InvestigatorSchema = require("../models/InvestigatorSchema")
 const Investigator = require("../models/InvestigatorSchema");
 require('dotenv').config();
 const { io } = require("../index.js");
+const Feedback = require("../models/Feedback.js");
 
 
 
@@ -784,5 +785,38 @@ exports.moneyLostRecovered = async (req, res) => {
       message: "Internal Server Error",
       error: error.message
     });
+  }
+};
+
+
+
+exports.getFeedback = async (req, res) => {
+  try {
+    // fetch feedbacks
+    const feedbacks = await Feedback.find().lean();
+
+    // map user details into feedbacks
+    const enrichedFeedbacks = await Promise.all(
+      feedbacks.map(async (fb) => {
+        const userDetails = await AdditionDetails.findOne({ userId: fb.userId })
+          .select("fullName house street colony district state policeStation pincode")
+          .lean();
+
+        return {
+          ...fb,
+          userDetails: userDetails || null, // attach details if found
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      count: enrichedFeedbacks.length,
+      data: enrichedFeedbacks,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
   }
 };

@@ -10,7 +10,7 @@ import HelpBanner from "@/component/HelpBanner";
 import { useNavigate } from "react-router-dom";
 import ScrollingSlider from "@/component/ScrollingSlider";
 // import { useSelector } from "react-redux";
-
+import homeImg from '../assets/images/Website.png'
 const Home = () => {
   useEffect(() => {
     AOS.init({
@@ -28,8 +28,8 @@ const Home = () => {
   // console.log(currentUser.user.accountType);
   return (
     <>
-      <div className=" w-full bg-gradient-to-r from-[#dbeafe] to-[#f9fafb]">
-  <div className="h-[81vh]   max-w-7xl mx-auto px-6 py-16 pt-26 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <div className=" w-full ">
+  <div className="h-[66vh]   max-w-7xl mx-auto px-6 py-16 pt-26 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
     
     {/* LEFT SIDE → Text Content */}
     <div
@@ -53,11 +53,11 @@ const Home = () => {
     </div>
 
     {/* RIGHT SIDE → Illustration */}
-    <div className="flex justify-center md:justify-end">
+    <div className="flex justify-end md:justify-end">
       <img
-        src={backgroundImage}
+        src={homeImg}
         alt="Cybercrime illustration"
-        className="w-[90%] md:w-[500px] h-auto drop-shadow-2xl"
+        className="w-[90%] md:w-[600px] h-auto drop-shadow-2xl"
       />
     </div>
   </div>
@@ -66,7 +66,7 @@ const Home = () => {
 
       <ComplaintCategory />
       <HomeAwareness></HomeAwareness>
-      <TestimonialSlider></TestimonialSlider>
+      {/* <TestimonialSlider></TestimonialSlider> */}
       <FaqSection></FaqSection>
       <HelpBanner></HelpBanner>
 
