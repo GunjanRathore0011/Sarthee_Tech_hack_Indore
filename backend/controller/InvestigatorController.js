@@ -5,6 +5,7 @@ const User = require("../models/User");
 const mongoose = require('mongoose');
 const caseNoteSchema = require("../models/caseNoteSchema ");
 const mailsender = require("../utils/MailSender");
+const { sendWhatsAppMedia } = require("../utils/twilioClient");
 require('dotenv').config();
 
 exports.createInvestigator = async (req, res) => {
@@ -154,7 +155,7 @@ exports.allAssignedCases = async (req, res) => {
         if (!investigator) {
             return res.status(404).json({ success: false, message: "Investigator not found" });
         }
-     
+
         const assignedCaseIds = investigator.assignedCases.map(c => c.caseId);
         const solvedCaseIds = investigator.solvedCases?.map(c => c.caseId);
 
@@ -177,8 +178,8 @@ exports.allAssignedCases = async (req, res) => {
 
         const activeCases = [];
         const resolvedCases = [];
-        let pendingActions=0;
-        let investigatingCases =0;
+        let pendingActions = 0;
+        let investigatingCases = 0;
         // 3. Har complaint ke liye AdditionalDetails fetch
         for (const c of complaints) {
             const userDetails = await AdditionDetails.findOne({ userId: c.userId })
@@ -199,12 +200,12 @@ exports.allAssignedCases = async (req, res) => {
                 pinCode: userDetails?.pincode || "N/A",
                 userName: userDetails?.fullName || "N/A",
                 description: c.description,
-                dateReceived:  c.incident_datetime,  // Use assignedAt if found, else fallback to complaint creation date
+                dateReceived: c.incident_datetime,  // Use assignedAt if found, else fallback to complaint creation date
                 evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
                 complaint_report: c.complain_report || 'N/A'
             };
-            if(c.status==="AssignInvestigator") pendingActions++;
-            if(c.status==="In_review") investigatingCases++;
+            if (c.status === "AssignInvestigator") pendingActions++;
+            if (c.status === "In_review") investigatingCases++;
 
             // Separate into active and resolved cases
             if (c.status?.toLowerCase() === "resolved") {
@@ -214,7 +215,7 @@ exports.allAssignedCases = async (req, res) => {
             }
         }
 
-         for (const c of solvedComplaints) {
+        for (const c of solvedComplaints) {
             const userDetails = await AdditionDetails.findOne({ userId: c.userId })
                 .select('fullName street district state pincode');
 
@@ -237,8 +238,8 @@ exports.allAssignedCases = async (req, res) => {
                 evidence: Array.isArray(c.screenShots) ? c.screenShots : 'N/A',
                 complaint_report: c.complain_report || 'N/A'
             };
-            if(c.status==="AssignInvestigator") pendingActions++;
-            if(c.status==="In_review") investigatingCases++;
+            if (c.status === "AssignInvestigator") pendingActions++;
+            if (c.status === "In_review") investigatingCases++;
 
             // Separate into active and resolved cases
             if (c.status?.toLowerCase() === "resolved") {
@@ -248,7 +249,7 @@ exports.allAssignedCases = async (req, res) => {
             }
         }
         // console.log("Active Cases:", activeCases);
-        
+
         activeCases.sort((a, b) => new Date(b.dateReceived) - new Date(a.dateReceived));
 
 
@@ -286,7 +287,7 @@ exports.updateComplaintStatus = async (req, res) => {
         //find additional detail by complain id 
         const userInfo = await AdditionDetails.findOne({ complainIds: { $elemMatch: { $eq: complaintId } } });
         const userId = userInfo.userId;
-          if (!userInfo) {
+        if (!userInfo) {
             return res.status(404).json({
                 success: false,
                 message: "User not found."
@@ -294,6 +295,7 @@ exports.updateComplaintStatus = async (req, res) => {
         }
         //find mail
         const user = await User.findOne({ _id: userId });
+
 
         if (!user) {
             return res.status(404).json({
@@ -303,12 +305,27 @@ exports.updateComplaintStatus = async (req, res) => {
         }
 
 
-        
+        // const finduser = await User.findById();
+
+        const phonNo = `+91${user.number}`;
+        const sendmsgE = `Your Cyber Complaint has been updated to the cyber Sentiene." : ${newStatus} ".
+        Remark: "${remark} " `
+        const hindimsg = `आपके साइबर शिकायत की स्थिति
+    Cyber Sentiene में अपडेट कर दी गई है: "${newStatus}".
+    टिप्पणी (Remark): "${remark}"
+         
+    Your Cyber Complaint has been updated to the cyber Sentiene. : "${newStatus}"
+    Remark: "${remark}"`
+        await sendWhatsAppMedia(phonNo, sendmsgE);
+        await sendWhatsAppMedia(phonNo, hindimsg);
+
+
+
         //send mail to user
-        try{
-        const mailResponse = await mailsender(user.email, "Complaint Status Update", `Your Cyber Complaint has been updated to the Cyber Sentiene. ${newStatus}. Remark: ${remark}`);
+        try {
+            const mailResponse = await mailsender(user.email, "Complaint Status Update", `Your Cyber Complaint has been updated to the Cyber Sentiene. ${newStatus}. Remark: ${remark}`);
         }
-        catch(e){
+        catch (e) {
             console.error("error in send mail :", error.message);
         }
         const updatedComplaint = await Complaint.findByIdAndUpdate(
@@ -325,27 +342,27 @@ exports.updateComplaintStatus = async (req, res) => {
             },
             { new: true }
         );
-        console.log("complaint ID" , complaintId)
-      
-    const investigatorId = updatedComplaint.assignedTo;
-    if (investigatorId) {
-        const investigator = await Investigator.findById(investigatorId);
-        if (investigator) {
-            // Update the assignedCases array in Investigator
-            // investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
-            if (newStatus === "Resolved" || newStatus === "Rejected") {
-            investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
-                investigator.solvedCases.push({ caseId: complaintId, solvedAt: new Date() });
+        console.log("complaint ID", complaintId)
+
+        const investigatorId = updatedComplaint.assignedTo;
+        if (investigatorId) {
+            const investigator = await Investigator.findById(investigatorId);
+            if (investigator) {
+                // Update the assignedCases array in Investigator
+                // investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
+                if (newStatus === "Resolved" || newStatus === "Rejected") {
+                    investigator.assignedCases = investigator.assignedCases.filter(ac => ac.caseId.toString() !== complaintId);
+                    investigator.solvedCases.push({ caseId: complaintId, solvedAt: new Date() });
+                }
+                await investigator.save();
             }
-            await investigator.save();
         }
-    }
 
         if (!updatedComplaint) {
             return res.status(404).json({ message: "Complaint not found" });
         }
 
-        res.status(200).json({success:true, message: "Status updated successfully", data: updatedComplaint });
+        res.status(200).json({ success: true, message: "Status updated successfully", data: updatedComplaint });
     } catch (error) {
         console.error("Error updating complaint status:", error);
         res.status(500).json({ message: "Internal server error", error: error.message });
@@ -361,9 +378,9 @@ exports.AddCaseNoteSchema = async (req, res) => {
         }
 
         const newNote = new caseNoteSchema({
-            caseId:complaintId,
+            caseId: complaintId,
             investigatorId,
-            noteText:note,
+            noteText: note,
             createdAt: new Date()
         });
 
@@ -382,7 +399,7 @@ exports.getCaseNotes = async (req, res) => {
         const { complaintId } = req.query;
         console.log("Fetching notes for complaintId:", complaintId);
 
-        const notes = await caseNoteSchema.find({caseId:complaintId })
+        const notes = await caseNoteSchema.find({ caseId: complaintId })
             .populate("investigatorId", "name")
             .sort({ createdAt: 1 });
         console.log("Notes:", notes);
