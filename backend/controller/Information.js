@@ -13,6 +13,13 @@ const axios = require('axios');
 const path = require('path');
 const puppeteer = require('puppeteer');
 const cloudinary = require('cloudinary').v2;
+const crypto = require("crypto");
+
+const { sendWhatsAppText, sendWhatsAppMedia } = require("../utils/twilioClient.js");
+function genTrackingId() {
+  return crypto.randomBytes(4).toString("hex").toUpperCase(); 
+}
+
 
 
 // import Jimp from "jimp";
@@ -20,7 +27,7 @@ const Jimp = require('jimp');
 const Tesseract = require('tesseract.js');
 
 //import virusTotal functions
-const { scanBufferWithVT  } = require("../utils/virusTotal.js");
+const { scanBufferWithVT } = require("../utils/virusTotal.js");
 
 const jsQR = require("jsqr");
 
@@ -73,7 +80,7 @@ async function detectAadhaarFromBuffer(fileBuffer) {
 
     // jsQR will return an object if a QR code pattern is found
     const code = jsQR(imageData.data, imageData.width, imageData.height);
-    
+
     // We only need to check if the 'code' object exists
     if (code) {
       qrFound = true;
@@ -248,16 +255,16 @@ exports.complaintInformation = async (req, res) => {
           console.warn(`⛔ Skipping ${file.name} - File size exceeds limit`);
           continue;
         }
-    //  console.log("pdf file :",file); 
+        //  console.log("pdf file :",file); 
         try {
           // ✅ 2. First scan file with VirusTotal
           const riskLevel = await scanBufferWithVT(file.data, file.name);
           console.log(`File scanned with VT:`, riskLevel);
           // 👉 scanWithVirusTotal = helper fn that returns "safe" | "high-risk"
-            const uploaded = await UploadToCloudinary(file, "evidence");
-            console.log("file url", uploaded.secure_url);
+          const uploaded = await UploadToCloudinary(file, "evidence");
+          console.log("file url", uploaded.secure_url);
 
-      //  console.log(`File ${file.name} scanned with VT:`, riskLevel);
+          //  console.log(`File ${file.name} scanned with VT:`, riskLevel);
           if (riskLevel.verdict !== "high-risk") {
             // ✅ 3. Safe → upload to Cloudinary
             // const uploaded = await UploadToCloudinary(file, "evidence");
@@ -271,7 +278,7 @@ exports.complaintInformation = async (req, res) => {
           } else {
             // 🚨 Risky → don't upload to Cloudinary
             riskFiles.push({
-              Url : uploaded?.secure_url || null,
+              Url: uploaded?.secure_url || null,
               note: "⚠️ Marked as HIGH-RISK by VirusTotal. Do not open directly."
             });
             console.warn(`🚨 File flagged as risky: ${file.name}`);
@@ -301,7 +308,7 @@ exports.complaintInformation = async (req, res) => {
       userId,
       category,
       subCategory,
-      lost_money:parseInt(lost_money?.fraud),
+      lost_money: parseInt(lost_money?.fraud),
       delay_in_report,
       reason_of_delay,
       description,
@@ -313,7 +320,10 @@ exports.complaintInformation = async (req, res) => {
       priority: prior,
       screenShots: imageUrls,
       incident_datetime,
-      riskFiles:riskFiles,
+      riskFiles: riskFiles,
+      trackingId: genTrackingId(),
+      // reportUrl: "",   // initially empty, baad me pdf upload hote hi update karenge
+
     });
 
 
@@ -397,7 +407,21 @@ exports.complaintInformation = async (req, res) => {
     await complaintInfo.save();
 
     // console.log("Complaint report URL saved:", complaintInfo.complain_report);
+    console.log(user.userName)
+    console.log(user.number)
 
+    // fetch user phone number
+const phoneE164 = `+91${user.number}`;
+const messageBody =
+`Hi ${user.userName}, ✅ CyberSentinel received your complaint.
+Tracking ID: ${complaintInfo.trackingId}
+Current status: Pending
+Reply here with your ID anytime to get live status.
+Report attached below.`;
+
+// WhatsApp bhejna
+await sendWhatsAppMedia(phoneE164, messageBody, [complaintInfo.complain_report]);
+await sendWhatsAppText("+917987019811", "Hello from Twilio Sandbox ✅");
 
 
 
@@ -477,34 +501,34 @@ exports.complaintInformation = async (req, res) => {
       data: Datasend,
     });
 
-  // verify the evidence files
-  //if any evidence files are present, send them to Flask for verification
-if (complaintInfo.screenShots && complaintInfo.screenShots.length > 0) {
-  console.log("Sending evidence files to Flask for verification...");
-  try {
-    const evidences_link = complaintInfo.screenShots || [];
-    const flaskResponse = await axios.post(
-      "http://127.0.0.1:5000/verifyDocuments",
-      { Evidences_link: evidences_link } // send as JSON object
-    );
+    // verify the evidence files
+    //if any evidence files are present, send them to Flask for verification
+    if (complaintInfo.screenShots && complaintInfo.screenShots.length > 0) {
+      console.log("Sending evidence files to Flask for verification...");
+      try {
+        const evidences_link = complaintInfo.screenShots || [];
+        const flaskResponse = await axios.post(
+          "http://127.0.0.1:5000/verifyDocuments",
+          { Evidences_link: evidences_link } // send as JSON object
+        );
 
-    // Flask should return an array of results, one per screenshot
-    const isValid = flaskResponse.data.response;
-    console.log("Flask verification result:", isValid);
+        // Flask should return an array of results, one per screenshot
+        const isValid = flaskResponse.data.response;
+        console.log("Flask verification result:", isValid);
 
-    // If isValid is not an array, convert it to an array for consistency
-    complaintInfo.isScreenshotTampered = Array.isArray(isValid)
-      ? isValid
-      : Array(complaintInfo.screenShots.length).fill(isValid);
+        // If isValid is not an array, convert it to an array for consistency
+        complaintInfo.isScreenshotTampered = Array.isArray(isValid)
+          ? isValid
+          : Array(complaintInfo.screenShots.length).fill(isValid);
 
-    await complaintInfo.save();
-  } catch (flaskError) {
-    console.error("Flask verification error:", flaskError.message);
-    // Default to all 0 (not tampered) if error
-    complaintInfo.isScreenshotTampered = Array(complaintInfo.screenShots.length).fill(0);
-    await complaintInfo.save();
-  }
-}
+        await complaintInfo.save();
+      } catch (flaskError) {
+        console.error("Flask verification error:", flaskError.message);
+        // Default to all 0 (not tampered) if error
+        complaintInfo.isScreenshotTampered = Array(complaintInfo.screenShots.length).fill(0);
+        await complaintInfo.save();
+      }
+    }
 
   } catch (error) {
     console.error("❌ complaintInformation Error:", error);

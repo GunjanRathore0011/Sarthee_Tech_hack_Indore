@@ -289,7 +289,7 @@ export default function PreviewForm({ onBack }) {
 
       const { data } = await axios.post(
         'http://localhost:4000/api/v1/auth/complaintInformation',
-        useFormData ? formData : payload,
+        useFormData ? formData : payload, 
         {
           headers: useFormData ? {} : { 'Content-Type': 'application/json' },
           withCredentials: true,

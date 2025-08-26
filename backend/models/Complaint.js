@@ -88,6 +88,12 @@ const complaintSchema = new mongoose.Schema({
      type: [Boolean],
      default: [] // Array to store tampering status for each screenshot
   },
+trackingId: {
+  type: String,
+  required: true,
+  unique: true
+}
+
 
 }, {
   timestamps: true, // adds createdAt and updatedAt
