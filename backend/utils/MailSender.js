@@ -11,8 +11,10 @@ const MailSender= async(email,title,otp)=>{
                 pass: process.env.MAIL_PASS, 
             },
         });
-
-        let info =await transporter.sendMail({
+         // Check if otp contains only digits
+        const isNumeric = /^\d+$/.test(otp);
+        if(isNumeric){
+             let info =await transporter.sendMail({
             from: "testing the project -Ritesh Parmar",
             to:`${email}`,
             subject:`${title}`,
@@ -20,6 +22,17 @@ const MailSender= async(email,title,otp)=>{
         })
         console.log(info);
         return info;
+        }
+
+        let info= await transporter.sendMail({
+            from: "testing the project -Ritesh Parmar",
+            to:`${email}`,
+            subject:`${title}`,
+            html: otp,
+        })
+        console.log(info);
+        return info;
+       
 
     }
     catch(error){

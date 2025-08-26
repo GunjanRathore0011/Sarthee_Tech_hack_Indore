@@ -4,7 +4,7 @@ const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const mongoose = require('mongoose');
 const caseNoteSchema = require("../models/caseNoteSchema ");
-
+const mailsender = require("../utils/MailSender");
 require('dotenv').config();
 
 exports.createInvestigator = async (req, res) => {
@@ -277,6 +277,40 @@ exports.updateComplaintStatus = async (req, res) => {
     try {
         const { complaintId, newStatus, remark } = req.body;
 
+        if (!complaintId || !newStatus) {
+            return res.status(400).json({
+                success: false,
+                message: "Complaint ID and new status are required."
+            });
+        }
+        //find additional detail by complain id 
+        const userInfo = await AdditionDetails.findOne({ complainIds: { $elemMatch: { $eq: complaintId } } });
+        const userId = userInfo.userId;
+          if (!userInfo) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
+            });
+        }
+        //find mail
+        const user = await User.findOne({ _id: userId });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
+            });
+        }
+
+
+        
+        //send mail to user
+        try{
+        const mailResponse = await mailsender(user.email, "Complaint Status Update", `Your Cyber Complaint has been updated to the Cyber Sentiene. ${newStatus}. Remark: ${remark}`);
+        }
+        catch(e){
+            console.error("error in send mail :", error.message);
+        }
         const updatedComplaint = await Complaint.findByIdAndUpdate(
             complaintId,
             {

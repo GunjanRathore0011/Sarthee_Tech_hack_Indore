@@ -14,6 +14,7 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const cloudinary = require('cloudinary').v2;
 const crypto = require("crypto");
+const mailsender = require("../utils/MailSender");
 
 const { sendWhatsAppText, sendWhatsAppMedia } = require("../utils/twilioClient.js");
 function genTrackingId() {
@@ -409,7 +410,15 @@ exports.complaintInformation = async (req, res) => {
     // console.log("Complaint report URL saved:", complaintInfo.complain_report);
     console.log(user.userName)
     console.log(user.number)
+    console.log(user.email)
 
+    //send mail
+      try{
+        const mailResponse = await mailsender(user.email, "CyberSentinel received your complaint", "Your complaint has been received and logged into the system. Our team will initiate the review process shortly");
+      }
+        catch(e){
+            console.error("error in send mail :", e.message);
+        }
     // fetch user phone number
 const phoneE164 = `+91${user.number}`;
 const messageBody =

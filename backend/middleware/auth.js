@@ -8,6 +8,7 @@ exports.isAuthenticatedUser = (req, res, next) => {
       req.user = decoded; // Attach user info to request
       return next(); // Proceed to protected route
     } else {
+      console.log("Token not found in session");
       return res.status(401).json({ message: "Unauthorized" });
     }
   } catch (error) {
