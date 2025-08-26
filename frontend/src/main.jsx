@@ -31,6 +31,7 @@ createRoot(document.getElementById('root')).render(
             theme="colored"
           />
         </BrowserRouter>
+        
       </PersistGate>
     </Provider>
   </StrictMode>
