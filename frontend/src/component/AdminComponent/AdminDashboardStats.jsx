@@ -36,7 +36,7 @@ const AdminDashboardStats = () => {
             resolvedCases: solvedComplaints,
             pendingCases,
             highPriority: highestPriorityCasesRemaining,
-            avgResolutionTime: '—', // Replace with real calculation if backend sends it
+            avgResolutionTime: '3d-5h', // Replace with real calculation if backend sends it
           });
         }
       } catch (error) {

@@ -338,9 +338,11 @@ exports.assignInvestigator = async (req, res) => {
       message: `New complaint assign : ${complaintId}`
     });
 
+
     //send whatsapp msg
     const finduser = await User.findById(complain.userId);
     const phonNo = `+91${finduser.number}`;
+    console.log("Aakjkldf")
  
     try{
     const sendmsg1 = `नमस्ते,

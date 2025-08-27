@@ -45,7 +45,7 @@ const TrackComplaint = () => {
     });
 
   return (
-    <div className="h-[75vh] w-full bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center px-4 py-2">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 to-white flex flex-col items-center justify-center px-4 py-2">
       <div className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-3xl transition-all duration-300">
         <h2 className="text-3xl md:text-4xl font-extrabold text-blue-700 mb-4 text-center">
           Track Your Cyber Complaint
