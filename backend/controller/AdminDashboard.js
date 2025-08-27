@@ -341,9 +341,8 @@ exports.assignInvestigator = async (req, res) => {
     //send whatsapp msg
     const finduser = await User.findById(complain.userId);
     const phonNo = `+91${finduser.number}`;
-    const sendmsg = `नमस्ते,आपकी शिकायत संख्या ${complain._id} को एक इन्वेस्टिगेटर को सौंप दिया गया है। हम आपके साथ हुए धोखाधड़ी के मामले को गंभीरता से ले रहे हैं और हमारी टीम जल्द ही इसकी जांच शुरू कर देगी।`
-    const sendmsgE = `Hello,Your complaint, bearing number ${complain._id}, has been assigned to an investigator. We are taking your fraud case very seriously, and our team will begin its investigation shortly.`
-    
+ 
+    try{
     const sendmsg1 = `नमस्ते,
     आपकी शिकायत संख्या "${complain._id}" को  इन्वेस्टिगेटर को सौंप दिया गया है। 
     हम आपके साथ हुए धोखाधड़ी के मामले को गंभीरता से ले रहे हैं और हमारी टीम जल्द ही इसकी जांच शुरू कर देगी।
@@ -353,9 +352,11 @@ exports.assignInvestigator = async (req, res) => {
     has been assigned to an investigator.
     We are taking your fraud case very seriously, and our team will begin its investigation shortly`
     
-    // await sendWhatsAppText(phonNo, sendmsg);
-    await sendWhatsAppMedia(phonNo, sendmsgE);
-
+    await sendWhatsAppMedia(phonNo,sendmsg1 );
+    }
+    catch (e){
+      console.log("msg not sended : " ,e);
+    }
 
 
     res.status(200).json({

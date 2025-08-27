@@ -39,7 +39,6 @@ const AdminNavbar = () => {
                     <div className="flex gap-4 items-center">
                         <button className="hover:underline">हिन्दी</button>
                         <button className="hover:underline">English</button>
-
                     </div>
                 </div>
             </div>

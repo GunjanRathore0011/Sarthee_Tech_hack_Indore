@@ -7,20 +7,32 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
-const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+// Madhya Pradesh bounds (used in both components)
+const mpBounds = [
+  [21.2, 74.0], // SW
+  [26.9, 82.0], // NE
+];
 
-// Get lat/lng from pin using Nominatim
+// Load cache from localStorage
+const coordCache = JSON.parse(localStorage.getItem("coordCache") || "{}");
+
+// Get lat/lng from pin using Nominatim with caching
 const getCoordinates = async (pin) => {
+  if (coordCache[pin]) return coordCache[pin]; // return cached result
+
   try {
     const url = `https://nominatim.openstreetmap.org/search?postalcode=${pin}&country=India&format=json`;
     const res = await fetch(url);
     const data = await res.json();
     if (data.length > 0) {
-      return {
+      const result = {
         lat: parseFloat(data[0].lat),
         lng: parseFloat(data[0].lon),
         displayName: data[0].display_name,
       };
+      coordCache[pin] = result;
+      localStorage.setItem("coordCache", JSON.stringify(coordCache)); // persist cache
+      return result;
     }
   } catch (err) {
     console.error("Error fetching coordinates for pin:", pin, err);
@@ -33,14 +45,10 @@ const fetchPinDataFromAPI = async () => {
   try {
     const res = await fetch("http://localhost:4000/api/v1/admin/mapVisualize", {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch pin data");
-    }
+    if (!res.ok) throw new Error("Failed to fetch pin data");
 
     const response = await res.json();
     console.log("Fetched pin data:", response.data);
@@ -61,8 +69,8 @@ function HeatmapLayer({ points }) {
     const heatPoints = points.map((p) => [p.lat, p.lng, p.intensity]);
 
     const heatOptions = {
-      radius: 50,   // larger radius
-      blur: 35,     // smooth blending
+      radius: 50,
+      blur: 35,
       maxZoom: 12,
       gradient: {
         0.0: "blue",
@@ -78,11 +86,7 @@ function HeatmapLayer({ points }) {
     heatLayer.addTo(map);
 
     // Fit map to Madhya Pradesh bounds
-    const bounds = [
-      [21.2, 74.0], // SW
-      [26.9, 82.0], // NE
-    ];
-    map.fitBounds(bounds);
+    map.fitBounds(mpBounds);
 
     return () => {
       map.removeLayer(heatLayer);
@@ -96,7 +100,7 @@ const CrimeMap = () => {
   const [mapData, setMapData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const center = [22.7196, 75.8577];
+  const center = [22.7196, 75.8577]; // Indore approx
   const zoom = 7;
 
   useEffect(() => {
@@ -104,26 +108,22 @@ const CrimeMap = () => {
       setLoading(true);
 
       const pinData = await fetchPinDataFromAPI();
-      const processedPoints = [];
-
       const maxCases = Math.max(1, ...pinData.map((item) => item.cases));
 
-      for (const item of pinData) {
-        const coords = await getCoordinates(item.pin);
-        if (coords) {
+      // Fetch coordinates in parallel with caching
+      const results = await Promise.all(
+        pinData.map(async (item) => {
+          const coords = await getCoordinates(item.pin);
+          if (!coords) return null;
+
           const baseIntensity = item.cases / maxCases;
           const adjustedIntensity = Math.pow(baseIntensity, 0.7) * 15; // Boosted
 
-          processedPoints.push({
-            ...item,
-            ...coords,
-            intensity: adjustedIntensity,
-          });
-        }
-        await delay(100);
-      }
+          return { ...item, ...coords, intensity: adjustedIntensity };
+        })
+      );
 
-      setMapData(processedPoints);
+      setMapData(results.filter(Boolean)); // remove nulls
       setLoading(false);
     }
 
@@ -131,7 +131,7 @@ const CrimeMap = () => {
   }, []);
 
   return (
-    <Card className="shadow-xl border-gray-300 mx-auto max-w-6xl">
+    <Card className="shadow-xl border-gray-300 mx-auto max-w-6xl min-h-screen">
       <CardHeader>
         <CardTitle className="text-blue-700 text-2xl font-bold text-center mb-2">
           MP Cybercrime Heatmap
@@ -151,6 +151,9 @@ const CrimeMap = () => {
             center={center}
             zoom={zoom}
             scrollWheelZoom={true}
+            bounds={mpBounds}
+            maxBounds={mpBounds}        // prevents panning outside MP
+            maxBoundsViscosity={1.0}     // hard lock
             className="h-full w-full"
           >
             <TileLayer
@@ -159,7 +162,7 @@ const CrimeMap = () => {
             />
             {!loading && <HeatmapLayer points={mapData} />}
 
-            {/* Interactive invisible markers for popups */}
+            {/* Interactive transparent markers for popups */}
             {!loading &&
               mapData.map((point, idx) => (
                 <CircleMarker

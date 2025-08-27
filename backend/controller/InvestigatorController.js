@@ -306,20 +306,23 @@ exports.updateComplaintStatus = async (req, res) => {
 
 
         // const finduser = await User.findById();
-
-        const phonNo = `+91${user.number}`;
-        const sendmsgE = `Your Cyber Complaint has been updated to the cyber Sentiene." : ${newStatus} ".
+        try {
+            const phonNo = `+91${user.number}`;
+            const sendmsgE = `Your Cyber Complaint has been updated to the cyber Sentiene." : ${newStatus} ".
         Remark: "${remark} " `
-        const hindimsg = `आपके साइबर शिकायत की स्थिति
+            const hindimsg = `आपके साइबर शिकायत की स्थिति
     Cyber Sentiene में अपडेट कर दी गई है: "${newStatus}".
     टिप्पणी (Remark): "${remark}"
          
     Your Cyber Complaint has been updated to the cyber Sentiene. : "${newStatus}"
     Remark: "${remark}"`
-        await sendWhatsAppMedia(phonNo, sendmsgE);
-        await sendWhatsAppMedia(phonNo, hindimsg);
+            await sendWhatsAppMedia(phonNo, sendmsgE);
+            await sendWhatsAppMedia(phonNo, hindimsg);
 
-
+        }
+        catch {
+            console.log("msg not sended to the user");
+        }
 
         //send mail to user
         try {

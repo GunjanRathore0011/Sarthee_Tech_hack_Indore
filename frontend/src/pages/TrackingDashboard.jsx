@@ -210,7 +210,7 @@ const TrackingDashboard = () => {
   }, [caseId, viewMode]);
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen p-6">
       <h2 className="text-xl font-bold mb-4">Investigator Tracking Dashboard</h2>
       <div className="mb-4">
         <input

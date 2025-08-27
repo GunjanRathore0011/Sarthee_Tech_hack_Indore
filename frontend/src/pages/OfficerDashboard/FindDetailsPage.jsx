@@ -44,7 +44,7 @@ function FindDetailsPage() {
               : "bg-white text-blue-600 border border-blue-600"
           }`}
         >
-          🌐Scan link
+          🔗Scan link
            </button>
       </div>
 

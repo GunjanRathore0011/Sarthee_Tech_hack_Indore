@@ -487,8 +487,9 @@ exports.complaintInformation = async (req, res) => {
     });
 
     // fetch user phone number
-    const phoneE164 = `+91${user.number}`;
-    const sendmsg = `Hy ${user.userName},
+    try {
+      const phoneE164 = `+91${user.number}`;
+      const sendmsg = `Hy ${user.userName},
 CyberSentinel को आपकी शिकायत मिल गई है।
 ट्रैकिंग आईडी: "${complaintInfo._id}"
 वर्तमान स्थिति: विचाराधीन
@@ -498,11 +499,17 @@ Hi ${user.userName}, CyberSentinel received your complaint.
 Tracking ID: "${complaintInfo._id}"
 Current status: Pending
 Report attached below.`
-    // WhatsApp bhejna
-    // await sendWhatsAppText(phoneE164, sendmsg);
+      // WhatsApp bhejna
+      // await sendWhatsAppText(phoneE164, sendmsg);
 
-    await sendWhatsAppMedia(phoneE164, sendmsg, [complaintInfo.complain_report]);
-    // await sendWhatsAppText("+917987019811", "Hello from Twilio Sandbox ✅");
+      await sendWhatsAppMedia(phoneE164, sendmsg, [complaintInfo.complain_report]);
+    }
+    catch (e) {
+      console.log("msg not sended to the user");
+    }
+
+
+
     //send mail
     try {
       const mailResponse = await mailsender(user.email, "CyberSentinel received your complaint", "Your complaint has been received and logged into the cyber system. We find your complaint very important to us.And try to resolve it as soon as possible. Our team will initiate the review process shortly");
