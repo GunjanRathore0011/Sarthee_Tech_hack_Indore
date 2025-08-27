@@ -22,7 +22,7 @@ export default function ScamDetector() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex justify-center items-center text-gray-900 p-6">
+    <div className="h-[80vh] bg-white flex justify-center items-center text-gray-900 p-6">
 
       
       <div className="bg-white border border-gray-300 rounded-xl shadow-lg p-8 w-[650px]">
