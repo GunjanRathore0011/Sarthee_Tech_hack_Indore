@@ -119,3 +119,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 
+#google_translate_element {
+  display: none; /* hides the dropdown */
+/* } */
+/* .goog-te-banner-frame.skiptranslate, 
+.goog-te-gadget-icon {
+  display: none !important; */
+/* }
+body {
+  top: 0px !important;
+} */ 

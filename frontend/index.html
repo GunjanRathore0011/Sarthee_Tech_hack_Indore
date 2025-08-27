@@ -14,24 +14,66 @@
   <!-- React Root -->
   <div id="root"></div>
 
-  <!-- 🔹 Google Translate Dropdown (appears on top of page) -->
-  <div id="google_translate_element" style="position: fixed; top: 10px; right: 20px; z-index: 9999;"></div>
+<!-- Navbar me jaha chahte ho waha ye div add karo -->
+<div id="custom_translate" class="custom-translate">
+  🌐 Select Language
+  <select id="languageSwitcher" onchange="translateLanguage(this.value)">
+    <option value="">Select</option>
+    <option value="en">English</option>
+    <option value="hi">हिंदी</option>
+  </select>
+</div>
 
-  <!-- 🔹 Google Translate Script
-  <script type="text/javascript">
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement(
-        {
-          pageLanguage: 'en',              // Default site language
-          includedLanguages: 'en,hi',      // Allowed languages
-          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-        },
-        'google_translate_element'
-      );
+<!-- Google Translate hidden container -->
+<div id="google_translate_element" style="display:none;"></div>
+
+<!-- Google Translate Script -->
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      {
+        pageLanguage: 'en',
+        includedLanguages: 'en,hi',
+        autoDisplay: false
+      },
+      'google_translate_element'
+    );
+  }
+
+  // Custom dropdown se Google ke original select box ko trigger karna
+  function translateLanguage(lang) {
+    if (lang === '') return;
+
+    var selectField = document.querySelector("select.goog-te-combo");
+    if (selectField) {
+      selectField.value = lang;
+      selectField.dispatchEvent(new Event("change"));
     }
-  </script> -->
-  <script type="text/javascript"
-    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    // dropdown reset (taaki close ho jaye)
+    document.getElementById("languageSwitcher").value = "";
+  }
+</script>
+
+<script type="text/javascript"
+  src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- Styling -->
+<style>
+  .custom-translate {
+    position: absolute; /* ya navbar ke hisaab se flex */
+    right: 20px;
+    top: 0px;
+    color: white;
+  }
+  .custom-translate select {
+    margin-left: 5px;
+    background: white;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+</style>
 
   <!-- React Entry -->
   <script type="module" src="/src/main.jsx"></script>

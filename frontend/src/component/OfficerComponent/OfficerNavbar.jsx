@@ -33,14 +33,8 @@ const OfficerNavbar = () => {
             <span className="font-semibold">Government of Madhya Pradesh</span>
           </div>
 
-          {/* Right utilities (language / accessibility / login) */}
-          <div className="flex gap-4 items-center">
-            <button className="hover:underline">हिन्दी</button>
-            <button className="hover:underline">English</button>
-
-          </div>
-        </div>
-      </div>
+                </div>
+            </div>
       {/* Top Officer Header */}
       <nav className="bg-white text-black border-b shadow-md border-gray-200 py-4 px-8 flex justify-between items-center">
         {/* Left: Logo + Title */}

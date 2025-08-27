@@ -58,7 +58,7 @@ const OfficerNotifications = () => {
         title="Notifications"
         className="relative focus:outline-none"
       >
-        <FiBell className="hover:text-blue-600 transition duration-150" size={24} />
+        <FiBell className="hover:text-blue-600 transition duration-150" size={20} />
         {count > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full px-1">
             {count}

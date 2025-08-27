@@ -19,11 +19,9 @@ const TopBanner = () => {
                     </div>
 
                     {/* Right utilities (language / accessibility / login) */}
-                    <div className="flex gap-4 items-center">
-                        <button className="hover:underline">हिन्दी</button>
-                        <button className="hover:underline">English</button>
-
+                    <div className="flex gap-2">
                     </div>
+
                 </div>
             </div>
 
@@ -60,7 +58,7 @@ const TopBanner = () => {
 
                     {/* RIGHT SECTION */}
                     <div className="flex items-center gap-4">
-                        
+
                         <img
                             src={smart_city}
                             alt="Azadi Logo"
