@@ -82,6 +82,7 @@ const investigatorRouter = require("./router/Investigator");
 const patternsRouter = require("./router/Patterns");
 const platformRequestRoutes = require("./router/platformRequestRoutes");
 const trackingRoutes = require("./router/trackingRoutes");
+const { sendWhatsAppMedia } = require("./utils/twilioClient");
 
 
 app.get("/", (req, res) => {
@@ -112,7 +113,7 @@ io.on("connection", (socket) => {
 // ✅ Start server with Socket.IO
 (async () => {
   try {
-    // await initTelegram(); // 🔑 try to connect
+    await initTelegram(); // 🔑 try to connect
     console.log("Tel-G connected ✅");
   } catch (err) {
     console.error("⚠️ Telegram init failed:", err.message);
@@ -126,6 +127,25 @@ io.on("connection", (socket) => {
 })();
 
 
+const sendmsg = async ()=>{
+  await sendWhatsAppMedia(+919753230663, "Hy ritesh");
+  await sendWhatsAppMedia(+919302600091, "Hy jeevan");
+  console.log("msg send");
+
+};
+
+// msg send test twilo work or not uncomment the below line 
+// sendmsg(); 
+
+
 // ✅ Connect DB & Cloudinary
 dbconnect();
 connectCloudinary();
+
+// sendmsg();
+
+
+
+
+
+

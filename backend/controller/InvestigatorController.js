@@ -308,15 +308,19 @@ exports.updateComplaintStatus = async (req, res) => {
         // const finduser = await User.findById();
         try {
             const phonNo = `+91${user.number}`;
-            const sendmsgE = `Your Cyber Complaint has been updated to the cyber Sentiene." : ${newStatus} ".
-        Remark: "${remark} " `
-            const hindimsg = `आपके साइबर शिकायत की स्थिति
-    Cyber Sentiene में अपडेट कर दी गई है: "${newStatus}".
-    टिप्पणी (Remark): "${remark}"
-         
-    Your Cyber Complaint has been updated to the cyber Sentiene. : "${newStatus}"
-    Remark: "${remark}"`
-            await sendWhatsAppMedia(phonNo, sendmsgE);
+const hindimsg = 
+`*आपकी साइबर शिकायत को Cyber Sentinel द्वारा अपडेट किया गया है।*
+
+*स्थिति:* _${newStatus}_  
+*टिप्पणी (Remark):* \`${remark}\`
+
+---
+
+*Your Cyber Complaint has been updated by Cyber Sentinel.*  
+*Status:* _${newStatus}_  
+*Remark:* \`${remark}\``
+
+            // await sendWhatsAppMedia(phonNo, sendmsgE);
             await sendWhatsAppMedia(phonNo, hindimsg);
 
         }

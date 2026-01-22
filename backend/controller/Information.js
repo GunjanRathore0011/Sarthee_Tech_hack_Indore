@@ -489,23 +489,29 @@ exports.complaintInformation = async (req, res) => {
     // fetch user phone number
     try {
       const phoneE164 = `+91${user.number}`;
-      const sendmsg = `Hy ${user.userName},
-CyberSentinel को आपकी शिकायत मिल गई है।
-ट्रैकिंग आईडी: "${complaintInfo._id}"
-वर्तमान स्थिति: विचाराधीन
-रिपोर्ट नीचे दी गई है।
+     const sendmsg = 
+`*Hy ${user.userName},*
 
-Hi ${user.userName}, CyberSentinel received your complaint.
-Tracking ID: "${complaintInfo._id}"
-Current status: Pending
+CyberSentinel को आपकी शिकायत मिल गई है।  
+*ट्रैकिंग आईडी:* \`${complaintInfo._id}\`  
+*वर्तमान स्थिति:* _विचाराधीन_  
+रिपोर्ट नीचे दी गई है।  
+
+---
+
+*Hi ${user.userName},* CyberSentinel received your complaint.  
+*Tracking ID:* \`${complaintInfo._id}\`  
+*Current status:* _Pending_  
 Report attached below.`
+
       // WhatsApp bhejna
       // await sendWhatsAppText(phoneE164, sendmsg);
 
       await sendWhatsAppMedia(phoneE164, sendmsg, [complaintInfo.complain_report]);
+      console.log("msg sended successfully");
     }
     catch (e) {
-      console.log("msg not sended to the user");
+      console.log("msg not sended to the user",e);
     }
 
 
