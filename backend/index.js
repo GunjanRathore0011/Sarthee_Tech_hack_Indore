@@ -142,7 +142,6 @@ const sendmsg = async ()=>{
 dbconnect();
 connectCloudinary();
 
-// sendmsg();
 
 
 
